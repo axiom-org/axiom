@@ -7,8 +7,8 @@ if [ ! -d "$LOGS" ]; then
     exit 1
 fi
 
-if [ `pwd | sed s/.*src//` != "/github.com/lacker/coinkit" ]; then
-    echo "please run this from the coinkit directory"
+if [ `pwd | sed s/.*src//` != "/github.com/axiom-org/axiom" ]; then
+    echo "please run this from the axiom directory"
     exit 1
 fi
 
