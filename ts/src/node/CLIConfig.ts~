@@ -1,6 +1,0 @@
-import * as os from "os";
-
-// A singleton object that keeps itself synced to disk.
-export default class CLIConfig {
-  constructor() {}
-}
