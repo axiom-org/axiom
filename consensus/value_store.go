@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // This is an id for the full slot value. The ValueStore should be able to

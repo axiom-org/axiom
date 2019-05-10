@@ -6,9 +6,9 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/lacker/coinkit/consensus"
-	"github.com/lacker/coinkit/data"
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/consensus"
+	"github.com/axiom-org/axiom/data"
+	"github.com/axiom-org/axiom/util"
 )
 
 func sendNodeToNodeMessages(source *Node, target *Node, t *testing.T) {

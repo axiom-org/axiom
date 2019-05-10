@@ -11,8 +11,8 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 
-	"github.com/lacker/coinkit/data"
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/data"
+	"github.com/axiom-org/axiom/util"
 )
 
 var DatabasesInUse *util.SafeSet = util.NewSafeSet()

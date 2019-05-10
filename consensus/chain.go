@@ -3,7 +3,7 @@ package consensus
 import (
 	"github.com/davecgh/go-spew/spew"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // Chain creates the blockchain, gaining consensus on one Block at a time.

@@ -11,7 +11,7 @@ import (
 	"github.com/axiom-org/axiom/util"
 )
 
-// cserver runs a coinkit server.
+// cserver runs a blockchain server.
 
 func main() {
 	var databaseFilename string

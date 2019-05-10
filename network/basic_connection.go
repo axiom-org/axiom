@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // How frequently in seconds to send keepalive pings

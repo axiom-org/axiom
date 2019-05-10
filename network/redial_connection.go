@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 func isPowerOf10(n int) bool {

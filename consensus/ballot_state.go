@@ -3,7 +3,7 @@ package consensus
 import (
 	"sort"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // The ballot state for the Stellar Consensus Protocol.

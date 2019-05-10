@@ -1,7 +1,7 @@
 package consensus
 
 import (
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // consensus.Block implements the convergence algorithm for a single block,

@@ -1,9 +1,9 @@
 package network
 
 import (
-	"github.com/lacker/coinkit/consensus"
-	"github.com/lacker/coinkit/data"
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/consensus"
+	"github.com/axiom-org/axiom/data"
+	"github.com/axiom-org/axiom/util"
 )
 
 // Node is the logical container for everything one node in the network handles.
