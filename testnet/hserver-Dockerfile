@@ -1,11 +1,11 @@
 FROM node:8
 
-RUN git clone https://github.com/lacker/coinkit.git
+RUN git clone https://github.com/axiom-org/axiom.git
 
 # TODO: put this somewhere else
 RUN mkdir /hostfiles
 
-WORKDIR /coinkit/ts
+WORKDIR /axiom/ts
 
 RUN npm install
 

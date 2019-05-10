@@ -1,8 +1,8 @@
 FROM golang:1.9
 
-RUN go get -v github.com/lacker/coinkit/...
+RUN go get -v github.com/axiom-org/axiom/...
 
-WORKDIR /go/src/github.com/lacker/coinkit
+WORKDIR /go/src/github.com/axiom-org/axiom
 
 RUN go install ./...
 

@@ -32,11 +32,11 @@ Also use `gcloud` to install Kubernetes:
 gcloud components install kubectl
 ```
 
-Choose a name for your gcloud coinkit project and create it:
+Choose a name for your gcloud axiom project and create it:
 
 ```
-gcloud projects create your-coinkit-project-name
-gcloud config set project your-coinkit-project-name
+gcloud projects create your-axiom-project-name
+gcloud config set project your-axiom-project-name
 ```
 
 It is handy to have `PROJECT_ID` set to the name of your GCP project in your shell,
@@ -112,7 +112,7 @@ gcloud auth configure-docker
 
 ### 3. Make a container image
 
-The build process takes a snapshot of the latest code on `github.com/lacker/coinkit`,
+The build process takes a snapshot of the latest code on `github.com/axiom-org/axiom`,
 creates a Docker image from that, and uses that to deploy. So get your changes into
 master before trying to deploy them.
 
