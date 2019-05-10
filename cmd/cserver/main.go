@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/lacker/coinkit/data"
-	"github.com/lacker/coinkit/network"
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/data"
+	"github.com/axiom-org/axiom/network"
+	"github.com/axiom-org/axiom/util"
 )
 
 // cserver runs a coinkit server.

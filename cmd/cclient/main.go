@@ -8,9 +8,9 @@ import (
 	"github.com/davecgh/go-spew/spew"
 
 	"fmt"
-	"github.com/lacker/coinkit/data"
-	"github.com/lacker/coinkit/network"
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/data"
+	"github.com/axiom-org/axiom/network"
+	"github.com/axiom-org/axiom/util"
 	"net/http"
 	"strings"
 )

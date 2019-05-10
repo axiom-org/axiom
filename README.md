@@ -37,7 +37,7 @@ brew install go
 
 You will need to set up a `GOPATH`, and then clone this repo into the `src`
 directory under your gopath. I suggest making `~/go` your `GOPATH`. Then, you
-should clone this repo into `$GOPATH/src/github.com/lacker/coinkit`.
+should clone this repo into `$GOPATH/src/github.com/axiom-org/axiom`.
 
 When you build this repo, it creates multiple binaries in `$GOPATH/bin`.
 I suggest adding `$GOPATH/bin` to your `$PATH` - if you don't, you'll have to run
@@ -45,7 +45,7 @@ I suggest adding `$GOPATH/bin` to your `$PATH` - if you don't, you'll have to ru
 
 ```
 # Install dependencies
-cd ~/go/src/github.com/lacker/coinkit
+cd ~/go/src/github.com/axiom-org/axiom
 go get -t ./...
 
 # Create databases
@@ -69,7 +69,7 @@ clear-test.sh
 
 ## How to run it
 
-Commands are from the `~/go/src/github.com/lacker/coinkit` directory.
+Commands are from the `~/go/src/github.com/axiom-org/axiom` directory.
 
 To run a local cluster of four cservers:
 

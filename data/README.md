@@ -19,7 +19,7 @@ We are using Postgres 10.2. There are several types of databases this code uses:
 To create the test and local databases you will need to run the one-time setup script:
 
 ```
-cd ~/go/src/coinkit
+cd ~/go/src/axiom-org/axiom
 ./create-databases.sh
 ```
 
