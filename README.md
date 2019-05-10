@@ -1,10 +1,15 @@
-# coinkit
-Tools for making cryptocurrency stuff.
+# Axiom
+The best way to build and deploy a decentralized application.
 
 ## What is this
 
-This code runs a custom blockchain protocol on which you can own and transfer
-cryptocurrency.
+The READMEs in this repository are designed to be useful to people who are contributing
+to the source code of the Axiom platform itself.
+
+If you are interested in building an application that uses Axiom, rather than contributing
+to Axiom itself, you should check out [the main documentation](https://axiom.org/docs).
+
+## Understanding the blockchain part of the system
 
 The consensus mechanism is based on the Stellar Consensus Protocol,
 aka SCP. See:
