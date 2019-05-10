@@ -17,7 +17,7 @@ TrustedClient.init(storage);
 // https://stackoverflow.com/questions/55461030/does-requestidlecallback-work-in-the-background-page-of-chrome-extensions
 (window as any).requestIdleCallback = f => f();
 
-// Creates a pac script so that all .coinkit URLs get proxied to a
+// Creates a pac script so that all .axiom URLs get proxied to a
 // black hole server.
 //
 // All that a "black hole server" needs to do is return a valid http
@@ -25,8 +25,8 @@ TrustedClient.init(storage);
 // the extension will stop all content loading and load the real site
 // via the distributed system. So the content might as well be blank.
 //
-// We need to do this method for redirecting .coinkit domains so that
-// the URL still appears as .coinkit in the browser. I think this
+// We need to do this method for redirecting .axiom domains so that
+// the URL still appears as .axiom in the browser. I think this
 // necessary so that the behavior is comprehensible to the end user.
 //
 // This is not ideal architecturally. In particular, information on
@@ -36,7 +36,7 @@ TrustedClient.init(storage);
 function buildBlackHoleScript(server) {
   let script = `
     function FindProxyForURL(url, host) {
-      if (shExpMatch(host, "*.coinkit")) {
+      if (shExpMatch(host, "*.axiom")) {
         return "PROXY ${server}";
       }
       return 'DIRECT';
@@ -86,7 +86,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     return { redirectUrl: file.data };
   },
   {
-    urls: ["*://*.coinkit/*"],
+    urls: ["*://*.axiom/*"],
     types: [
       "font",
       "image",
@@ -100,14 +100,14 @@ chrome.webRequest.onBeforeRequest.addListener(
   ["blocking"]
 );
 
-// Just logs completed coinkit navigation requests
+// Just logs completed axiom navigation requests
 chrome.webRequest.onCompleted.addListener(
   details => {
     let url = new URL(details.url);
     console.log("html request completed for", url.hostname, url.pathname);
   },
   {
-    urls: ["*://*.coinkit/*"],
+    urls: ["*://*.axiom/*"],
     types: ["main_frame", "sub_frame"]
   }
 );

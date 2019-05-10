@@ -98,7 +98,7 @@ export default class App extends React.Component<any, any> {
           Fetch Peer Data
         </button>
         <hr />
-        <a href="http://hello.coinkit">Hello</a>
+        <a href="http://hello.axiom">Hello</a>
       </div>
     );
   }

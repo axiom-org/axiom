@@ -1,6 +1,6 @@
-// This code is injected into .coinkit pages in order to load their actual content.
+// This code is injected into .axiom pages in order to load their actual content.
 
-// Stops the process of loading the nonexistent .coinkit url
+// Stops the process of loading the nonexistent .axiom url
 window.stop();
 
 // It makes the UI more comprehensible to show something new, rather

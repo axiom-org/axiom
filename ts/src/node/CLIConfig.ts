@@ -19,7 +19,7 @@ export default class CLIConfig {
 
   constructor() {
     // If the directory doesn't exist, create it
-    let dir = path.join(os.homedir(), ".coinkit");
+    let dir = path.join(os.homedir(), ".axiom");
     if (!isDirectory(dir)) {
       fs.mkdirSync(dir);
     }

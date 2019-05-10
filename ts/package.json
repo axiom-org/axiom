@@ -1,7 +1,7 @@
 {
-  "name": "cwallet",
+  "name": "axiom-base",
   "version": "0.1.0",
-  "description": "a coinkit wallet",
+  "description": "All TypeScript code for Axiom. Don't npm install this",
   "scripts": {
     "app": "parcel app/index.html",
     "cli": "NODE_NO_WARNINGS=1 ts-node --project tsconfig.node.json src/node/cli-main.ts",
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lacker/coinkit.git"
+    "url": "https://github.com/axiom-org/axiom.git"
   },
   "license": "UNLICENSED",
   "browserslist": [

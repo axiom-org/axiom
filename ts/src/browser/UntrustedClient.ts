@@ -11,7 +11,7 @@ import { missingPermissions, hasPermission } from "./Permission";
 //
 // Browser messages are plain json that contains:
 // id: a random id string specifying this message
-// type: either "toCoinkit" or "fromCoinkit" for whether it is upstream or downstream
+// type: either "toAxiom" or "fromAxiom" for whether it is upstream or downstream
 // message: a serialized blockchain message
 //
 // When the extension sends a response message, it includes the same id as the message
@@ -40,7 +40,7 @@ export default class UntrustedClient {
     window.addEventListener("message", event => {
       if (
         event.source != window ||
-        event.data.type != "fromCoinkit" ||
+        event.data.type != "fromAxiom" ||
         !event.data.message
       ) {
         return;
@@ -75,7 +75,7 @@ export default class UntrustedClient {
     let id = this.getMessageId();
     let data = {
       id: id,
-      type: "toCoinkit",
+      type: "toAxiom",
       message: message.serialize()
     };
     return new Promise((resolve, reject) => {

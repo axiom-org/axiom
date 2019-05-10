@@ -47,7 +47,7 @@ use as a testbed sometimes.
 3. Load the extension in Chrome
    * Navigate to `chrome://extensions`
    * Toggle "Developer Mode" on
-   * Click "Load Unpacked" and select the `coinkit/ts/ext-local` directory
+   * Click "Load Unpacked" and select the `axiom/ts/ext-local` directory
    
 4. Run a hosting server
    * `npm run hserver`
@@ -57,5 +57,5 @@ use as a testbed sometimes.
    * `npm run cli deploy ./samplesite hello
    
 6. Test that it works
-   * Navigate to "hello.coinkit" in your browser
+   * Navigate to "hello.axiom" in your browser
    * You should see a website with a picture of a frog
