@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "outDir": "./build/browser/",
+      "sourceMap": true,
+      "allowJs": true,
+      "jsx": "react",
+      "target": "es5",
+      "lib": [ "es2017", "dom" ],
+      "types": [ "chrome", "jest" ]
+    },
+    "include": [
+      "./src/browser/",
+      "./src/iso/"
+    ]
+}

@@ -1,0 +1,38 @@
+{
+  "manifest_version": 2,
+  "name": "cwallet",
+  "description": "An in-browser coinkit wallet.",
+  "version": "1.0",
+  "permissions": [
+    "activeTab",
+    "proxy",
+    "storage",
+    "tabs",
+    "webRequest",
+    "webRequestBlocking",
+    "http://localhost:9000/*",
+    "http://localhost:9001/*",
+    "http://localhost:9002/*",
+    "http://localhost:9003/*",
+    "*://*.coinkit/*"
+  ],
+  "browser_action": {
+    "default_title": "cwallet",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "scripts": ["background-main.js"],
+    "persistent": true
+  },
+  "content_scripts": [{
+    "matches": ["*://*/*"],
+    "js": ["content-main.js"]
+  }, {
+    "matches": ["*://*.coinkit/*"],
+    "js": ["loader-main.js"],
+    "run_at": "document_start"
+  }],
+  "web_accessible_resources": [
+    "popup.html"
+  ]
+}

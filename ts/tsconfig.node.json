@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "outDir": "./build/node/",
+      "sourceMap": true,
+      "allowJs": true,
+      "target": "es2017",
+      "lib": [ "es2017" ],
+      "types": [ "jest", "node" ],
+      "module": "commonjs"
+    },
+    "include": [
+      "./src/node/",
+      "./src/iso/"
+    ]
+}

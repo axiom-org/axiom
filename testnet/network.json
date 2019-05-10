@@ -1,0 +1,21 @@
+{
+    "Servers": {
+	"0x006bbfe5681e38f88c6f50d980484de6883d09f1fb7bd50b0c5ff87d324d4d69d404": {
+	    "Host": "0.alphatest.network",
+	    "Port": 9000
+	},
+	"0x5e459f0018b440bf837d691f1326446e2945287a19380e33c434467367887e3a7c48": {
+	    "Host": "1.alphatest.network",
+	    "Port": 9000
+	},
+	"0xb2e80c38c0669edf2dbdba2841cd9e33dc17e8f2ab6381db5f4b41fafb23d01683b0": {
+	    "Host": "2.alphatest.network",
+	    "Port": 9000
+	},
+	"0x933e89c87d8c082146849c592b3dcb3031a96492aef813cb39e1dcb043a4f8cbfb1e": {
+	    "Host": "3.alphatest.network",
+	    "Port": 9000
+	}
+    },
+    "Threshold": 3
+}
