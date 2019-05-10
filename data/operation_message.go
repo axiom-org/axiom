@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/lacker/coinkit/consensus"
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/consensus"
+	"github.com/axiom-org/axiom/util"
 )
 
 // An OperationMessage has a list of operations. Each of the operations

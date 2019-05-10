@@ -3,7 +3,7 @@ package data
 import (
 	"fmt"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // Each unit of money pays for the storage of one byte.

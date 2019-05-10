@@ -1,8 +1,8 @@
 package data
 
 import (
-	"github.com/lacker/coinkit/consensus"
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/consensus"
+	"github.com/axiom-org/axiom/util"
 )
 
 // data.Block represents how the value for a single block gets stored to the database.

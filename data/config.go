@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // Information we need for database access

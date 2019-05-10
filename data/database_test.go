@@ -4,7 +4,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/lacker/coinkit/consensus"
+	"github.com/axiom-org/axiom/consensus"
 )
 
 func TestInsertAndGet(t *testing.T) {

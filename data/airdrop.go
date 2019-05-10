@@ -1,7 +1,7 @@
 package data
 
 import (
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // Airdrop defines an initial distribution of coins, before any blocks have

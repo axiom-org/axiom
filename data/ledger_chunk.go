@@ -8,8 +8,8 @@ import (
 	"errors"
 	"sort"
 
-	"github.com/lacker/coinkit/consensus"
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/consensus"
+	"github.com/axiom-org/axiom/util"
 )
 
 // MaxChunkSize defines how many items can be put in a chunk

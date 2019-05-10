@@ -3,7 +3,7 @@ package data
 import (
 	"testing"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 func TestSendOperationProcessing(t *testing.T) {

@@ -3,7 +3,7 @@ package data
 import (
 	"fmt"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // SendOperation is used to send money from one account to another.

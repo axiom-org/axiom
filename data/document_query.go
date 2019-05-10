@@ -1,7 +1,7 @@
 package data
 
 import (
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // A DocumentQuery expresses a way to select a subset of documents.

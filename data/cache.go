@@ -8,7 +8,7 @@ import (
 
 	"github.com/jinzhu/copier"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // The Cache stores a subset of the information that is in the database. Generally

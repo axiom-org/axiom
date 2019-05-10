@@ -3,7 +3,7 @@ package data
 import (
 	"fmt"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // CreateDocumentOperation is used to create a new document on the blockchain.

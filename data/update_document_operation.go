@@ -3,7 +3,7 @@ package data
 import (
 	"fmt"
 
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // UpdateDocumentOperation is used to alter the contents of a document that is

@@ -5,8 +5,8 @@ import (
 
 	"github.com/emirpasic/gods/sets/treeset"
 
-	"github.com/lacker/coinkit/consensus"
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/consensus"
+	"github.com/axiom-org/axiom/util"
 )
 
 // QueueLimit defines how many items will be held in the queue at a time

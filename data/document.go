@@ -1,7 +1,7 @@
 package data
 
 import (
-	"github.com/lacker/coinkit/util"
+	"github.com/axiom-org/axiom/util"
 )
 
 // TODO: reconsider whether ids should be stored twice.
