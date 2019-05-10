@@ -12,7 +12,7 @@ func Testing() bool {
 }
 
 func GetTestLoopLength(short int64, long int64) int64 {
-	arg, err := strconv.Atoi(os.Getenv("COINKIT_LONG_TESTS"))
+	arg, err := strconv.Atoi(os.Getenv("AXIOM_LONG_TESTS"))
 	if err == nil && arg == 1 {
 		return long
 	} else {

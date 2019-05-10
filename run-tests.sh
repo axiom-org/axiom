@@ -6,12 +6,12 @@ print_help() {
 }
 
 run_long() {
-    COINKIT_LONG_TESTS=1 go test -timeout 120m ./...
+    AXIOM_LONG_TESTS=1 go test -timeout 120m ./...
     exit
 }
 
 run_normal() {
-    COINKIT_LONG_TESTS=0 go test -timeout 120m ./...
+    AXIOM_LONG_TESTS=0 go test -timeout 120m ./...
     exit
 }
 
