@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script is the entry point for a Docker container that runs the node hosting server.
-# It is designed to be run on the Google cloud platform from the coinkit/js directory.
+# It is designed to be run on the Google cloud platform from the axiom/ts directory.
 
 echo ------------------------------ hserver-entrypoint.sh ------------------------------
 
