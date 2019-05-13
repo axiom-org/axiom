@@ -223,7 +223,7 @@ async function main() {
   let args = process.argv.slice(2);
 
   if (args.length == 0) {
-    fatal("Usage: npm run cli <operation> <arguments>");
+    fatal("Usage: axiom <operation> <arguments>");
   }
 
   let op = args[0];
@@ -231,7 +231,7 @@ async function main() {
 
   if (op === "status") {
     if (rest.length > 1) {
-      fatal("Usage: npm run cli status [publickey]");
+      fatal("Usage: axiom status [publickey]");
     }
     if (rest.length === 0) {
       await ourStatus();
@@ -243,7 +243,7 @@ async function main() {
 
   if (op === "generate") {
     if (rest.length != 0) {
-      fatal("Usage: npm run cli generate");
+      fatal("Usage: axiom generate");
     }
 
     await generate();
@@ -252,7 +252,7 @@ async function main() {
 
   if (op === "create-provider") {
     if (rest.length != 1) {
-      fatal("Usage: npm run cli create-provider <capacity>");
+      fatal("Usage: axiom create-provider <capacity>");
     }
 
     let capacity = parseInt(rest[0]);
@@ -265,7 +265,7 @@ async function main() {
 
   if (op === "get-provider") {
     if (rest.length != 1) {
-      fatal("Usage: npm run cli get-provider <id>");
+      fatal("Usage: axiom get-provider <id>");
     }
     let id = parseInt(rest[0]);
     if (!id) {
@@ -278,7 +278,7 @@ async function main() {
   if (op === "get-providers") {
     if (rest.length > 2) {
       fatal(
-        "Usage: npm run cli get-providers [owner=<id>] [bucket=<name>] [available=<amount]"
+        "Usage: axiom get-providers [owner=<id>] [bucket=<name>] [available=<amount]"
       );
     }
     let query = {} as any;
@@ -308,7 +308,7 @@ async function main() {
 
   if (op === "create-bucket") {
     if (rest.length != 2) {
-      fatal("Usage: npm run cli create-bucket <name> <size>");
+      fatal("Usage: axiom create-bucket <name> <size>");
     }
     let name = rest[0];
     let size = parseInt(rest[1]);
@@ -321,7 +321,7 @@ async function main() {
 
   if (op === "get-bucket") {
     if (rest.length != 1) {
-      fatal("Usage: npm run cli get-bucket <name>");
+      fatal("Usage: axiom get-bucket <name>");
     }
     await getBucket(rest[0]);
     return;
@@ -329,7 +329,7 @@ async function main() {
 
   if (op === "get-buckets") {
     if (rest.length > 2) {
-      fatal("Usage: npm run cli get-buckets [owner=<id>] [provider=<id>]");
+      fatal("Usage: axiom get-buckets [owner=<id>] [provider=<id>]");
     }
     let query = {} as any;
     for (let arg of rest) {
@@ -357,7 +357,7 @@ async function main() {
 
   if (op === "set-magnet") {
     if (rest.length != 2) {
-      fatal("Usage: npm run cli set-magnet [bucketName] [magnet]");
+      fatal("Usage: axiom set-magnet [bucketName] [magnet]");
     }
 
     let [bucketName, magnet] = rest;
@@ -367,7 +367,7 @@ async function main() {
 
   if (op === "listen") {
     if (rest.length != 1) {
-      fatal("Usage: npm run cli listen [providerID]");
+      fatal("Usage: axiom listen [providerID]");
     }
 
     let id = parseInt(rest[0]);
@@ -381,7 +381,7 @@ async function main() {
 
   if (op === "alloc" || op === "allocate") {
     if (rest.length != 2) {
-      fatal("Usage: npm run cli " + op + " [bucketName] [providerID]");
+      fatal("Usage: axiom " + op + " [bucketName] [providerID]");
     }
 
     let [bucketName, idstr] = rest;
@@ -395,7 +395,7 @@ async function main() {
 
   if (op === "deploy") {
     if (rest.length != 2) {
-      fatal("Usage: npm run cli deploy [directory] [bucketName]");
+      fatal("Usage: axiom deploy [directory] [bucketName]");
     }
 
     let directory = rest[0];
@@ -406,7 +406,7 @@ async function main() {
 
   if (op === "download") {
     if (rest.length != 2) {
-      fatal("Usage: npm run cli download [bucketName] [directory]");
+      fatal("Usage: axiom download [bucketName] [directory]");
     }
 
     let bucketName = rest[0];
@@ -417,7 +417,7 @@ async function main() {
 
   if (op === "login") {
     if (rest.length != 0) {
-      fatal("Usage: npm run cli login");
+      fatal("Usage: axiom login");
     }
     await login();
     return;
@@ -425,7 +425,7 @@ async function main() {
 
   if (op === "logout") {
     if (rest.length != 0) {
-      fatal("Usage: npm run cli logout");
+      fatal("Usage: axiom logout");
     }
     let config = new CLIConfig();
     config.logout();
@@ -435,7 +435,7 @@ async function main() {
 
   if (op === "config") {
     if (rest.length != 1) {
-      fatal("Usage: npm run cli config [network]");
+      fatal("Usage: axiom config [network]");
     }
     let network = rest[0];
     let config = new CLIConfig();
@@ -446,7 +446,7 @@ async function main() {
 
   if (op === "send") {
     if (rest.length != 2) {
-      fatal("Usage: npm run cli send [recipient] [amount]");
+      fatal("Usage: axiom send [recipient] [amount]");
     }
     let [to, amountStr] = rest;
     let amount = parseInt(amountStr);
