@@ -9,9 +9,9 @@ import TrustedClient from "./TrustedClient";
 // Parcel will automatically insert this variable
 declare var process: any;
 
-let storage = new Storage(new LocalStorage(), process.env.NETWORK);
+let storage = new Storage(new LocalStorage());
 (window as any).storage = storage;
-TrustedClient.init(storage);
+TrustedClient.init(storage, process.env.NETWORK);
 
 // Work around requestIdleCallback issue
 // https://stackoverflow.com/questions/55461030/does-requestidlecallback-work-in-the-background-page-of-chrome-extensions
