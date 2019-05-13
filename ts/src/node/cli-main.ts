@@ -4,6 +4,9 @@ import * as fs from "fs";
 import * as path from "path";
 import * as readline from "readline";
 
+import axios from "axios";
+const checksum = require("checksum");
+
 import ChainClient from "../iso/ChainClient";
 import CLIConfig from "./CLIConfig";
 import KeyPair from "../iso/KeyPair";
@@ -188,6 +191,52 @@ async function download(bucketName, directory) {
   let torrent = tc.download(bucket.magnet, dir);
   await torrent.waitForDone();
   await tc.destroy();
+}
+
+async function signup(email) {
+  // Check if this email is signed up for the newsletter
+  let response = await axios.get(
+    "https://faucet.lacker.now.sh/?email=" + email
+  );
+
+  if (response.data != "OK") {
+    console.log(
+      email,
+      "is not a recognized email. please visit axiom.org/newsletter to register."
+    );
+    return;
+  }
+
+  console.log("Sending", email, "an authentication token....");
+  console.log("Please check your email. this may take a few minutes.");
+  let token = await ask("Enter the authentication token: ", true);
+
+  // TODO: move validation logic on-chain with an asymmetric hash
+  let parts = token.split(":");
+  if (parts.length != 2 || checksum("bluurf" + parts[0]) !== parts[1]) {
+    console.log("Sorry, but this is not a valid authentication token.");
+    return;
+  }
+
+  // Check if the account exists yet
+  let client = newChainClient(source);
+  let account = await client.getAccount(target.getPublicKey());
+  if (account) {
+    console.log("An account for", email, "has already signed up.");
+    return;
+  }
+  
+  // Claim faucet money
+  let passphrase = parts[1];
+  let source = KeyPair.fromSecretPhrase("mint");
+  let target = KeyPair.fromSecretPhrase(passphrase);
+  
+  let client = newChainClient(source);
+  await client.send(target.getPublicKey(), 300000);
+  
+  console.log("A developer account has been populated for you. Your passphrase is:");
+  console.log(passphrase);
+  console.log("Please store this passphrase safely. You can then log in using 'axiom login'.");
 }
 
 // Ask the user for a passphrase to log in.
@@ -430,6 +479,15 @@ async function main() {
     let config = new CLIConfig();
     config.logout();
     console.log("logged out of", config.getNetwork(), "network");
+    return;
+  }
+
+  if (op === "signup") {
+    if (rest.length != 1) {
+      fatal("Usage: axiom signup [your-email-address]");
+    }
+    let email = rest[0];
+    await signup(email);
     return;
   }
 

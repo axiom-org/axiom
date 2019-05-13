@@ -14,10 +14,10 @@
   "scripts": {
     "app": "parcel app/index.html",
     "build-cli": "tsc --project tsconfig.node.json",
-    "cli": "NODE_NO_WARNINGS=1 ts-node --project tsconfig.node.json src/node/cli-main.ts",
+    "cli": "ts-node --project tsconfig.node.json src/node/cli-main.ts",
     "ext-alpha": "NETWORK=alpha parcel -p 2345 --no-hmr build src/browser/popup-main.tsx src/browser/background-main.ts src/browser/content-main.ts src/browser/loader-main.ts -d ext-alpha/",
     "ext-local": "NETWORK=local parcel -p 2345 --no-hmr build src/browser/popup-main.tsx src/browser/background-main.ts src/browser/content-main.ts src/browser/loader-main.ts -d ext-local/",
-    "hserver": "NODE_NO_WARNINGS=1 ts-node --project tsconfig.node.json src/node/hserver-main.ts --keypair=./mint.json --capacity=1000",
+    "hserver": "ts-node --project tsconfig.node.json src/node/hserver-main.ts --keypair=./mint.json --capacity=1000",
     "test": "jest"
   },
   "browserslist": [
@@ -28,6 +28,7 @@
     "args": "^5.0.1",
     "axios": "^0.18.0",
     "base64-js": "^1.3.0",
+    "checksum": "^0.1.1",
     "diskusage": "^1.1.0",
     "json-stable-stringify": "^1.0.1",
     "node-forge": "^0.7.6",
