@@ -39,8 +39,8 @@ export default class CLIConfig {
 
   getNetwork() {
     if (!this.data.network) {
-      // Defaults to local.
-      return "local";
+      // Defaults to alpha.
+      return "alpha";
     }
 
     return this.data.network;
