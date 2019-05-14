@@ -6,11 +6,15 @@ import (
 	"github.com/axiom-org/axiom/util"
 )
 
-// Each unit of money pays for the storage of one byte.
-// The total amount of money is thus (roughly) equivalent to the total
-// amount of document bytes that a node has to be storing.
-// The equivalence is only rough because there is some other data
-// besides the direct document storage that takes up space.
+// Money is measured in "microaxioms".
+// A million microaxioms = Ax$1.
+// The target is for Ax$1 to be worth roughly $1 in USD.
+// The price of decentralized storage is currently pegged at $3 per gigabyte per month.
+// The goal is 1/3 goes to the file host, 1/3 to the app developer, 1/3 to the protocol
+// developers. So that means that if you host a single kilobyte for a month you make
+// one microaxiom.
+// Currently TotalMoney is approximately the size of hosting 333G of files on the initial
+// seed servers. Once payment is in place, the total amount of money can float.
 const TotalMoney = 1e9
 
 type Account struct {
