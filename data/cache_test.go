@@ -302,8 +302,8 @@ func TestAllocationProcessing(t *testing.T) {
 	}
 
 	account := c.GetAccount("jim")
-	if account.Storage == 0 {
-		t.Fatalf("storage tracking has failed. jim's account: %+v", account)
+	if account.Storage != 100 {
+		t.Fatalf("storage tracking missed the create. jim's account: %+v", account)
 	}
 
 	dbop := &DeleteBucketOperation{
@@ -313,6 +313,11 @@ func TestAllocationProcessing(t *testing.T) {
 	}
 	if c.Process(dbop) != nil {
 		t.Fatalf("should be able to delete bucket")
+	}
+
+	account = c.GetAccount("jim")
+	if account.Storage != 0 {
+		t.Fatalf("storage tracking missed the delete. jim's account: %+v", account)
 	}
 
 	dpop := &DeleteProviderOperation{
