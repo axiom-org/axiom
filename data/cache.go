@@ -712,10 +712,8 @@ func (c *Cache) Process(operation Operation) error {
 		c.IncrementSequence(op)
 
 		account := c.GetAccount(op.Signer)
-		newAccount := &Account{
-			Owner:   op.Signer,
-			Storage: account.Storage + op.Size,
-		}
+		newAccount := account.Copy()
+		newAccount.Storage = account.Storage + op.Size
 		c.UpsertAccount(newAccount)
 
 		bucket := &Bucket{
