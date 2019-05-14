@@ -230,6 +230,7 @@ func (c *Cache) SetBalance(owner string, amount uint64) {
 
 // ProcessSendOperation writes through.
 // ProcessSendOperation does not sanity check its input, so be sure you validate first
+// TODO: use Account.Copy
 func (c *Cache) ProcessSendOperation(op *SendOperation) {
 	source := c.GetAccount(op.Signer)
 	target := c.GetAccount(op.To)
@@ -240,11 +241,13 @@ func (c *Cache) ProcessSendOperation(op *SendOperation) {
 		Owner:    op.Signer,
 		Sequence: op.Sequence,
 		Balance:  source.Balance - op.Amount - op.Fee,
+		Storage:  source.Storage,
 	}
 	newTarget := &Account{
 		Owner:    op.To,
 		Sequence: target.Sequence,
 		Balance:  target.Balance + op.Amount,
+		Storage:  target.Storage,
 	}
 	c.UpsertAccount(newSource)
 	c.UpsertAccount(newTarget)
