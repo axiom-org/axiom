@@ -217,6 +217,8 @@ func TestServerHandlesBadMessages(t *testing.T) {
 }
 
 func TestDataOperations(t *testing.T) {
+	data.AllowCreateDocument = true
+
 	servers := makeServers(t)
 	start := time.Now()
 	mint := util.NewKeyPairFromSecretPhrase("mint")

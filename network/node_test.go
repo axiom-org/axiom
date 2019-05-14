@@ -223,6 +223,8 @@ func validateOp(nodes []*Node, op *data.SignedOperation, t *testing.T) bool {
 }
 
 func TestDocumentOperations(t *testing.T) {
+	data.AllowCreateDocument = true
+
 	qs, names := consensus.MakeTestQuorumSlice(4)
 	nodes := []*Node{}
 	for i, name := range names {

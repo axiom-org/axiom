@@ -1,10 +1,13 @@
 package data
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/axiom-org/axiom/util"
 )
+
+var AllowCreateDocument bool
 
 // CreateDocumentOperation is used to create a new document on the blockchain.
 type CreateDocumentOperation struct {
@@ -46,6 +49,9 @@ func (op *CreateDocumentOperation) GetData() *JSONObject {
 }
 
 func (op *CreateDocumentOperation) Verify() error {
+	if !AllowCreateDocument {
+		return errors.New("CreateDocument operations are currently not allowed")
+	}
 	return nil
 }
 

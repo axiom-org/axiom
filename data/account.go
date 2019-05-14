@@ -28,9 +28,8 @@ type Account struct {
 	// The current balance of this account.
 	Balance uint64 `json:"balance"`
 
-	// How much data this account is currently storing.
-	// Storage can never exceed balance.
-	Storage uint64 `json:"storage"`
+	// How much total bucket size, in megabytes, this account is currently storing.
+	Storage uint32 `json:"storage"`
 }
 
 // For debugging
