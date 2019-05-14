@@ -301,6 +301,11 @@ func TestAllocationProcessing(t *testing.T) {
 		t.Fatalf("should be able to update bucket")
 	}
 
+	account := c.GetAccount("jim")
+	if account.Storage == 0 {
+		t.Fatalf("storage tracking has failed. jim's account: %+v", account)
+	}
+
 	dbop := &DeleteBucketOperation{
 		Sequence: 5,
 		Signer:   "jim",
