@@ -218,15 +218,16 @@ func (c *Cache) UpsertAccount(account *Account) {
 
 // SetBalance writes through.
 func (c *Cache) SetBalance(owner string, amount uint64) {
-	account := c.GetAccount(owner)
-	if account == nil {
-		account = &Account{
-			Owner: owner,
-		}
+	oldAccount := c.GetAccount(owner)
+	sequence := uint32(0)
+	if oldAccount != nil {
+		sequence = oldAccount.Sequence
 	}
-	newAccount := account.Copy()
-	newAccount.Balance = amount
-	c.UpsertAccount(newAccount)
+	c.UpsertAccount(&Account{
+		Owner:    owner,
+		Sequence: sequence,
+		Balance:  amount,
+	})
 }
 
 // ProcessSendOperation writes through.
@@ -235,16 +236,18 @@ func (c *Cache) ProcessSendOperation(op *SendOperation) {
 	source := c.GetAccount(op.Signer)
 	target := c.GetAccount(op.To)
 	if target == nil {
-		target = &Account{
-			Owner: op.To,
-		}
+		target = &Account{}
 	}
-	newSource := source.Copy()
-	newSource.Balance = source.Balance - op.Amount - op.Fee
-
-	newTarget := target.Copy()
-	newTarget.Balance = target.Balance + op.Amount
-
+	newSource := &Account{
+		Owner:    op.Signer,
+		Sequence: op.Sequence,
+		Balance:  source.Balance - op.Amount - op.Fee,
+	}
+	newTarget := &Account{
+		Owner:    op.To,
+		Sequence: target.Sequence,
+		Balance:  target.Balance + op.Amount,
+	}
 	c.UpsertAccount(newSource)
 	c.UpsertAccount(newTarget)
 }
@@ -709,8 +712,10 @@ func (c *Cache) Process(operation Operation) error {
 		c.IncrementSequence(op)
 
 		account := c.GetAccount(op.Signer)
-		newAccount := account.Copy()
-		newAccount.Storage = account.Storage + op.Size
+		newAccount := &Account{
+			Owner:   op.Signer,
+			Storage: account.Storage + op.Size,
+		}
 		c.UpsertAccount(newAccount)
 
 		bucket := &Bucket{
@@ -731,15 +736,9 @@ func (c *Cache) Process(operation Operation) error {
 
 		account := c.GetAccount(op.Signer)
 		bucket := c.GetBucket(op.Name)
-		newAccount := account.Copy()
-		if account.Storage < bucket.Size {
-			// We must have mis-tracked this account's storage.
-			// Rather than crash, set it to zero.
-			// This shouldn't happen in general, but might happen if we fork
-			// the chain to different logic.
-			newAccount.Storage = 0
-		} else {
-			newAccount.Storage = account.Storage - bucket.Size
+		newAccount := &Account{
+			Owner:   op.Signer,
+			Storage: account.Storage - bucket.Size,
 		}
 		c.UpsertAccount(newAccount)
 
