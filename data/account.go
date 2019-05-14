@@ -75,3 +75,8 @@ func (a *Account) CanAddStorage(amount uint32) bool {
 	possible := a.Storage + amount
 	return CostPerMegabyteMonth*uint64(possible) <= a.Balance
 }
+
+func (a *Account) Copy() *Account {
+	copy := *a
+	return &copy
+}
