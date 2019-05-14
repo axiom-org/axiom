@@ -276,8 +276,9 @@ func TestAllocationProcessing(t *testing.T) {
 		BucketName: "jimsbucket",
 		ProviderID: 1,
 	}
-	if c.Process(aop) != nil {
-		t.Fatalf("should be able to allocate")
+	err := c.Process(aop)
+	if err != nil {
+		t.Fatalf("error during allocation: %s", err)
 	}
 
 	dop := &DeallocateOperation{

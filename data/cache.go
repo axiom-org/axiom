@@ -712,6 +712,14 @@ func (c *Cache) Process(operation Operation) error {
 
 	case *CreateBucketOperation:
 		c.IncrementSequence(op)
+
+		account := c.GetAccount(op.Signer)
+		newAccount := &Account{
+			Owner:   op.Signer,
+			Storage: account.Storage + op.Size,
+		}
+		c.UpsertAccount(newAccount)
+
 		bucket := &Bucket{
 			Name:  op.Name,
 			Owner: op.Signer,
@@ -727,6 +735,15 @@ func (c *Cache) Process(operation Operation) error {
 
 	case *DeleteBucketOperation:
 		c.IncrementSequence(op)
+
+		account := c.GetAccount(op.Signer)
+		bucket := c.GetBucket(op.Name)
+		newAccount := &Account{
+			Owner:   op.Signer,
+			Storage: account.Storage - bucket.Size,
+		}
+		c.UpsertAccount(newAccount)
+
 		c.DeleteBucket(op.Name)
 		return nil
 
