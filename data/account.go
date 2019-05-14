@@ -71,7 +71,7 @@ func (a *Account) ValidateSendOperation(op *SendOperation) bool {
 	return cost <= a.Balance
 }
 
-func (a *Account) CanAddStorage(amount uint32) {
+func (a *Account) CanAddStorage(amount uint32) bool {
 	possible := a.Storage + amount
-	return CostPerMegabyteMonth*possible <= a.Balance
+	return CostPerMegabyteMonth*uint64(possible) <= a.Balance
 }
