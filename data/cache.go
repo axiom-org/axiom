@@ -219,16 +219,13 @@ func (c *Cache) UpsertAccount(account *Account) {
 
 // SetBalance writes through.
 func (c *Cache) SetBalance(owner string, amount uint64) {
-	oldAccount := c.GetAccount(owner)
-	sequence := uint32(0)
-	if oldAccount != nil {
-		sequence = oldAccount.Sequence
+	account := c.GetAccount(owner)
+	if account == nil {
+		account = &Account{Owner: owner}
 	}
-	c.UpsertAccount(&Account{
-		Owner:    owner,
-		Sequence: sequence,
-		Balance:  amount,
-	})
+	newAccount := account.Copy()
+	newAccount.Balance = amount
+	c.UpsertAccount(newAccount)
 }
 
 // ProcessSendOperation writes through.
