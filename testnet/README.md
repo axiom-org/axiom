@@ -116,11 +116,13 @@ The build process takes a snapshot of the latest code on `github.com/axiom-org/a
 creates a Docker image from that, and uses that to deploy. So get your changes into
 master before trying to deploy them.
 
-From the `testnet` directory, build a container and upload it to Google's container
+From the `testnet` directory, you'll need to build two containers, one for the blockchain
+server and one for the hosting server, and upload them to Google's container
 registry with:
 
 ```
 ./build.sh cserver
+./build.sh hserver
 ```
 
 The container and its presence on the registry is specific to your project, so this
@@ -172,7 +174,7 @@ Generate a random password, but take note of it.
 
 I chose PostgreSQL 11, and edited the resources to be the minimum, 1 shared cpu, 0.6 GB memory, 10 GB SSD storage. It isn't obvious that the "cores" slider goes even lower than the "1 core" default.
 
-Go to the management UI for your database, from https://console.cloud.google.com/sql/instances . Go to Databases, Create a database, and name it "prod".
+Go to the management UI for your database, from https://console.cloud.google.com/sql/instances . Go to Databases, Create a database, and name it "prod". You can drop and recreate the "prod" database from this UI later, if for some reason the content has become corrupted. It can catch back up from other servers.
 
 You need a "service account" for your databases. If you have multiple miners, this can be shared across them. Create one at https://console.cloud.google.com/projectselector/iam-admin/serviceaccounts
 
