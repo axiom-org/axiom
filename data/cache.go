@@ -599,6 +599,9 @@ func (c *Cache) Validate(operation Operation) error {
 		if c.BucketExists(op.Name) {
 			return fmt.Errorf("cannot create bucket %s which already exists", op.Name)
 		}
+		if !account.CanAddStorage(op.Size) {
+			return fmt.Errorf("this account is not able to pay for this amount of storage")
+		}
 		return nil
 
 	case *UpdateBucketOperation:

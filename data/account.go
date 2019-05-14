@@ -16,6 +16,7 @@ import (
 // Currently TotalMoney is approximately the size of hosting 333G of files on the initial
 // seed servers. Once payment is in place, the total amount of money can float.
 const TotalMoney = 1e9
+const CostPerMegabyteMonth = 3000
 
 type Account struct {
 	Owner string `json:"owner"`
@@ -68,4 +69,9 @@ func (a *Account) Bytes() []byte {
 func (a *Account) ValidateSendOperation(op *SendOperation) bool {
 	cost := op.Amount + op.Fee
 	return cost <= a.Balance
+}
+
+func (a *Account) CanAddStorage(amount uint32) {
+	possible := a.Storage + amount
+	return CostPerMegabyteMonth*possible <= a.Balance
 }

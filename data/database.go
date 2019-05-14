@@ -125,7 +125,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS block_slot_idx ON blocks (slot);
 CREATE TABLE IF NOT EXISTS accounts (
     owner text,
     sequence integer CHECK (sequence >= 0),
-    balance bigint CHECK (balance >= 0)
+    balance bigint CHECK (balance >= 0),
+    storage integer CHECK (storage >= 0)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS account_owner_idx ON accounts (owner);
@@ -580,11 +581,12 @@ func (db *Database) ForBlocks(f func(b *Block)) int {
 //////////////
 
 const accountUpsert = `
-INSERT INTO accounts (owner, sequence, balance)
-VALUES (:owner, :sequence, :balance)
+INSERT INTO accounts (owner, sequence, balance, storage)
+VALUES (:owner, :sequence, :balance, :storage)
 ON CONFLICT (owner) DO UPDATE
   SET sequence = EXCLUDED.sequence,
-      balance = EXCLUDED.balance;
+      balance = EXCLUDED.balance,
+      storage = EXCLUDED.storage;
 `
 
 // Database.UpsertAccount will not finalize until Commit is called.
