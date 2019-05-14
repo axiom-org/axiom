@@ -1,6 +1,7 @@
 package data
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"reflect"
@@ -734,10 +735,12 @@ func (c *Cache) Process(operation Operation) error {
 
 		account := c.GetAccount(op.Signer)
 		bucket := c.GetBucket(op.Name)
-		newAccount := &Account{
-			Owner:   op.Signer,
-			Storage: account.Storage - bucket.Size,
+		newAccount := account.Copy()
+		if account.Storage < bucket.Size {
+			// TODO: maybe just set to 0
+			return errors.New("bad account storage")
 		}
+		newAccount.Storage = account.Storage - bucket.Size
 		c.UpsertAccount(newAccount)
 
 		c.DeleteBucket(op.Name)
