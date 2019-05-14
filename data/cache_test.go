@@ -249,6 +249,10 @@ func TestAllocationProcessing(t *testing.T) {
 		t.Fatalf("jim should not be able to make a bucket with no account")
 	}
 	c.SetBalance("jim", 100)
+	if c.Validate(cbop) == nil {
+		t.Fatalf("jim should not be able to afford this bucket")
+	}
+	c.SetBalance("jim", 300000)
 	if c.Process(cbop) != nil {
 		t.Fatalf("jim should be able to create a bucket")
 	}
