@@ -11,6 +11,7 @@ import ChainClient from "../iso/ChainClient";
 import CLIConfig from "./CLIConfig";
 import KeyPair from "../iso/KeyPair";
 import Message from "../iso/Message";
+import NetworkConfig from "../iso/NetworkConfig";
 import ProviderListener from "./ProviderListener";
 import TorrentClient from "../iso/TorrentClient";
 
@@ -144,9 +145,13 @@ async function newBucket(name, size) {
   let kp = await login();
   let client = newChainClient(kp);
 
+  // Aim for as much replication as we are configured with trackers
+  let config = new NetworkConfig(getNetwork());
+  let replication = config.trackers.length;
+
   // Find some providers with available space
   let providers = await client.getProviders({ available: size });
-  if (providers.length < 4) {
+  if (providers.length < replication) {
     throw new Error(
       "only " +
         providers.length +
@@ -158,7 +163,7 @@ async function newBucket(name, size) {
 
   let bucket = await client.createBucket(name, size);
   console.log("created bucket:", name);
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < replication; i++) {
     await client.allocate(name, providers[i].id);
     console.log("allocated bucket to", i + 1, "provider" + (i == 0 ? "" : "s"));
   }
