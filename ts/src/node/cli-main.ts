@@ -169,6 +169,13 @@ async function newBucket(name, size) {
   }
 }
 
+async function deleteBucket(name) {
+  let kp = await login();
+  let client = newChainClient(kp);
+  let bucket = await client.deleteBucket(name);
+  console.log("deleted bucket:", name);
+}
+
 async function setMagnet(bucketName, magnet) {
   if (!magnet || !magnet.startsWith("magnet:")) {
     throw new Error("" + magnet + " is not a valid magnet URI");
@@ -411,6 +418,15 @@ async function main() {
       fatal("bad size:" + rest[1]);
     }
     await createBucket(name, size);
+    return;
+  }
+
+  if (op === "delete-bucket") {
+    if (rest.length != 1) {
+      fatal("Usage: axiom delete-bucket <name>");
+    }
+    let name = rest[0];
+    await deleteBucket(name);
     return;
   }
 

@@ -234,13 +234,7 @@ export default class ChainClient {
   }
 
   // Returns the information for the newly-created bucket.
-  async createBucket(name, size) {
-    if (typeof size !== "number") {
-      throw new Error(
-        "bucket size " + size + " must be number, not " + typeof size
-      );
-    }
-
+  async createBucket(name, size: number) {
     await this.performOperation("CreateBucket", { name, size });
     this.log("the CreateBucket operation has been accepted");
     let bucket = await this.getBucket(name);
@@ -252,6 +246,12 @@ export default class ChainClient {
     this.log("the UpdateBucket operation has been accepted");
     let bucket = await this.getBucket(name);
     return bucket;
+  }
+
+  async deleteBucket(name: number) {
+    await this.performOperation("DeleteBucket", { name });
+    this.log("the DeleteBucket operation has been accepted");
+    return;
   }
 
   // Send money
