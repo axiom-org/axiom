@@ -130,12 +130,38 @@ async function getBuckets(query) {
   }
 }
 
+// Just creates a bucket
 async function createBucket(name, size) {
   let kp = await login();
   let client = newChainClient(kp);
   let bucket = await client.createBucket(name, size);
   console.log("created bucket:");
   console.log(bucket);
+}
+
+// First creates a bucket, then allocates it to some providers.
+async function newBucket(name, size) {
+  let kp = await login();
+  let client = newChainClient(kp);
+
+  // Find some providers with available space
+  let providers = await client.getProviders({ available: size });
+  if (providers.length < 4) {
+    throw new Error(
+      "only " +
+        providers.length +
+        " providers have " +
+        size +
+        " available space"
+    );
+  }
+
+  let bucket = await client.createBucket(name, size);
+  console.log("created bucket:", name);
+  for (let i = 0; i < 4; i++) {
+    await client.allocate(name, provider.id);
+    console.log("allocated bucket to", i + 1, "provider" + i == 0 ? "" : "s");
+  }
 }
 
 async function setMagnet(bucketName, magnet) {
@@ -225,18 +251,22 @@ async function signup(email) {
     console.log("An account for", email, "has already signed up.");
     return;
   }
-  
+
   // Claim faucet money
   let passphrase = parts[1];
   let source = KeyPair.fromSecretPhrase("mint");
   let target = KeyPair.fromSecretPhrase(passphrase);
-  
+
   let client = newChainClient(source);
   await client.send(target.getPublicKey(), 300000);
-  
-  console.log("A developer account has been populated for you. Your passphrase is:");
+
+  console.log(
+    "A developer account has been populated for you. Your passphrase is:"
+  );
   console.log(passphrase);
-  console.log("Please store this passphrase safely. You can then log in using 'axiom login'.");
+  console.log(
+    "Please store this passphrase safely. You can then log in using 'axiom login'."
+  );
 }
 
 // Ask the user for a passphrase to log in.
@@ -352,6 +382,19 @@ async function main() {
       query.owner = kp.getPublicKey();
     }
     await getProviders(query);
+    return;
+  }
+
+  if (op === "new-bucket") {
+    if (rest.length != 2) {
+      fatal("Usage: axiom new-bucket <name> <size>");
+    }
+    let name = rest[0];
+    let size = parseInt(rest[1]);
+    if (!size) {
+      fatal("bad size:" + rest[1]);
+    }
+    await newBucket(name, size);
     return;
   }
 
