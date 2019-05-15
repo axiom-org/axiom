@@ -30,7 +30,7 @@ function newChainClient(kp?: KeyPair): ChainClient {
 }
 
 // Asks the CLI user a question, asynchronously returns the response.
-async function ask(question, hideResponse) {
+async function ask(question, hideResponse): Promise<string> {
   let r = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -49,7 +49,7 @@ async function ask(question, hideResponse) {
     }
   });
 
-  let answer = await p;
+  let answer = (await p) as string;
   if (hideResponse) {
     console.log();
   }
@@ -159,8 +159,8 @@ async function newBucket(name, size) {
   let bucket = await client.createBucket(name, size);
   console.log("created bucket:", name);
   for (let i = 0; i < 4; i++) {
-    await client.allocate(name, provider.id);
-    console.log("allocated bucket to", i + 1, "provider" + i == 0 ? "" : "s");
+    await client.allocate(name, providers[i].id);
+    console.log("allocated bucket to", i + 1, "provider" + (i == 0 ? "" : "s"));
   }
 }
 
@@ -245,6 +245,9 @@ async function signup(email) {
   }
 
   // Check if the account exists yet
+  let passphrase = parts[1];
+  let target = KeyPair.fromSecretPhrase(passphrase);
+  let source = KeyPair.fromSecretPhrase("mint");
   let client = newChainClient(source);
   let account = await client.getAccount(target.getPublicKey());
   if (account) {
@@ -253,11 +256,6 @@ async function signup(email) {
   }
 
   // Claim faucet money
-  let passphrase = parts[1];
-  let source = KeyPair.fromSecretPhrase("mint");
-  let target = KeyPair.fromSecretPhrase(passphrase);
-
-  let client = newChainClient(source);
   await client.send(target.getPublicKey(), 300000);
 
   console.log(
