@@ -207,8 +207,19 @@ func (q *OperationQueue) HandleOperationMessage(m *OperationMessage) (*util.Erro
 			updated = updated || q.Add(op)
 		}
 		if !updated {
-			em = &util.ErrorMessage{
-				Error: "no valid operations in operation message",
+			for _, op := range m.Operations {
+				err := q.Validate(op)
+				if err != nil {
+					em = &util.ErrorMessage{
+						Error: fmt.Sprintf("operation failed: %s", err),
+					}
+					break
+				}
+			}
+			if em == nil {
+				em = &util.ErrorMessage{
+					Error: "no valid operations in operation message",
+				}
 			}
 		}
 	}
