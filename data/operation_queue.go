@@ -120,7 +120,7 @@ func (q *OperationQueue) Logf(format string, a ...interface{}) {
 // operation is added after it is.
 // Returns whether any changes were made.
 func (q *OperationQueue) Add(op *SignedOperation) bool {
-	if !q.Validate(op) {
+	if q.Validate(op) != nil {
 		return false
 	}
 	if q.Contains(op) {
@@ -238,26 +238,28 @@ func (q *OperationQueue) Size() int {
 	return q.set.Size()
 }
 
-func (q *OperationQueue) Validate(op *SignedOperation) bool {
+func (q *OperationQueue) Validate(op *SignedOperation) error {
 	if op == nil {
-		return false
+		return fmt.Errorf("nil is not a valid op")
 	}
 	if op.Operation == nil {
-		return false
+		return fmt.Errorf("op.Operation is nil")
 	}
-	if op.Operation.Verify() != nil {
-		return false
+	err := op.Operation.Verify()
+	if err != nil {
+		return err
 	}
-	if q.cache.Validate(op.Operation) != nil {
-		return false
+	err = q.cache.Validate(op.Operation)
+	if err != nil {
+		return err
 	}
-	return true
+	return nil
 }
 
 // Revalidate checks all pending operations to see if they are still valid
 func (q *OperationQueue) Revalidate() {
 	for _, op := range q.Operations() {
-		if !q.Validate(op) {
+		if q.Validate(op) != nil {
 			q.Remove(op)
 		}
 	}

@@ -210,7 +210,7 @@ func validateOp(nodes []*Node, op *data.SignedOperation, t *testing.T) bool {
 	hasTrue := false
 	hasFalse := false
 	for _, node := range nodes {
-		if node.queue.Validate(op) {
+		if node.queue.Validate(op) == nil {
 			hasTrue = true
 		} else {
 			hasFalse = true
@@ -250,7 +250,7 @@ func TestDocumentOperations(t *testing.T) {
 	}
 
 	op = data.MakeTestUpdateDocumentOperation(1, 2)
-	if !nodes[0].queue.Validate(op) {
+	if nodes[0].queue.Validate(op) != nil {
 		t.Fatalf("the update op does not validate")
 	}
 	m = data.NewOperationMessage(op)
@@ -280,7 +280,7 @@ func TestDocumentOperations(t *testing.T) {
 		Fee:      0,
 	}
 	sop := data.NewSignedOperation(dop, wrong)
-	if nodes[0].queue.Validate(sop) {
+	if nodes[0].queue.Validate(sop) == nil {
 		t.Fatalf("deletes should only be runnable by the owner")
 	}
 
@@ -292,13 +292,13 @@ func TestDocumentOperations(t *testing.T) {
 		Fee:      0,
 	}
 	sop = data.NewSignedOperation(uop, wrong)
-	if nodes[0].queue.Validate(sop) {
+	if nodes[0].queue.Validate(sop) == nil {
 		t.Fatalf("updates should only be runnable by the owner")
 	}
 
 	// Try to update a nonexistent document
 	op = data.MakeTestUpdateDocumentOperation(1000, 1)
-	if nodes[0].queue.Validate(op) {
+	if nodes[0].queue.Validate(op) == nil {
 		t.Fatalf("updating a nonexistent document should not validate")
 	}
 	m = data.NewOperationMessage(op)
@@ -312,13 +312,13 @@ func TestDocumentOperations(t *testing.T) {
 
 	// Make sure we can't delete nonexistent documents
 	op = data.MakeTestDeleteDocumentOperation(10, 3)
-	if nodes[0].queue.Validate(op) {
+	if nodes[0].queue.Validate(op) == nil {
 		t.Fatalf("deleting a nonexistent doc should not validate")
 	}
 
 	// Delete our document
 	op = data.MakeTestDeleteDocumentOperation(1, 3)
-	if !nodes[0].queue.Validate(op) {
+	if nodes[0].queue.Validate(op) != nil {
 		t.Fatalf("the delete op should validate")
 	}
 	m = data.NewOperationMessage(op)
