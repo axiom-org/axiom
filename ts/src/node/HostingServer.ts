@@ -114,7 +114,8 @@ export default class HostingServer {
       try {
         infoHash = getInfoHash(bucket.magnet);
       } catch (e) {
-        console.log(e.message);
+        // TODO: I want to log bad magnets in some way, but just once rather than every time
+        // we go through this code.
         continue;
       }
       newInfoMap[infoHash] = bucket;
