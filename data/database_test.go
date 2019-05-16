@@ -506,7 +506,7 @@ func TestBuckets(t *testing.T) {
 		},
 		pair{
 			query: &BucketQuery{
-				Name: "www:mybucket",
+				Name: "www:MyBucket",
 			},
 			count: 0,
 		},
