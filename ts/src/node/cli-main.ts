@@ -30,6 +30,33 @@ function newChainClient(kp?: KeyPair): ChainClient {
   return client;
 }
 
+// Makes a validated bucket name from a user-provided one
+function makeBucketName(input): string {
+  let parts = input.split(":");
+  if (parts.length > 2) {
+    throw new Error("bucket name has too many parts: " + input)
+  }
+  if (parts.length) == 0 {
+    throw new Error("bucket name (\"" + input + "\") is empty");
+  }
+  if (parts.length == 1) {
+    parts.unshift("www");
+  }
+
+  // Validate the parts. Make sure this regex matches the one in bucket.go
+  let regex = RegExp("^[-a-zA-Z0-9]+$")
+  for (let i = 0; i < 2; i++) {
+    if (i == 0 && parts[0] == "www") {
+      continue;
+    }
+    if (!regex.test(parts[i])) {
+      throw new Error("bucket name has an invalid part: " + parts[i]);
+    }
+  }
+
+  return parts.join(":");
+}
+
 // Asks the CLI user a question, asynchronously returns the response.
 async function ask(question, hideResponse): Promise<string> {
   let r = readline.createInterface({
@@ -399,7 +426,7 @@ async function main() {
     if (rest.length != 2) {
       fatal("Usage: axiom new-bucket <name> <size>");
     }
-    let name = rest[0];
+    let name = makeBucketName(rest[0]);
     let size = parseInt(rest[1]);
     if (!size) {
       fatal("bad size:" + rest[1]);
@@ -412,7 +439,7 @@ async function main() {
     if (rest.length != 2) {
       fatal("Usage: axiom create-bucket <name> <size>");
     }
-    let name = rest[0];
+    let name = makeBucketName(rest[0]);
     let size = parseInt(rest[1]);
     if (!size) {
       fatal("bad size:" + rest[1]);
@@ -425,7 +452,7 @@ async function main() {
     if (rest.length != 1) {
       fatal("Usage: axiom delete-bucket <name>");
     }
-    let name = rest[0];
+    let name = makeBucketName(rest[0]);
     await deleteBucket(name);
     return;
   }
@@ -434,7 +461,7 @@ async function main() {
     if (rest.length != 1) {
       fatal("Usage: axiom get-bucket <name>");
     }
-    await getBucket(rest[0]);
+    await getBucket(makeBucketName(rest[0]));
     return;
   }
 
@@ -472,6 +499,7 @@ async function main() {
     }
 
     let [bucketName, magnet] = rest;
+    bucketName = makeBucketName(bucketName);
     await setMagnet(bucketName, magnet);
     return;
   }
@@ -496,6 +524,7 @@ async function main() {
     }
 
     let [bucketName, idstr] = rest;
+    bucketName = makeBucketName(bucketName);    
     let providerID = parseInt(idstr);
     if (!providerID) {
       fatal("bad id: " + idstr);
@@ -510,7 +539,7 @@ async function main() {
     }
 
     let directory = rest[0];
-    let bucketName = rest[1];
+    let bucketName = makeBucketName(rest[1]);
     await deploy(directory, bucketName);
     return;
   }
@@ -520,7 +549,7 @@ async function main() {
       fatal("Usage: axiom download [bucketName] [directory]");
     }
 
-    let bucketName = rest[0];
+    let bucketName = makeBucketName(rest[0]);
     let directory = rest[1];
     await download(bucketName, directory);
     return;

@@ -27,6 +27,7 @@ type Bucket struct {
 	Providers ProviderArray `json:"providers"`
 }
 
+// Make sure this regex matches the one in cli-main.ts
 var validBucketNamePart = regexp.MustCompile("^[-a-zA-Z0-9]+$")
 
 // Each part of a bucket name must be a valid domain name, and can't begin or end with hyphen.
