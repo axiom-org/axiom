@@ -387,21 +387,21 @@ func TestBuckets(t *testing.T) {
 	}
 
 	check(db.InsertBucket(&Bucket{
-		Name:  "mybucket",
+		Name:  "www:mybucket",
 		Owner: "bob",
 		Size:  150,
 	}))
 	check(db.UpdateBucket(&Bucket{
-		Name:   "mybucket",
+		Name:   "www:mybucket",
 		Magnet: "magnet://example.com/mybucket",
 	}))
 	check(db.InsertBucket(&Bucket{
-		Name:  "jimsbucket",
+		Name:  "www:jimsbucket",
 		Owner: "jim",
 		Size:  150,
 	}))
 
-	if db.GetBucket("mybucket") != nil {
+	if db.GetBucket("www:mybucket") != nil {
 		t.Fatalf("mybucket should not be visible before commit")
 	}
 
@@ -410,7 +410,7 @@ func TestBuckets(t *testing.T) {
 	if db.GetBucket("blorp") != nil {
 		t.Fatalf("there should be no bucket named blorp")
 	}
-	b := db.GetBucket("mybucket")
+	b := db.GetBucket("www:mybucket")
 	if b.Owner != "bob" {
 		t.Fatalf("GetBucket got %+v", b)
 	}
@@ -427,15 +427,15 @@ func TestBuckets(t *testing.T) {
 			ID:        i,
 		}))
 	}
-	check(db.Allocate("mybucket", 1))
-	check(db.Allocate("mybucket", 3))
-	err := db.Allocate("mybucket", 4)
+	check(db.Allocate("www:mybucket", 1))
+	check(db.Allocate("www:mybucket", 3))
+	err := db.Allocate("www:mybucket", 4)
 	if err == nil {
 		t.Fatalf("should fail to allocate when not enough space")
 	}
 	db.Commit()
 
-	err = db.DeleteBucket("mybucket")
+	err = db.DeleteBucket("www:mybucket")
 	db.Commit()
 	if err == nil {
 		t.Fatalf("a bucket with allocations should not be deletable")
@@ -456,33 +456,33 @@ func TestBuckets(t *testing.T) {
 		pair{
 			query: &BucketQuery{
 				Owner: "bob",
-				Name:  "mybucket",
+				Name:  "www:mybucket",
 			},
 			count: 1,
 		},
 		pair{
 			query: &BucketQuery{
-				Names: []string{"mybucket", "jimsbucket", "zorpsbucket"},
+				Names: []string{"www:mybucket", "www:jimsbucket", "www:zorpsbucket"},
 			},
 			count: 2,
 		},
 		pair{
 			query: &BucketQuery{
-				Name: "mybucket",
+				Name: "www:mybucket",
 			},
 			count: 1,
 		},
 		pair{
 			query: &BucketQuery{
 				Owner: "zeke",
-				Name:  "mybucket",
+				Name:  "www:mybucket",
 			},
 			count: 0,
 		},
 		pair{
 			query: &BucketQuery{
 				Owner: "bob",
-				Name:  "zorp",
+				Name:  "foobarbaz:zorple",
 			},
 			count: 0,
 		},
@@ -506,7 +506,7 @@ func TestBuckets(t *testing.T) {
 		},
 		pair{
 			query: &BucketQuery{
-				Name: "MyBucket",
+				Name: "www:mybucket",
 			},
 			count: 0,
 		},
@@ -558,9 +558,9 @@ func TestBuckets(t *testing.T) {
 		t.Fatalf("failed to retrieve providers")
 	}
 
-	check(db.Deallocate("mybucket", 1))
-	check(db.Deallocate("mybucket", 3))
-	check(db.DeleteBucket("mybucket"))
+	check(db.Deallocate("www:mybucket", 1))
+	check(db.Deallocate("www:mybucket", 3))
+	check(db.DeleteBucket("www:mybucket"))
 	db.Commit()
 }
 
@@ -581,13 +581,13 @@ func TestProviders(t *testing.T) {
 	check(db.InsertProvider(p))
 
 	b := &Bucket{
-		Name:  "bucket1",
+		Name:  "www:bucket1",
 		Owner: "jim",
 		Size:  7,
 	}
 	check(db.InsertBucket(b))
 
-	check(db.Allocate("bucket1", 1))
+	check(db.Allocate("www:bucket1", 1))
 
 	db.Commit()
 
@@ -597,13 +597,13 @@ func TestProviders(t *testing.T) {
 		t.Fatalf("should not be able to delete a provider with allocations")
 	}
 
-	err = db.Allocate("bucket1", 1)
+	err = db.Allocate("www:bucket1", 1)
 	db.Commit()
 	if err == nil {
 		t.Fatalf("should not be able to double-allocate")
 	}
 
-	b = db.GetBucket("bucket1")
+	b = db.GetBucket("www:bucket1")
 	if b == nil || len(b.Providers) != 1 {
 		t.Fatalf("expected one provider for %#v", b)
 	}
@@ -627,12 +627,12 @@ func TestProviders(t *testing.T) {
 		t.Fatalf("AddCapacity failed: %+v", p)
 	}
 
-	ps, _ := db.GetProviders(&ProviderQuery{Bucket: "bucket1"})
+	ps, _ := db.GetProviders(&ProviderQuery{Bucket: "www:bucket1"})
 	if len(ps) != 1 {
 		t.Fatalf("failed to search for provider based on bucket")
 	}
 
-	check(db.Deallocate("bucket1", 1))
+	check(db.Deallocate("www:bucket1", 1))
 	db.Commit()
 
 	p = db.GetProvider(1)
@@ -640,7 +640,7 @@ func TestProviders(t *testing.T) {
 		t.Fatalf("deallocating should have freed up available space: #%v", p)
 	}
 
-	b = db.GetBucket("bucket1")
+	b = db.GetBucket("www:bucket1")
 	if len(b.Providers) != 0 {
 		t.Fatalf("expected zero providers for %#v", b)
 	}

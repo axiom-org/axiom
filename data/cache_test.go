@@ -187,7 +187,7 @@ func TestAllocation(t *testing.T) {
 	setup := func() {
 
 		b := &Bucket{
-			Name:  "mybucket",
+			Name:  "www:mybucket",
 			Owner: "me",
 			Size:  10,
 		}
@@ -200,7 +200,7 @@ func TestAllocation(t *testing.T) {
 
 		c.InsertBucket(b)
 		c.InsertProvider(p)
-		c.Allocate("mybucket", 1)
+		c.Allocate("www:mybucket", 1)
 		db.Commit()
 
 		p2 := c.GetProvider(1)
@@ -210,7 +210,7 @@ func TestAllocation(t *testing.T) {
 	}
 
 	setup()
-	c.DeleteBucket("mybucket")
+	c.DeleteBucket("www:mybucket")
 	db.Commit()
 	if c.GetProvider(1).Available != 100 {
 		t.Fatalf("provider should have freed up space")
@@ -221,16 +221,16 @@ func TestAllocation(t *testing.T) {
 	setup()
 	c.DeleteProvider(1)
 	db.Commit()
-	if len(c.GetBucket("mybucket").Providers) != 0 {
+	if len(c.GetBucket("www:mybucket").Providers) != 0 {
 		t.Fatalf("bucket should have no providers")
 	}
 	url := "magnet://example.com/mybucket"
-	c.SetMagnet("mybucket", url)
+	c.SetMagnet("www:mybucket", url)
 	db.Commit()
-	if c.GetBucket("mybucket").Magnet != url {
+	if c.GetBucket("www:mybucket").Magnet != url {
 		t.Fatalf("bucket should have magnet")
 	}
-	c.DeleteBucket("mybucket")
+	c.DeleteBucket("www:mybucket")
 	db.Commit()
 }
 
@@ -241,7 +241,7 @@ func TestAllocationProcessing(t *testing.T) {
 	cbop := &CreateBucketOperation{
 		Sequence: 1,
 		Signer:   "jim",
-		Name:     "jimsbucket",
+		Name:     "www:jimsbucket",
 		Size:     100,
 	}
 
@@ -273,7 +273,7 @@ func TestAllocationProcessing(t *testing.T) {
 	aop := &AllocateOperation{
 		Sequence:   2,
 		Signer:     "jim",
-		BucketName: "jimsbucket",
+		BucketName: "www:jimsbucket",
 		ProviderID: 1,
 	}
 	err := c.Process(aop)
@@ -284,7 +284,7 @@ func TestAllocationProcessing(t *testing.T) {
 	dop := &DeallocateOperation{
 		Sequence:   3,
 		Signer:     "jim",
-		BucketName: "jimsbucket",
+		BucketName: "www:jimsbucket",
 		ProviderID: 1,
 	}
 	if c.Process(dop) != nil {
@@ -294,7 +294,7 @@ func TestAllocationProcessing(t *testing.T) {
 	ubop := &UpdateBucketOperation{
 		Sequence: 4,
 		Signer:   "jim",
-		Name:     "jimsbucket",
+		Name:     "www:jimsbucket",
 		Magnet:   "magnet://example.com/x",
 	}
 	if c.Process(ubop) != nil {
@@ -309,7 +309,7 @@ func TestAllocationProcessing(t *testing.T) {
 	dbop := &DeleteBucketOperation{
 		Sequence: 5,
 		Signer:   "jim",
-		Name:     "jimsbucket",
+		Name:     "www:jimsbucket",
 	}
 	if c.Process(dbop) != nil {
 		t.Fatalf("should be able to delete bucket")

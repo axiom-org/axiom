@@ -11,7 +11,11 @@ import (
 )
 
 type Bucket struct {
-	Name  string `json:"name"`
+	// Name has a single colon to specify the format of:
+	// applicationName:userName
+	// Usernames are specific to applications, so you can't reserve a single username globally.
+	Name string `json:"name"`
+
 	Owner string `json:"owner"`
 
 	// Measured in megabytes
@@ -23,17 +27,34 @@ type Bucket struct {
 	Providers ProviderArray `json:"providers"`
 }
 
-var validBucketName = regexp.MustCompile("^[-a-zA-Z0-9]+$")
+var validBucketNamePart = regexp.MustCompile("^[-a-zA-Z0-9]+$")
 
-// Bucket names must be valid domain names, and can't begin or end with hyphen
-func IsValidBucketName(s string) bool {
-	if !validBucketName.MatchString(s) {
+// Each part of a bucket name must be a valid domain name, and can't begin or end with hyphen.
+// They also must be at least six letters long.
+func IsValidBucketNamePart(s string) bool {
+	if len(s) < 6 {
+		return false
+	}
+	if !validBucketNamePart.MatchString(s) {
 		return false
 	}
 	if strings.HasPrefix(s, "-") || strings.HasSuffix(s, "-") {
 		return false
 	}
 	return true
+}
+
+// "www" is the only allowed application name shorter than six letters.
+// We could hardcode more in later.
+func IsValidBucketName(s string) bool {
+	parts := strings.Split(s, ":")
+	if len(parts) != 2 {
+		return false
+	}
+	if parts[0] != "www" && !IsValidBucketNamePart(parts[0]) {
+		return false
+	}
+	return IsValidBucketNamePart(parts[1])
 }
 
 // Magnet URIs must be valid urls and start with "magnet:"
@@ -45,20 +66,21 @@ func IsValidMagnet(m string) bool {
 	return err == nil
 }
 
-// Joins and '-quotes string names
+// Joins and '-quotes string names.
+// Also replaces : with ::
 func joinBucketNamesForSQL(names []string) string {
 	parts := []string{}
 	for _, name := range names {
 		if !IsValidBucketName(name) {
 			util.Logger.Fatalf("bad bucket name in join: %s", name)
 		}
-		parts = append(parts, fmt.Sprintf("'%s'", name))
+		parts = append(parts, fmt.Sprintf("'%s'", strings.Replace(name, ":", "::", -1)))
 	}
 	return strings.Join(parts, ",")
 }
 
 func (b *Bucket) String() string {
-	return fmt.Sprintf("bucket:%s, size:%d", b.Name, b.Size)
+	return fmt.Sprintf("bucket=%s, size=%d", b.Name, b.Size)
 }
 
 func (b *Bucket) IsValidNewBucket() bool {
