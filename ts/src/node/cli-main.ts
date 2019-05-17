@@ -606,6 +606,14 @@ async function main() {
     return;
   }
 
+  if (op === "which") {
+    if (rest.length != 0) {
+      fatal("Usage: axiom which");
+    }
+    console.log(__filename);
+    return;
+  }
+
   fatal("unrecognized operation: " + op);
 }
 
