@@ -241,19 +241,15 @@ async function deploy(directory, bucketName) {
   await client.destroy();
 }
 
-async function download(bucketName, directory) {
-  let dir = path.resolve(directory);
-  if (fs.existsSync(dir)) {
-    fatal(dir + " already exists");
-  }
+async function download(bucketName) {
   let cc = newChainClient();
   let bucket = await cc.getBucket(bucketName);
   if (!bucket || !bucket.magnet || !bucket.magnet.startsWith("magnet")) {
     fatal("bucket has no magnet: " + JSON.stringify(bucket));
   }
-  console.log("downloading", bucket.magnet, "to", dir);
+  console.log("downloading", bucket.magnet, "to", process.cwd());
   let tc = new TorrentClient(getNetwork());
-  let torrent = tc.download(bucket.magnet, dir);
+  let torrent = tc.download(bucket.magnet, process.cwd());
   await torrent.waitForDone();
   await tc.destroy();
 }
@@ -345,6 +341,10 @@ async function main() {
   let op = args[0];
   let rest = args.slice(1);
 
+  if (op === "upload") {
+    op = "deploy";
+  }
+  
   if (op === "status") {
     if (rest.length > 1) {
       fatal("Usage: axiom status [publickey]");
@@ -551,13 +551,12 @@ async function main() {
   }
 
   if (op === "download") {
-    if (rest.length != 2) {
-      fatal("Usage: axiom download [bucketName] [directory]");
+    if (rest.length != 1) {
+      fatal("Usage: axiom download [bucketName]");
     }
 
     let bucketName = makeBucketName(rest[0]);
-    let directory = rest[1];
-    await download(bucketName, directory);
+    await download(bucketName);
     return;
   }
 
