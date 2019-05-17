@@ -323,7 +323,7 @@ async function login() {
   console.log("logging into", config.getNetwork(), "network...");
   let phrase = await ask("please enter your passphrase: ", true);
   kp = KeyPair.fromSecretPhrase(phrase);
-  console.log("hello. your username is", kp.getPublicKey());
+  console.log("hello. your public key is", kp.getPublicKey());
   config.setKeyPair(kp);
   return kp;
 }
@@ -394,7 +394,7 @@ async function main() {
   if (op === "get-providers") {
     if (rest.length > 2) {
       fatal(
-        "Usage: axiom get-providers [owner=<id>] [bucket=<name>] [available=<amount]"
+        "Usage: axiom get-providers [owner=<id>] [bucket=<name>] [available=<amount>] [id=<id>]"
       );
     }
     let query = {} as any;
@@ -409,6 +409,12 @@ async function main() {
         if (!query.available) {
           fatal("bad available argument: " + s);
         }
+      } else if (arg.startsWith("id=")) {
+	let s = arg.split("=")[1];
+	query.id = parseInt(s);
+	if (!query.id) {
+	  fatal("bad id argument: " + s);
+	}
       } else {
         fatal("unrecognized arg: " + arg);
       }
