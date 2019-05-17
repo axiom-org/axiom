@@ -210,6 +210,7 @@ export default class HostingServer {
       return;
     }
     let client = new ChainClient(this.keyPair, this.network);
+    client.verbose = this.verbose;
     let user = this.keyPair.getPublicKey();
     while (true) {
       let account = await client.getAccount(user);
