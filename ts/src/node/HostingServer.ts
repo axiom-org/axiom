@@ -170,7 +170,7 @@ export default class HostingServer {
       return this.id;
     }
 
-    // Check to see if we already have a provider created.
+    this.log("checking to see if we already have a provider created...");
     let client = new ChainClient(this.keyPair, this.network);
     let providers = await client.getProviders({
       owner: this.keyPair.getPublicKey()
@@ -196,6 +196,7 @@ export default class HostingServer {
     }
 
     // Create a provider
+    this.log("no provider found. creating one...");
     let provider = await client.createProvider(this.capacity);
     this.id = provider.id;
     this.log("created a new provider with id:", this.id);
