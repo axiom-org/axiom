@@ -36,7 +36,7 @@ function makeBucketName(input): string {
   if (parts.length > 2) {
     throw new Error("bucket name has too many parts: " + input)
   }
-  if (parts.length) == 0 {
+  if (parts.length == 0) {
     throw new Error("bucket name (\"" + input + "\") is empty");
   }
   if (parts.length == 1) {
