@@ -368,7 +368,7 @@ async function main() {
 
   if (op === "create-provider") {
     if (rest.length != 1) {
-      fatal("Usage: axiom create-provider <capacity>");
+      fatal("Usage: axiom create-provider [capacity]");
     }
 
     let capacity = parseInt(rest[0]);
@@ -381,7 +381,7 @@ async function main() {
 
   if (op === "get-provider") {
     if (rest.length != 1) {
-      fatal("Usage: axiom get-provider <id>");
+      fatal("Usage: axiom get-provider [id]");
     }
     let id = parseInt(rest[0]);
     if (!id) {
@@ -430,7 +430,7 @@ async function main() {
 
   if (op === "new-bucket") {
     if (rest.length != 2) {
-      fatal("Usage: axiom new-bucket <name> <size>");
+      fatal("Usage: axiom new-bucket [name] [size]");
     }
     let name = makeBucketName(rest[0]);
     let size = parseInt(rest[1]);
@@ -443,7 +443,7 @@ async function main() {
 
   if (op === "create-bucket") {
     if (rest.length != 2) {
-      fatal("Usage: axiom create-bucket <name> <size>");
+      fatal("Usage: axiom create-bucket [name] [size]");
     }
     let name = makeBucketName(rest[0]);
     let size = parseInt(rest[1]);
@@ -456,7 +456,7 @@ async function main() {
 
   if (op === "delete-bucket") {
     if (rest.length != 1) {
-      fatal("Usage: axiom delete-bucket <name>");
+      fatal("Usage: axiom delete-bucket [name]");
     }
     let name = makeBucketName(rest[0]);
     await deleteBucket(name);
@@ -465,7 +465,7 @@ async function main() {
 
   if (op === "get-bucket") {
     if (rest.length != 1) {
-      fatal("Usage: axiom get-bucket <name>");
+      fatal("Usage: axiom get-bucket [name]");
     }
     await getBucket(makeBucketName(rest[0]));
     return;
@@ -536,6 +536,21 @@ async function main() {
       fatal("bad id: " + idstr);
     }
     await allocate(bucketName, providerID);
+    return;
+  }
+
+  if (op === "dealloc" || op === "deallocate") {
+    if (rest.length != 2) {
+      fatal("Usage: axiom " + op + " [bucketName] [providerID]");
+    }
+
+    let [bucketName, idstr] = rest;
+    bucketName = makeBucketName(bucketName);    
+    let providerID = parseInt(idstr);
+    if (!providerID) {
+      fatal("bad id: " + idstr);
+    }
+    await deallocate(bucketName, providerID);
     return;
   }
 
