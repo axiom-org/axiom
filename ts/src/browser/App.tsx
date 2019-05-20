@@ -53,6 +53,12 @@ export default class App extends React.Component<any, any> {
     });
   }
 
+  async fetchPeerData() {
+    let bucket = await this.axiom.getBucket("www", "my-cool-example");
+    await bucket.download();
+    console.log("filenames:", bucket.getFilenames());
+  }
+
   async fetchPublicKey() {
     console.log("calling getPublicKey");
     let pk = await this.axiom.getPublicKey();
@@ -88,7 +94,7 @@ export default class App extends React.Component<any, any> {
         <hr />
         <button
           onClick={() => {
-            fetchPeerData();
+            this.fetchPeerData();
           }}
         >
           Fetch Peer Data
