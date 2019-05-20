@@ -341,13 +341,16 @@ async function main() {
   let op = args[0];
   let rest = args.slice(1);
 
-  if (op === "upload") {
-    op = "deploy";
+  if (op === "deploy") {
+    op = "upload";
+  }
+  if (op === "status") {
+    op = "get-account";
   }
   
-  if (op === "status") {
+  if (op === "get-account") {
     if (rest.length > 1) {
-      fatal("Usage: axiom status [publickey]");
+      fatal("Usage: axiom get-account [publickey]");
     }
     if (rest.length === 0) {
       await ourStatus();
@@ -554,9 +557,9 @@ async function main() {
     return;
   }
 
-  if (op === "deploy") {
+  if (op === "upload") {
     if (rest.length != 2) {
-      fatal("Usage: axiom deploy [directory] [bucketName]");
+      fatal("Usage: axiom upload [directory] [bucketName]");
     }
 
     let directory = rest[0];
