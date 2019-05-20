@@ -38,7 +38,6 @@ export default class Login extends React.Component<any, any> {
   // this.state.input could be a password or private key
   handleInput() {
     // Check if the input was a private key
-    console.log("XXX");
     let kp;
     try {
       kp = KeyPair.fromPrivateKey(this.state.input);

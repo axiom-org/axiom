@@ -2,8 +2,6 @@
 // It does not run in the context of web pages that failed to load.
 // It does not run in .axiom pages because the loader stops subsequent page loading.
 
-// console.log("running content-main.ts");
-
 window.addEventListener(
   "message",
   event => {

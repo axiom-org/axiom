@@ -1,7 +1,5 @@
 // This code is injected into .axiom pages in order to load their actual content.
 
-console.log("XXX loader code");
-
 // Stops the process of loading the nonexistent .axiom url
 window.stop();
 

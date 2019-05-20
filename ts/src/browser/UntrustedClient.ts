@@ -49,6 +49,9 @@ export default class UntrustedClient {
       let message = Message.fromSerialized(event.data.message);
 
       if (message.type == "Permission") {
+        if (!this.popupURL && message.popupURL) {
+          console.log("initializing permissions to", message.permissions);
+        }
         this.permissions = message.permissions;
         this.popupURL = message.popupURL;
       }
@@ -63,7 +66,14 @@ export default class UntrustedClient {
     });
 
     // Initialize the permissions by asking the extension for what we have
-    this.sendMessage(new Message("RequestPermission", { permissions: {} }));
+    console.log("initializing permissions...");
+    this.sendMessage(
+      new Message("RequestPermission", { permissions: {} })
+    ).then(response => {
+      if (response.type === "Error") {
+        console.log("initialization error:", response.error);
+      }
+    });
   }
 
   // Each browser message has an id
@@ -103,23 +113,26 @@ export default class UntrustedClient {
   //
   // Returns a permission message containing all the permissions we have.
   // Throws an error if the user denies permission.
+  // TODO: make sure it throws rather than returning an error message
   async requestPermission(permissions) {
     if (this.hasPermission(permissions)) {
       return new Message("Permission", { permissions: this.permissions });
     }
 
     if (!this.popupURL) {
-      return new Message("Error", {
-        error: "Client popupURL was not initialized"
-      });
+      throw new Error("Client popupURL was not initialized");
     }
 
     // We need to prompt the user for approval
     window.open(this.popupURL, "", "height=580,width=376,top=100,left=100");
 
-    return await this.sendMessage(
+    let response = await this.sendMessage(
       new Message("RequestPermission", { permissions: permissions })
     );
+    if (response.type === "Error") {
+      throw new Error(response.error);
+    }
+    return response;
   }
 
   // Requests public key permission from the extension if we don't already have it.

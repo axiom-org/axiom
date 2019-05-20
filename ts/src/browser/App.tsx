@@ -35,10 +35,8 @@ export default class App extends React.Component<any, any> {
   }
 
   fetchBlockchainData() {
-    // this.fetchBalance();
-    // this.fetchPublicKey();
-    console.log(stringify);
-    console.log(stringify({ b: 2, a: 1 }));
+    this.fetchBalance();
+    this.fetchPublicKey();
   }
 
   async fetchBalance() {
@@ -60,7 +58,9 @@ export default class App extends React.Component<any, any> {
   }
 
   async fetchPublicKey() {
+    console.log("calling getPublicKey");
     let pk = await this.client.getPublicKey();
+    console.log("getPublicKey completed, it's", pk);
     this.setState({
       publicKey: pk
     });

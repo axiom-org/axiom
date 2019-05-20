@@ -6,7 +6,7 @@
 // publicKey: bool, whether the app may know the public key of the user
 
 export function missingPermissions(granted, requested) {
-  let answer = { publicKey: undefined };
+  let answer = {} as any;
   if (requested.publicKey && !granted.publicKey) {
     answer.publicKey = true;
   }
