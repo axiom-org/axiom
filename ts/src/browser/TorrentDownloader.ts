@@ -1,4 +1,4 @@
-// The TorrentDownloader finds the right torrent for a hostname and uses that to return
+// The TorrentDownloader finds the right torrent for a bucket and uses that to return
 // subsequent files.
 // It is designed to be used non-persistently from a web browser.
 

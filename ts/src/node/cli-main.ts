@@ -14,6 +14,7 @@ import Message from "../iso/Message";
 import NetworkConfig from "../iso/NetworkConfig";
 import ProviderListener from "./ProviderListener";
 import TorrentClient from "../iso/TorrentClient";
+import { makeBucketName } from "../iso/Util";
 
 function fatal(message) {
   console.log(message);
@@ -28,33 +29,6 @@ function getNetwork(): string {
 function newChainClient(kp?: KeyPair): ChainClient {
   let client = new ChainClient(kp, getNetwork());
   return client;
-}
-
-// Makes a validated bucket name from a user-provided one
-function makeBucketName(input): string {
-  let parts = input.split(":");
-  if (parts.length > 2) {
-    throw new Error("bucket name has too many parts: " + input)
-  }
-  if (parts.length == 0) {
-    throw new Error("bucket name (\"" + input + "\") is empty");
-  }
-  if (parts.length == 1) {
-    parts.unshift("www");
-  }
-
-  // Validate the parts. Make sure this regex matches the one in bucket.go
-  let regex = RegExp("^[-a-zA-Z0-9]+$")
-  for (let i = 0; i < 2; i++) {
-    if (i == 0 && parts[0] == "www") {
-      continue;
-    }
-    if (!regex.test(parts[i])) {
-      throw new Error("bucket name has an invalid part: " + parts[i]);
-    }
-  }
-
-  return parts.join(":");
 }
 
 // Asks the CLI user a question, asynchronously returns the response.
