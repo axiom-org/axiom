@@ -47,13 +47,14 @@ export default class AxiomAPI {
   }
 
   // Returns null if there is no such bucket.
-  async getBucket(name): Promise<Bucket> {
-    let data = await this.chainClient.getBucket(makeBucketName(name));
+  async getBucket(application: string, name: string): Promise<Bucket> {
+    let fullName = makeBucketName(application + ":" + name);
+    let data = await this.chainClient.getBucket(fullName);
     return this._makeBucket(data);
   }
 
   // Throws an error if permission is rejected, or if the bucket creation fails.
-  async createBucket(application, name, size): Promise<Bucket> {
+  async createBucket(application: string, name, size): Promise<Bucket> {
     throw new Error("XXX");
   }
 }

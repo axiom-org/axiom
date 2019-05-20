@@ -58,6 +58,18 @@ export default class Bucket {
     return this.files && true;
   }
 
+  // Throws an error if we haven't downloaded this bucket.
+  getFilenames(): string[] {
+    if (!this.isDownloaded()) {
+      throw new Error("cannot call getFile before the bucket is downloaded");
+    }
+    let answer = [];
+    for (let fname in this.files) {
+      answer.push(fname);
+    }
+    return answer;
+  }
+
   // Returns undefined if there is no such file.
   // Throws an error if we haven't downloaded this bucket.
   getFile(filename: string): File {
