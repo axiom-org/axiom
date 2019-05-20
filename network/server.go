@@ -509,6 +509,7 @@ func (s *Server) ServeHttpInBackground(port int) {
 		if output == nil {
 			output = util.KeepAlive()
 		}
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		output.Write(w)
 	}
 	http.HandleFunc("/messages/", messageHandler)
