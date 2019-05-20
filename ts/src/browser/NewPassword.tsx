@@ -36,6 +36,11 @@ export default class NewPassword extends React.Component<any, any> {
           }}
         >
           <h1>Choose a password</h1>
+          <p>
+            This password prevents other people using this computer from using
+            your Axiom account. This password isn't useful to people who aren't
+            using this computer, so it can be short.
+          </p>
         </div>
         <form
           style={{

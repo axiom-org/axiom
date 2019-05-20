@@ -38,11 +38,15 @@ export default class Login extends React.Component<any, any> {
   // this.state.input could be a password or private key
   handleInput() {
     // Check if the input was a private key
+    console.log("XXX");
     let kp;
     try {
-      KeyPair.fromPrivateKey(this.state.input);
+      kp = KeyPair.fromPrivateKey(this.state.input);
     } catch (e) {
       // It's not a valid private key
+      console.log(
+        "the string: [" + this.state.input + "] is not a valid private key"
+      );
     }
     if (kp) {
       this.popup.newKeyPair(kp);
@@ -61,6 +65,7 @@ export default class Login extends React.Component<any, any> {
   }
 
   render() {
+    let allowCreateNewAccount = false;
     return (
       <div style={Styles.popup}>
         <div
@@ -103,15 +108,18 @@ export default class Login extends React.Component<any, any> {
           <Button variant="contained" color="primary" type="submit">
             Log In
           </Button>
-          <Button
-            variant="contained"
-            color="default"
-            onClick={() => {
-              this.popup.newKeyPair(KeyPair.fromRandom());
-            }}
-          >
-            Create a new account
-          </Button>
+
+          {allowCreateNewAccount && (
+            <Button
+              variant="contained"
+              color="default"
+              onClick={() => {
+                this.popup.newKeyPair(KeyPair.fromRandom());
+              }}
+            >
+              Create a new account
+            </Button>
+          )}
         </form>
       </div>
     );
