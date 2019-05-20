@@ -91,7 +91,7 @@ export default class TorrentDownloader {
   async getMagnetURL(hostname) {
     console.log("looking up bucket for", hostname);
     let client = new ChainClient(null, this.network);
-    let name = hostname.split(".")[0];
+    let name = "www:" + hostname.split(".")[0];
     let bucket = await client.getBucket(name);
     if (!bucket) {
       throw new Error("unregistered host: " + name);
