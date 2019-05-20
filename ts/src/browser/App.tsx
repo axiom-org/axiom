@@ -2,36 +2,32 @@
 
 import * as React from "react";
 
-import UntrustedClient from "./UntrustedClient";
+import AxiomAPI from "./AxiomAPI";
 import KeyPair from "../iso/KeyPair";
 import TorrentClient from "../iso/TorrentClient";
 import TorrentDownloader from "./TorrentDownloader";
 
 import stringify = require("json-stable-stringify");
 
-async function fetchPeerData() {
-  // localStorage.debug = "webtorrent:torrent";
-  const SAMPLESITE =
-    "magnet:?xt=urn:btih:e60f82343019bd711c5c731b46e118b0f2b2ecc6&dn=samplesite&tr=ws%3A%2F%2Flocalhost%3A4000&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com";
+const NETWORK = "alpha";
 
-  let client = new TorrentClient("local");
-  let torrent = await client.download(SAMPLESITE);
-  await torrent.monitorProgress();
-  await client.destroy();
+async function fetchPeerData() {
+  // let axiom = new AxiomAPI({ network: NETWORK });
+  // TODO: fetch some peer data
 }
 
 export default class App extends React.Component<any, any> {
-  client: UntrustedClient;
+  axiom: AxiomAPI;
 
   constructor(props) {
     super(props);
 
     this.state = {
       publicKey: null,
-      mintBalance: null
+      balance: null
     };
 
-    this.client = new UntrustedClient();
+    this.axiom = new AxiomAPI({ network: NETWORK });
   }
 
   fetchBlockchainData() {
@@ -40,26 +36,24 @@ export default class App extends React.Component<any, any> {
   }
 
   async fetchBalance() {
-    let mint =
-      "0x32652ebe42a8d56314b8b11abf51c01916a238920c1f16db597ee87374515f4609d3";
-    let query = {
-      account: mint
-    };
+    let user =
+      "0x32bbd7e6ffc293bd586953bc2d66aa4f30269e4ab7a084d29f94d2a1fdab9858fe19";
 
-    let response = await this.client.query(query);
-    if (!response.accounts || !response.accounts[mint]) {
-      console.log("bad message:", response);
-    } else {
-      let balance = response.accounts[mint].balance;
-      this.setState({
-        mintBalance: balance
-      });
+    let account = await this.axiom.getAccount(user);
+    if (!account) {
+      console.log("no account found for user", user);
+      return;
     }
+
+    let balance = account.balance;
+    this.setState({
+      balance: balance
+    });
   }
 
   async fetchPublicKey() {
     console.log("calling getPublicKey");
-    let pk = await this.client.getPublicKey();
+    let pk = await this.axiom.getPublicKey();
     console.log("getPublicKey completed, it's", pk);
     this.setState({
       publicKey: pk
@@ -79,8 +73,8 @@ export default class App extends React.Component<any, any> {
           {this.state.publicKey ? this.state.publicKey : "nobody"} is logged in
         </h1>
         <h1>
-          mint balance is{" "}
-          {this.state.mintBalance == null ? "unknown" : this.state.mintBalance}
+          the test user balance is{" "}
+          {this.state.balance == null ? "unknown" : this.state.balance}
         </h1>
         <button
           onClick={() => {
@@ -98,7 +92,7 @@ export default class App extends React.Component<any, any> {
           Fetch Peer Data
         </button>
         <hr />
-        <a href="http://hello.axiom">Hello</a>
+        <a href="http://my-cool-example.axiom">Hello</a>
       </div>
     );
   }

@@ -41,6 +41,11 @@ export default class AxiomAPI {
     return this.untrustedClient.getPublicKey();
   }
 
+  // Fetches the account with the given user, or null if there is no such account.
+  async getAccount(user): Promise<any> {
+    return await this.chainClient.getAccount(user);
+  }
+
   // Returns null if there is no such bucket.
   async getBucket(name): Promise<Bucket> {
     let data = await this.chainClient.getBucket(makeBucketName(name));
