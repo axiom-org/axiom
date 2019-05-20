@@ -45,7 +45,7 @@ export default class Bucket {
 
     // Populate this.files
     this.files = {};
-    for (let file of this.torrent.files) {
+    for (let file of this.torrent.torrent.files) {
       this.files[file.name] = file;
     }
   }
@@ -55,23 +55,38 @@ export default class Bucket {
   }
 
   isDownloaded(): boolean {
-    return this.torrent && this.torrent.isDone() && this.files && true;
+    return this.files && true;
   }
 
-  // Returns null if there is no such file.
-  // Throws an error if retrieval fails.
+  // Returns undefined if there is no such file.
+  // Throws an error if we haven't downloaded this bucket.
   getFile(filename: string): File {
+    if (!this.isDownloaded()) {
+      throw new Error("cannot call getFile before the bucket is downloaded");
+    }
+    return this.files[filename];
+  }
+
+  // Returns undefined if there is no such file.
+  // Throws an error if we haven't downloaded this bucket.
+  getJSON(filename: string): object {
+    let file = this.getFile(filename);
+    if (!file) {
+      return file;
+    }
+
     throw new Error("XXX");
   }
 
-  getJSON(name: string): object {
-    throw new Error("XXX");
-  }
-
+  // Throws an error if we haven't downloaded this bucket.
   setFile(name: string, file: File) {
+    if (!this.isDownloaded()) {
+      throw new Error("cannot call setFile before the bucket is downloaded");
+    }
     throw new Error("XXX");
   }
 
+  // Throws an error if we haven't downloaded this bucket.
   setJSON(name: string, data: object) {
     throw new Error("XXX");
   }
