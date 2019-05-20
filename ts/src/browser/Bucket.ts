@@ -11,6 +11,7 @@ export default class Bucket {
   torrentClient: TorrentClient;
   untrustedClient: UntrustedClient;
   torrent: Torrent;
+  files: { [filename: string]: File };
 
   constructor(
     network: string,
@@ -29,14 +30,24 @@ export default class Bucket {
     this.torrentClient = torrentClient;
     this.untrustedClient = untrustedClient;
     this.torrent = null;
+    this.files = null;
   }
 
   async download() {
+    if (this.isDownloaded()) {
+      return;
+    }
     if (!this.magnet || this.magnet === "") {
       throw new Error("cannot download without magnet");
     }
     this.torrent = this.torrentClient.download(this.magnet);
     await this.torrent.waitForDone();
+
+    // Populate this.files
+    this.files = {};
+    for (let file of this.torrent.files) {
+      this.files[file.name] = file;
+    }
   }
 
   async upload() {
@@ -44,10 +55,12 @@ export default class Bucket {
   }
 
   isDownloaded(): boolean {
-    return this.torrent && this.torrent.isDone();
+    return this.torrent && this.torrent.isDone() && this.files && true;
   }
 
-  getFile(name: string): File {
+  // Returns null if there is no such file.
+  // Throws an error if retrieval fails.
+  getFile(filename: string): File {
     throw new Error("XXX");
   }
 

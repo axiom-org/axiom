@@ -127,9 +127,4 @@ export default class Torrent {
     });
     return await promise;
   }
-
-  // Returns a map from filename to data
-  async readAll() {
-    // TODO
-  }
 }
