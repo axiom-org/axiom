@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "cwallet-alpha",
-  "description": "An in-browser coinkit wallet. Alpha version.",
+  "name": "Axiom Authenticator",
+  "description": "An in-browser Axiom authenticator. Connects to the alpha network.",
   "version": "1.0",
   "permissions": [
     "activeTab",
@@ -10,10 +10,10 @@
     "tabs",
     "webRequest",
     "webRequestBlocking",
-    "*://*.coinkit/*"
+    "*://*.axiom/*"
   ],
   "browser_action": {
-    "default_title": "cwallet-alpha",
+    "default_title": "Axiom Authenticator",
     "default_popup": "popup.html"
   },
   "background": {
@@ -24,7 +24,7 @@
     "matches": ["*://*/*"],
     "js": ["content-main.js"]
   }, {
-    "matches": ["*://*.coinkit/*"],
+    "matches": ["*://*.axiom/*"],
     "js": ["loader-main.js"],
     "run_at": "document_start"
   }],

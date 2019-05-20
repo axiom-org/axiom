@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "cwallet-local",
-  "description": "An in-browser coinkit wallet. Local version.",
+  "name": "Axiom Authenticator (Localhost)",
+  "description": "An in-browser Axiom authenticator that connects to localhost.",
   "version": "1.0",
   "permissions": [
     "activeTab",
@@ -14,10 +14,10 @@
     "http://localhost:9001/*",
     "http://localhost:9002/*",
     "http://localhost:9003/*",
-    "*://*.coinkit/*"
+    "*://*.axiom/*"
   ],
   "browser_action": {
-    "default_title": "cwallet-local",
+    "default_title": "Axiom Authenticator (Localhost)",
     "default_popup": "popup.html"
   },
   "background": {
@@ -28,7 +28,7 @@
     "matches": ["*://*/*"],
     "js": ["content-main.js"]
   }, {
-    "matches": ["*://*.coinkit/*"],
+    "matches": ["*://*.axiom/*"],
     "js": ["loader-main.js"],
     "run_at": "document_start"
   }],
