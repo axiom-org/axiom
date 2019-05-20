@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Axiom Authenticator",
-  "description": "An in-browser Axiom authenticator. Connects to the alpha network.",
-  "version": "1.0",
+  "description": "An in-browser Axiom authenticator. Connects to the alpha network. See axiom.org for more details.",
+  "version": "0.1",
   "permissions": [
     "activeTab",
     "proxy",

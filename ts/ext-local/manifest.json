@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Axiom Authenticator (Localhost)",
   "description": "An in-browser Axiom authenticator that connects to localhost.",
-  "version": "1.0",
+  "version": "0.0.1",
   "permissions": [
     "activeTab",
     "proxy",
