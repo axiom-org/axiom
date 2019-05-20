@@ -1,3 +1,5 @@
+import Torrent from "../iso/Torrent";
+import TorrentClient from "../iso/TorrentClient";
 import UntrustedClient from "./UntrustedClient";
 
 export default class Bucket {
@@ -6,7 +8,9 @@ export default class Bucket {
   owner: string;
   size: number;
   magnet: string;
+  torrentClient: TorrentClient;
   untrustedClient: UntrustedClient;
+  torrent: Torrent;
 
   constructor(
     network: string,
@@ -14,6 +18,7 @@ export default class Bucket {
     owner: string,
     size: number,
     magnet: string,
+    torrentClient: TorrentClient,
     untrustedClient: UntrustedClient
   ) {
     this.network = network;
@@ -21,18 +26,25 @@ export default class Bucket {
     this.owner = owner;
     this.size = size;
     this.magnet = magnet;
+    this.torrentClient = torrentClient;
     this.untrustedClient = untrustedClient;
+    this.torrent = null;
   }
 
   async download() {
-    throw new Error("XXX");
+    if (!this.magnet || this.magnet === "") {
+      throw new Error("cannot download without magnet");
+    }
+    this.torrent = this.torrentClient.download(this.magnet);
+    await this.torrent.waitForDone();
   }
+
   async upload() {
     throw new Error("XXX");
   }
 
   isDownloaded(): boolean {
-    throw new Error("XXX");
+    return this.torrent && this.torrent.isDone();
   }
 
   getFile(name: string): File {
