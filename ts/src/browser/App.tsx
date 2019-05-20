@@ -11,13 +11,6 @@ import stringify = require("json-stable-stringify");
 
 const NETWORK = "alpha";
 
-async function fetchPeerData() {
-  let axiom = new AxiomAPI({ network: NETWORK });
-  let bucket = await axiom.getBucket("www", "my-cool-example");
-  await bucket.download();
-  console.log("filenames:", bucket.getFilenames());
-}
-
 export default class App extends React.Component<any, any> {
   axiom: AxiomAPI;
 
@@ -57,6 +50,8 @@ export default class App extends React.Component<any, any> {
     let bucket = await this.axiom.getBucket("www", "my-cool-example");
     await bucket.download();
     console.log("filenames:", bucket.getFilenames());
+    let text = await bucket.getText("index.html");
+    console.log("text:", text);
   }
 
   async fetchPublicKey() {

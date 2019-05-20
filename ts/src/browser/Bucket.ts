@@ -2,6 +2,21 @@ import Torrent from "../iso/Torrent";
 import TorrentClient from "../iso/TorrentClient";
 import UntrustedClient from "./UntrustedClient";
 
+async function readAsText(file: File, encoding?: string): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    file.getBlob((err, blob) => {
+      if (err) {
+        reject(err);
+      }
+      let reader = new FileReader();
+      reader.onload = e => {
+        resolve((e.target as any).result);
+      };
+      reader.readAsText(blob, encoding);
+    });
+  });
+}
+
 export default class Bucket {
   network: string;
   name: string;
@@ -81,12 +96,21 @@ export default class Bucket {
 
   // Returns undefined if there is no such file.
   // Throws an error if we haven't downloaded this bucket.
-  getJSON(filename: string): object {
+  // This has to be async because the browser file-reading APIs are async.
+  // Encoding defaults to utf8.
+  async getText(filename: string, encoding?: string): string {
     let file = this.getFile(filename);
     if (!file) {
       return file;
     }
 
+    return await readAsText(file, encoding);
+  }
+
+  // Returns undefined if there is no such file.
+  // Throws an error if we haven't downloaded this bucket.
+  // This has to be async because the browser file-reading APIs are async.
+  async getJSON(filename: string): any {
     throw new Error("XXX");
   }
 
