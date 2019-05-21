@@ -179,6 +179,32 @@ export default class UntrustedClient {
     return response.bucket;
   }
 
+  // Throws an error if the user denies permission
+  async requestUpdateBucketPermission(name: string) {
+    let permissions = {
+      publicKey: true,
+      updateBucket: [{ name: name }]
+    };
+    if (!hasPermission(this.permissions, permissions)) {
+      await this.requestPermission(permissions);
+    }
+  }
+
+  // Requests updateBucket permission from the extension if we don't already have it.
+  // Throws an error if the user denies permission.
+  async updateBucket(name: string, magnet: string) {
+    await this.requestUpdateBucketPermission(name);
+    let message = new Message("UpdateBucket", {
+      name: name,
+      magnet: magnet
+    });
+    let response = await this.sendMessage(message);
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    // TODO: is there something useful to return here?
+  }
+
   // Sends a query message, given the query properties.
   // Returns a promise for a message - a data message if the query worked, an error
   // message if it did not.
