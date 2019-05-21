@@ -156,6 +156,7 @@ export default class UntrustedClient {
   ): Promise<object> {
     let bucketName = `${application}:${name}`;
     let permissions = {
+      publicKey: true,
       createBucket: [
         {
           name: bucketName,

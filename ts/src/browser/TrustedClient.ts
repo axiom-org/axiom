@@ -149,7 +149,7 @@ export default class TrustedClient {
     }
 
     permissions = this.getPermissions(host);
-    console.log("XXX new perm:", permissions);
+    console.log("XXX we see new permissions:", permissions);
     if (hasPermission(permissions, requested)) {
       // The user granted the requested permissions
       return new Message("Permission", {
