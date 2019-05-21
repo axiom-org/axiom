@@ -64,14 +64,14 @@ export default class App extends React.Component<any, any> {
   async createBucket() {
     try {
       let bucket = await this.axiom.createBucket("testapp", "mybucket", 1);
+      console.log("bucket:", bucket);
     } catch (e) {
       console.log("error:", e);
     }
-    console.log("bucket:", bucket);
   }
 
   async updateBucket() {
-    let bucket = await this.axiom.getBucket("testapp", "mybucket", 1);
+    let bucket = await this.axiom.getBucket("testapp", "mybucket");
     if (!bucket) {
       console.log("bucket doesn't exist, create it first");
       return;

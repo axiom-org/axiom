@@ -33,11 +33,13 @@ export default class ChainClient {
   verbose: boolean;
   urls: string[];
   retries: number;
+  replication: number;
 
   constructor(kp: KeyPair, network: string) {
     let config = new NetworkConfig(network);
     this.urls = config.chain;
     this.retries = config.retries;
+    this.replication = config.trackers.length;
     if (!kp) {
       kp = KeyPair.fromRandom();
     }
@@ -239,13 +241,9 @@ export default class ChainClient {
 
   // Allocates the bucket as well.
   async createBucket(name: string, size: number) {
-    // Aim for as much replication as we are configured with trackers
-    let config = new NetworkConfig(this.network);
-    let replication = config.trackers.length;
-
     // Find some providers with available space
-    let providers = await client.getProviders({ available: size });
-    if (providers.length < replication) {
+    let providers = await this.getProviders({ available: size });
+    if (providers.length < this.replication) {
       throw new Error(
         "only " +
           providers.length +
@@ -256,7 +254,7 @@ export default class ChainClient {
     }
 
     let bucket = await this.createUnallocatedBucket(name, size);
-    for (let i = 0; i < replication; i++) {
+    for (let i = 0; i < this.replication; i++) {
       await this.allocate(name, providers[i].id);
       this.log("allocated bucket to", i + 1, "provider" + (i == 0 ? "" : "s"));
     }
