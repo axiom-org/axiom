@@ -72,6 +72,10 @@ export default class App extends React.Component<any, any> {
 
   async updateBucket() {
     let bucket = await this.axiom.getBucket("testapp", "mybucket", 1);
+    if (!bucket) {
+      console.log("bucket doesn't exist, create it first");
+      return;
+    }
     let data = await bucket.getJSON("foo.json");
     console.log("got bucket data:", data);
     if (!data) {
@@ -82,6 +86,7 @@ export default class App extends React.Component<any, any> {
     console.log("setting data to", data);
     bucket.setJSON("foo.json", data);
     await bucket.upload();
+    console.log("upload complete");
   }
 
   async fetchPublicKey() {

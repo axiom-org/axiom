@@ -233,12 +233,33 @@ export default class ChainClient {
     return buckets[0];
   }
 
-  // Returns the information for the newly-created bucket.
-  async createBucket(name: string, size: number) {
+  async createUnallocatedBucket(name: string, size: number) {
     await this.performOperation("CreateBucket", { name, size });
-    this.log("the CreateBucket operation has been accepted");
-    let bucket = await this.getBucket(name);
-    return bucket;
+  }
+
+  // Allocates the bucket as well.
+  async createBucket(name: string, size: number) {
+    // Aim for as much replication as we are configured with trackers
+    let config = new NetworkConfig(this.network);
+    let replication = config.trackers.length;
+
+    // Find some providers with available space
+    let providers = await client.getProviders({ available: size });
+    if (providers.length < replication) {
+      throw new Error(
+        "only " +
+          providers.length +
+          " providers have " +
+          size +
+          " available space"
+      );
+    }
+
+    let bucket = await this.createUnallocatedBucket(name, size);
+    for (let i = 0; i < replication; i++) {
+      await this.allocate(name, providers[i].id);
+      this.log("allocated bucket to", i + 1, "provider" + (i == 0 ? "" : "s"));
+    }
   }
 
   async updateBucket(name, magnet) {

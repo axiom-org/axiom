@@ -133,41 +133,23 @@ async function getBuckets(query) {
 }
 
 // Just creates a bucket
-async function createBucket(name, size) {
+async function createUnallocatedBucket(name, size) {
   let kp = await login();
   let client = newChainClient(kp);
-  let bucket = await client.createBucket(name, size);
-  console.log("created bucket:");
+  await client.createBucket(name, size);
+  let bucket = await client.getBucket(name);
+  console.log("created unallocated bucket:");
   console.log(bucket);
 }
 
 // First creates a bucket, then allocates it to some providers.
-async function newBucket(name, size) {
+async function createBucket(name, size) {
   let kp = await login();
   let client = newChainClient(kp);
-
-  // Aim for as much replication as we are configured with trackers
-  let config = new NetworkConfig(getNetwork());
-  let replication = config.trackers.length;
-
-  // Find some providers with available space
-  let providers = await client.getProviders({ available: size });
-  if (providers.length < replication) {
-    throw new Error(
-      "only " +
-        providers.length +
-        " providers have " +
-        size +
-        " available space"
-    );
-  }
-
-  let bucket = await client.createBucket(name, size);
-  console.log("created bucket:", name);
-  for (let i = 0; i < replication; i++) {
-    await client.allocate(name, providers[i].id);
-    console.log("allocated bucket to", i + 1, "provider" + (i == 0 ? "" : "s"));
-  }
+  await client.createBucket(name, size);
+  let bucket = await client.getBucket(name);
+  console.log("created bucket:");
+  console.log(bucket);
 }
 
 async function deleteBucket(name) {
@@ -405,19 +387,6 @@ async function main() {
     return;
   }
 
-  if (op === "new-bucket") {
-    if (rest.length != 2) {
-      fatal("Usage: axiom new-bucket [name] [size]");
-    }
-    let name = makeBucketName(rest[0]);
-    let size = parseInt(rest[1]);
-    if (!size) {
-      fatal("bad size:" + rest[1]);
-    }
-    await newBucket(name, size);
-    return;
-  }
-
   if (op === "create-bucket") {
     if (rest.length != 2) {
       fatal("Usage: axiom create-bucket [name] [size]");
@@ -428,6 +397,19 @@ async function main() {
       fatal("bad size:" + rest[1]);
     }
     await createBucket(name, size);
+    return;
+  }
+
+  if (op === "create-unallocated-bucket") {
+    if (rest.length != 2) {
+      fatal("Usage: axiom create-unallocated-bucket [name] [size]");
+    }
+    let name = makeBucketName(rest[0]);
+    let size = parseInt(rest[1]);
+    if (!size) {
+      fatal("bad size:" + rest[1]);
+    }
+    await createUnallocatedBucket(name, size);
     return;
   }
 

@@ -110,11 +110,12 @@ export default class Bucket {
 
     // Get a list of all our files.
     // This also makes sure all data is cached in this.files, so we can drop torrentFiles
-    let fileList = [];
+    let fileList: File[] = [];
     let filenames = await this.getFilenames();
     for (let filename of filenames) {
-      fileList.push(this.getFile(filename));
+      fileList.push(await this.getFile(filename));
     }
+    console.log("XXX fileList:", fileList);
 
     // Stop using the old download-centric torrent
     if (this.torrent) {
@@ -125,9 +126,12 @@ export default class Bucket {
 
     // Start a new torrent
     this.torrent = await this.torrentClient.seed(fileList);
+    console.log("XXX magnet:", this.torrent.magnet);
+    console.log("XXX waiting for seeds");
     await this.torrent.waitForSeeds(1);
 
     // Update the magnet on the blockchain
+    console.log("XXX updating the magnet");
     await this.untrustedClient.updateBucket(this.name, this.torrent.magnet);
   }
 
