@@ -13,8 +13,6 @@ import TorrentClient from "../iso/TorrentClient";
 import { sleep } from "../iso/Util";
 import { isDirectory, loadKeyPair } from "./FileUtil";
 
-console.log("XXX rimraf:", rimraf);
-
 // Throws an error if the magnet url is an unknown format
 function getInfoHash(magnet) {
   let prefix = "magnet:?xt=urn:btih:";
