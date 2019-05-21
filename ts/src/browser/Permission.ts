@@ -34,7 +34,7 @@ function shallowContains(list, thing): boolean {
 }
 
 // minuend - subtrahend = difference
-function subtractList(minuend, subtrahend) {
+function subtractLists(minuend, subtrahend) {
   minuend = minuend || [];
   subtrahend = subtrahend || [];
   let answer = [];
@@ -46,6 +46,37 @@ function subtractList(minuend, subtrahend) {
   return answer;
 }
 
+function addLists(list1, list2) {
+  list1 = list1 || [];
+  list2 = list2 || [];
+  let answer = [];
+  for (let item of list1) {
+    answer.push(item);
+  }
+  for (let item of list2) {
+    if (!shallowContains(list1, item)) {
+      answer.push(item);
+    }
+  }
+  return answer;
+}
+
+// Combines two permissions objects into one permissions object that has all the permissions
+export function combinePermissions(perm1, perm2) {
+  let answer = {} as any;
+  if (perm1.publicKey || perm2.publicKey) {
+    answer.publicKey = true;
+  }
+  let createBucket = addLists(perm1.createBucket, perm2.createBucket);
+  if (createBucket.length > 0) {
+    answer.createBucket = createBucket;
+  }
+  let updateBucket = addLists(perm1.updateBucket, perm2.updateBucket);
+  if (updateBucket.length > 0) {
+    answer.updateBucket = updateBucket;
+  }
+}
+
 // Which permissions are in granted but not in requested.
 // Returns a permissions object
 export function missingPermissions(granted, requested) {
@@ -53,14 +84,14 @@ export function missingPermissions(granted, requested) {
   if (requested.publicKey && !granted.publicKey) {
     answer.publicKey = true;
   }
-  let missingCreateBucket = subtractList(
+  let missingCreateBucket = subtractLists(
     requested.createBucket,
     granted.createBucket
   );
   if (missingCreateBucket.length > 0) {
     answer.createBucket = missingCreateBucket;
   }
-  let missingUpdateBucket = subtractList(
+  let missingUpdateBucket = subtractLists(
     requested.updateBucket,
     granted.updateBucket
   );

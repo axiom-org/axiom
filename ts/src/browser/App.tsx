@@ -54,6 +54,11 @@ export default class App extends React.Component<any, any> {
     console.log("text:", text);
   }
 
+  async doBucketStuff() {
+    let bucket = await this.axiom.createBucket("testapp", "mybucket", 1);
+    console.log("bucket:", bucket);
+  }
+
   async fetchPublicKey() {
     console.log("calling getPublicKey");
     let pk = await this.axiom.getPublicKey();
@@ -93,6 +98,14 @@ export default class App extends React.Component<any, any> {
           }}
         >
           Fetch Peer Data
+        </button>
+        <hr />
+        <button
+          onClick={() => {
+            this.doBucketStuff();
+          }}
+        >
+          Do Bucket Stuff
         </button>
         <hr />
         <a href="http://my-cool-example.axiom">Hello</a>

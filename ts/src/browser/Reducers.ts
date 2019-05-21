@@ -1,4 +1,5 @@
 import { combineReducers } from "redux";
+import { combinePermissions } from "./Permission";
 import {
   DENY_PERMISSION,
   GRANT_PERMISSION,
@@ -44,13 +45,13 @@ function keyPair(state = null, action) {
   }
 }
 
+// State here is a map from host to permissions object as described in Permission.ts
 function permissions(state = {}, action) {
   switch (action.type) {
     case GRANT_PERMISSION:
       let hostPermissions = {} || state[action.host];
       let answer = Object.assign({}, state);
-      answer[action.host] = Object.assign(
-        {},
+      answer[action.host] = combinePermissions(
         hostPermissions,
         action.permissions
       );

@@ -17,6 +17,7 @@ export default class RequestPermission extends React.Component<any, any> {
   // Return a list of human-readable strings for the permissions we want
   permissionList() {
     let permissions = this.props.permissions;
+    console.log("XXX permissions RP:", permissions);
     let answer = [];
     if (permissions.publicKey) {
       answer.push("to know your public identity");
