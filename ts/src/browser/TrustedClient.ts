@@ -116,7 +116,6 @@ export default class TrustedClient {
   // message, return a Permission message saying so.
   // If we do not, wait until we do, before returning the message.
   async handleRequestPermission(host, requested) {
-    console.log("XXX hRP:", requested);
     let permissions = this.getPermissions(host);
 
     let popupURL = chrome.runtime.getURL("popup.html?request");
