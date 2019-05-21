@@ -62,7 +62,11 @@ export default class App extends React.Component<any, any> {
   }
 
   async createBucket() {
-    let bucket = await this.axiom.createBucket("testapp", "mybucket", 1);
+    try {
+      let bucket = await this.axiom.createBucket("testapp", "mybucket", 1);
+    } catch (e) {
+      console.log("error:", e);
+    }
     console.log("bucket:", bucket);
   }
 
@@ -70,7 +74,11 @@ export default class App extends React.Component<any, any> {
     let bucket = await this.axiom.getBucket("testapp", "mybucket", 1);
     let data = await bucket.getJSON("foo.json");
     console.log("got bucket data:", data);
-    data.lucky += 1;
+    if (!data) {
+      data = { lucky: 1 };
+    } else {
+      data.lucky += 1;
+    }
     console.log("setting data to", data);
     bucket.setJSON("foo.json", data);
     await bucket.upload();

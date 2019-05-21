@@ -171,7 +171,7 @@ export default class Bucket {
     return await readAsText(file, encoding);
   }
 
-  // Returns undefined if there is no such file.
+  // Returns null if there is no such file.
   // Throws an error if we haven't downloaded this bucket.
   // This has to be async because the browser file-reading APIs are async.
   async getJSON(filename: string): Promise<any> {
