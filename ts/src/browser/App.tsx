@@ -49,7 +49,7 @@ export default class App extends React.Component<any, any> {
   async fetchPeerData() {
     let bucket = await this.axiom.getBucket("www", "my-cool-example");
     await bucket.download();
-    console.log("filenames:", bucket.getFilenames());
+    console.log("filenames:", await bucket.getFilenames());
     let text = await bucket.getText("index.html");
     console.log("text:", text);
   }
