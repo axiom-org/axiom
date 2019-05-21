@@ -51,6 +51,10 @@ export default class App extends React.Component<any, any> {
       "www",
       "my-cool-example-nonexistent"
     );
+    if (!bucket) {
+      console.log("bucket is", bucket);
+      return;
+    }
     await bucket.download();
     console.log("filenames:", await bucket.getFilenames());
     let text = await bucket.getText("index.html");
