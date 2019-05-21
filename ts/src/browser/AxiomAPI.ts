@@ -54,7 +54,11 @@ export default class AxiomAPI {
   }
 
   // Throws an error if permission is rejected, or if the bucket creation fails.
-  async createBucket(application: string, name, size): Promise<Bucket> {
+  async createBucket(
+    application: string,
+    name: string,
+    size: number
+  ): Promise<Bucket> {
     throw new Error("XXX");
   }
 }

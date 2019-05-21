@@ -16,33 +16,20 @@ export default class RequestPermission extends React.Component<any, any> {
 
   // Return a list of human-readable strings for the permissions we want
   permissionList() {
+    let permissions = this.props.permissions;
     let answer = [];
-    if (this.props.permissions.publicKey) {
+    if (permissions.publicKey) {
       answer.push("to know your public identity");
     }
-    if (
-      this.props.permissions.write &&
-      this.props.permissions.write.length > 0
-    ) {
-      let classes = [];
-      for (let cls of this.props.permissions.write) {
-        classes.push(cls);
+    if (permissions.createBucket) {
+      for (let { name, size } of permissions.createBucket) {
+        answer.push(`to create a ${size}MB bucket named ${name}`);
       }
-      classes.sort();
-      classes.reverse();
-      let clause = "to modify your";
-      while (true) {
-        if (classes.length == 1) {
-          clause += " " + classes.pop();
-          break;
-        }
-        if (classes.length == 2) {
-          clause += " " + classes.pop() + " and " + classes.pop();
-          break;
-        }
-        clause += " " + classes.pop() + ",";
+    }
+    if (permissions.updateBucket) {
+      for (let { name } of permissions.updateBucket) {
+        answer.push(`to write to ${name}`);
       }
-      answer.push(clause + " objects");
     }
     return answer;
   }

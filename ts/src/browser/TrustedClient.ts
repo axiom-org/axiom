@@ -1,5 +1,5 @@
 import { requestPermission } from "./Actions";
-import { missingPermissions, hasPermission } from "./Permission";
+import { hasPermission } from "./Permission";
 
 import ChainClient from "../iso/ChainClient";
 import KeyPair from "../iso/KeyPair";

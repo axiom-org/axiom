@@ -111,11 +111,12 @@ export default class Bucket {
   // Throws an error if we haven't downloaded this bucket.
   // This has to be async because the browser file-reading APIs are async.
   async getJSON(filename: string): any {
-    throw new Error("XXX");
+    let text = await this.getText(filename);
+    return JSON.parse(text);
   }
 
   // Throws an error if we haven't downloaded this bucket.
-  setFile(name: string, file: File) {
+  setFile(filename: string, file: File) {
     if (!this.isDownloaded()) {
       throw new Error("cannot call setFile before the bucket is downloaded");
     }
@@ -123,7 +124,12 @@ export default class Bucket {
   }
 
   // Throws an error if we haven't downloaded this bucket.
-  setJSON(name: string, data: object) {
+  setText(filename: string, text: string, encoding?: string) {
+    throw new Error("XXX");
+  }
+
+  // Throws an error if we haven't downloaded this bucket.
+  setJSON(filename: string, data: any) {
     throw new Error("XXX");
   }
 }
