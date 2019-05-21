@@ -65,7 +65,7 @@ export default class AxiomAPI {
     if (!size || size < 0) {
       throw new Error(`cannot create a bucket of size ${size}`);
     }
-    let data = await this.untrustedClient.createBucket(application, name, size);
-    return this._makeBucket(data);
+    await this.untrustedClient.createBucket(application, name, size);
+    return await this.getBucket(application, name);
   }
 }
