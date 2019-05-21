@@ -32,8 +32,8 @@ export default class Bucket {
   magnet: string;
   torrentClient: TorrentClient;
   untrustedClient: UntrustedClient;
-  torrent: Torrent;
-  torrentFiles: { [filename: string]: any };
+  torrent?: Torrent;
+  torrentFiles?: { [filename: string]: any };
   files: { [filename: string]: File };
   downloadPending: boolean;
 
@@ -55,7 +55,7 @@ export default class Bucket {
     this.untrustedClient = untrustedClient;
     this.torrent = null;
 
-    this.torrentFiles = {};
+    this.torrentFiles = null;
 
     // this.files is lazily instantiated from this.torrentFiles
     // If it does have an entry, however, that entry takes priority
@@ -94,6 +94,7 @@ export default class Bucket {
     if (!this.downloadPending) {
       return;
     }
+    this.torrentFiles = {};
     for (let file of this.torrent.torrent.files) {
       this.torrentFiles[file.name] = file;
     }
@@ -101,15 +102,49 @@ export default class Bucket {
   }
 
   async upload() {
-    throw new Error("XXX");
+    // Get permission first so that the UI is snappy
+    await this.untrustedClient.requestUpdateBucketPermission(this.name);
+
+    // Finish any downloading before making a new torrent
+    await this.download();
+
+    // Get a list of all our files.
+    // This also makes sure all data is cached in this.files, so we can drop torrentFiles
+    let fileList = [];
+    let filenames = await this.getFilenames();
+    for (let filename of filenames) {
+      fileList.push(this.getFile(filename));
+    }
+
+    // Stop using the old download-centric torrent
+    if (this.torrent) {
+      this.torrent.destroy();
+      this.torrent = null;
+    }
+    this.torrentFiles = null;
+
+    // Start a new torrent
+    this.torrent = await this.torrentClient.seed(fileList);
+    await this.torrent.waitForSeeds(1);
+
+    // Update the magnet on the blockchain
+    await this.untrustedClient.updateBucket(this.name, this.torrent.magnet);
   }
 
   async getFilenames(): Promise<string[]> {
     await this.download();
     let answer = [];
-    for (let fname in this.torrentFiles) {
+    for (let fname in this.files) {
       answer.push(fname);
     }
+    if (this.torrentFiles) {
+      for (let fname in this.torrentFiles) {
+        if (!(fname in this.files)) {
+          answer.push(fname);
+        }
+      }
+    }
+    answer.sort();
     return answer;
   }
 
@@ -119,7 +154,7 @@ export default class Bucket {
     if (filename in this.files) {
       return this.files[filename];
     }
-    if (filename in this.torrentFiles) {
+    if (this.torrentFiles && filename in this.torrentFiles) {
       this.files[filename] = await convertFile(this.torrentFiles[filename]);
       return this.files[filename];
     }
