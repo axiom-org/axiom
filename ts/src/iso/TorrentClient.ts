@@ -2,7 +2,6 @@
 
 import WebTorrent = require("webtorrent-hybrid");
 
-/*
 // Bug workaround as described at:
 // https://github.com/webtorrent/webtorrent/issues/1604#issuecomment-493573782
 declare var window: any;
@@ -12,7 +11,6 @@ if (typeof global === "undefined") {
 } else {
   global.WEBTORRENT_ANNOUNCE = null;
 }
-*/
 
 import NetworkConfig from "../iso/NetworkConfig";
 import Torrent from "./Torrent";
