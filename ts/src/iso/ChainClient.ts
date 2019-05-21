@@ -235,11 +235,13 @@ export default class ChainClient {
     return buckets[0];
   }
 
+  // Returns nothing
   async createUnallocatedBucket(name: string, size: number) {
     await this.performOperation("CreateBucket", { name, size });
   }
 
   // Allocates the bucket as well.
+  // Returns nothing
   async createBucket(name: string, size: number) {
     // Find some providers with available space
     let providers = await this.getProviders({ available: size });
@@ -253,7 +255,7 @@ export default class ChainClient {
       );
     }
 
-    let bucket = await this.createUnallocatedBucket(name, size);
+    await this.createUnallocatedBucket(name, size);
     for (let i = 0; i < this.replication; i++) {
       await this.allocate(name, providers[i].id);
       this.log("allocated bucket to", i + 1, "provider" + (i == 0 ? "" : "s"));

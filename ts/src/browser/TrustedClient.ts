@@ -180,7 +180,7 @@ export default class TrustedClient {
           }
 
           // Reject because we don't have the permissions
-          return new Message("Error", { error: "Missing permission" });
+          return new Message("Error", { error: "Missing Query permission" });
         }
 
         let response = await this.sendMessage(message);
@@ -191,18 +191,34 @@ export default class TrustedClient {
           createBucket: [{ name: message.name, size: message.size }]
         };
         if (!hasPermission(permissions, createPerm)) {
-          return new Message("Error", { error: "Missing permission" });
+          return new Message("Error", {
+            error: "Missing CreateBucket permission"
+          });
         }
         let client = this.newClient();
-        let bucket;
         try {
-          bucket = await client.createBucket(message.name, message.size);
+          await client.createBucket(message.name, message.size);
         } catch (e) {
           return new Message("Error", { error: e.message });
         }
-        return new Message("Data", {
-          bucket: bucket
-        });
+        return new Message("Data", {});
+
+      case "UpdateBucket":
+        let updatePerm = {
+          updateBucket: [{ name: message.name }]
+        };
+        if (!hasPermission(permissions, updatePerm)) {
+          return new Message("Error", {
+            error: "Missing UpdateBucket permission"
+          });
+        }
+        let client = this.newClient();
+        try {
+          await client.updateBucket(message.name, message.magnet);
+        } catch (e) {
+          return new Message("Error", { error: e.message });
+        }
+        return new Message("Data", {});
 
       default:
         console.log(
