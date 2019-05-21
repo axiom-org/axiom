@@ -1,14 +1,19 @@
 // Utilities for handling permission objects.
 // These generally work on Permission messages, RequestPermission messages,
 // or just plain objects.
-//
-// The format of a permission object is:
-// publicKey: bool, whether the app may know the public key of the user
-// createBucket: a list of {name, size} tuples we are permitted to create
-// updateBucket: a list of {name} we are permitted to update
-//
+
 // If you add more permissions try to keep them parallel to the blockchain operations
 // they are enabling.
+interface Permissions {
+  // whether the app may know the public key of the user
+  publicKey?: boolean;
+
+  // a list of {name, size} tuples we are permitted to create
+  createBucket?: { name: string; size: number }[];
+
+  // a list of {name} we are permitted to update
+  updateBucket?: { name: string }[];
+}
 
 function shallowEqual(a, b): boolean {
   for (let key in a) {
@@ -62,7 +67,10 @@ function addLists(list1, list2) {
 }
 
 // Combines two permissions objects into one permissions object that has all the permissions
-export function combinePermissions(perm1, perm2) {
+export function combinePermissions(
+  perm1: Permissions,
+  perm2: Permissions
+): Permissions {
   let answer = {} as any;
   if (perm1.publicKey || perm2.publicKey) {
     answer.publicKey = true;
@@ -75,11 +83,15 @@ export function combinePermissions(perm1, perm2) {
   if (updateBucket.length > 0) {
     answer.updateBucket = updateBucket;
   }
+  return answer;
 }
 
 // Which permissions are in granted but not in requested.
 // Returns a permissions object
-export function missingPermissions(granted, requested) {
+export function missingPermissions(
+  granted: Permissions,
+  requested: Permissions
+): Permissions {
   let answer = {} as any;
   if (requested.publicKey && !granted.publicKey) {
     answer.publicKey = true;
@@ -102,7 +114,10 @@ export function missingPermissions(granted, requested) {
 }
 
 // Whether we have the provided permission
-export function hasPermission(granted, requested) {
+export function hasPermission(
+  granted: Permissions,
+  requested: Permissions
+): boolean {
   let missing = missingPermissions(granted, requested);
   for (let key in missing) {
     return false;
