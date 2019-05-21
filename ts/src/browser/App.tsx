@@ -47,16 +47,29 @@ export default class App extends React.Component<any, any> {
   }
 
   async fetchPeerData() {
-    let bucket = await this.axiom.getBucket("www", "my-cool-example");
+    let bucket = await this.axiom.getBucket(
+      "www",
+      "my-cool-example-nonexistent"
+    );
     await bucket.download();
     console.log("filenames:", await bucket.getFilenames());
     let text = await bucket.getText("index.html");
     console.log("text:", text);
   }
 
-  async doBucketStuff() {
+  async createBucket() {
     let bucket = await this.axiom.createBucket("testapp", "mybucket", 1);
     console.log("bucket:", bucket);
+  }
+
+  async updateBucket() {
+    let bucket = await this.axiom.getBucket("testapp", "mybucket", 1);
+    let data = await bucket.getJSON("foo.json");
+    console.log("got bucket data:", data);
+    data.lucky += 1;
+    console.log("setting data to", data);
+    bucket.setJSON("foo.json", data);
+    await bucket.upload();
   }
 
   async fetchPublicKey() {
@@ -102,10 +115,18 @@ export default class App extends React.Component<any, any> {
         <hr />
         <button
           onClick={() => {
-            this.doBucketStuff();
+            this.createBucket();
           }}
         >
-          Do Bucket Stuff
+          Create Bucket
+        </button>
+        <hr />
+        <button
+          onClick={() => {
+            this.updateBucket();
+          }}
+        >
+          Update Bucket
         </button>
         <hr />
         <a href="http://my-cool-example.axiom">Hello</a>
