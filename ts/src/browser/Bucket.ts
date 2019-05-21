@@ -2,18 +2,25 @@ import Torrent from "../iso/Torrent";
 import TorrentClient from "../iso/TorrentClient";
 import UntrustedClient from "./UntrustedClient";
 
-async function readAsText(file: File, encoding?: string): Promise<string> {
+// Converts a file from WebTorrent file object to browser File object
+async function convertFile(file: any, encoding?: string): Promise<File> {
   return await new Promise((resolve, reject) => {
     file.getBlob((err, blob) => {
       if (err) {
         reject(err);
       }
-      let reader = new FileReader();
-      reader.onload = e => {
-        resolve((e.target as any).result);
-      };
-      reader.readAsText(blob, encoding);
+      resolve(new File([blob], file.name));
     });
+  });
+}
+
+async function readAsText(file: File, encoding?: string): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    let reader = new FileReader();
+    reader.onload = e => {
+      resolve((e.target as any).result);
+    };
+    reader.readAsText(file, encoding);
   });
 }
 
@@ -26,7 +33,9 @@ export default class Bucket {
   torrentClient: TorrentClient;
   untrustedClient: UntrustedClient;
   torrent: Torrent;
+  torrentFiles: { [filename: string]: any };
   files: { [filename: string]: File };
+  downloadPending: boolean;
 
   constructor(
     network: string,
@@ -45,63 +54,83 @@ export default class Bucket {
     this.torrentClient = torrentClient;
     this.untrustedClient = untrustedClient;
     this.torrent = null;
-    this.files = null;
+
+    this.torrentFiles = {};
+
+    // this.files is lazily instantiated from this.torrentFiles
+    // If it does have an entry, however, that entry takes priority
+    // over the torrentFiles entry.
+    // This means we can set files locally while we are still waiting
+    // for a bucket download
+    this.files = {};
+
+    // A bucket that is instantiated with a valid magnet is considered
+    // to have its download pending.
+    // A bucket that has no magnet, there's nothing to download.
+    // Buckets only download once at most, so once the download is no
+    // longer pending, it never will be.
+    // If you need to refresh bucket data, make a new Bucket object.
+    this.downloadPending = this.hasValidMagnet();
   }
 
+  hasValidMagnet(): boolean {
+    return this.magnet && this.magnet !== "";
+  }
+
+  // Downloads the entire contents of a bucket.
+  // If a download is not needed this is a no-op, so it's safe to just
+  // await this.download() at the start of data access functions.
+  // For now this is the only way to get bucket contents, but for
+  // efficiency this API could be extended to only download some of
+  // the bucket.
   async download() {
-    if (this.isDownloaded()) {
+    if (!this.downloadPending) {
       return;
-    }
-    if (!this.magnet || this.magnet === "") {
-      throw new Error("cannot download without magnet");
     }
     this.torrent = this.torrentClient.download(this.magnet);
     await this.torrent.waitForDone();
 
-    // Populate this.files
-    this.files = {};
-    for (let file of this.torrent.torrent.files) {
-      this.files[file.name] = file;
+    // We don't need to index the files twice if this is racey
+    if (!this.downloadPending) {
+      return;
     }
+    for (let file of this.torrent.torrent.files) {
+      this.torrentFiles[file.name] = file;
+    }
+    this.downloadPending = false;
   }
 
   async upload() {
     throw new Error("XXX");
   }
 
-  isDownloaded(): boolean {
-    return this.files && true;
-  }
-
-  // Throws an error if we haven't downloaded this bucket.
-  getFilenames(): string[] {
-    if (!this.isDownloaded()) {
-      throw new Error("cannot call getFile before the bucket is downloaded");
-    }
+  async getFilenames(): Promise<string[]> {
+    await this.download();
     let answer = [];
-    for (let fname in this.files) {
+    for (let fname in this.torrentFiles) {
       answer.push(fname);
     }
     return answer;
   }
 
-  // Returns undefined if there is no such file.
-  // Throws an error if we haven't downloaded this bucket.
-  getFile(filename: string): File {
-    if (!this.isDownloaded()) {
-      throw new Error("cannot call getFile before the bucket is downloaded");
+  // Returns null if there is no such file.
+  async getFile(filename: string): Promise<File> {
+    await this.download();
+    if (filename in this.files) {
+      return this.files[filename];
     }
-    return this.files[filename];
+    if (filename in this.torrentFiles) {
+      this.files[filename] = await convertFile(this.torrentFiles[filename]);
+      return this.files[filename];
+    }
+    return null;
   }
 
-  // Returns undefined if there is no such file.
-  // Throws an error if we haven't downloaded this bucket.
-  // This has to be async because the browser file-reading APIs are async.
-  // Encoding defaults to utf8.
-  async getText(filename: string, encoding?: string): string {
-    let file = this.getFile(filename);
+  // Returns null if there is no such file.
+  async getText(filename: string, encoding?: string): Promise<string> {
+    let file = await this.getFile(filename);
     if (!file) {
-      return file;
+      return null;
     }
 
     return await readAsText(file, encoding);
@@ -110,26 +139,23 @@ export default class Bucket {
   // Returns undefined if there is no such file.
   // Throws an error if we haven't downloaded this bucket.
   // This has to be async because the browser file-reading APIs are async.
-  async getJSON(filename: string): any {
+  async getJSON(filename: string): Promise<any> {
     let text = await this.getText(filename);
     return JSON.parse(text);
   }
 
-  // Throws an error if we haven't downloaded this bucket.
   setFile(filename: string, file: File) {
-    if (!this.isDownloaded()) {
-      throw new Error("cannot call setFile before the bucket is downloaded");
-    }
-    throw new Error("XXX");
+    this.files[filename] = file;
   }
 
-  // Throws an error if we haven't downloaded this bucket.
-  setText(filename: string, text: string, encoding?: string) {
-    throw new Error("XXX");
+  // Only supports utf-8
+  setText(filename: string, text: string) {
+    let file = new File([text], filename);
+    this.setFile(filename, file);
   }
 
-  // Throws an error if we haven't downloaded this bucket.
   setJSON(filename: string, data: any) {
-    throw new Error("XXX");
+    let text = JSON.stringify(data);
+    this.setText(filename, text);
   }
 }

@@ -46,7 +46,7 @@ export default class AxiomAPI {
     return await this.chainClient.getAccount(user);
   }
 
-  // Returns null if there is no such bucket.
+  // TODO: what does this do if there is no such bucket?
   async getBucket(application: string, name: string): Promise<Bucket> {
     let fullName = makeBucketName(application + ":" + name);
     let data = await this.chainClient.getBucket(fullName);
