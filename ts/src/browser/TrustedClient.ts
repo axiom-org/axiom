@@ -186,6 +186,24 @@ export default class TrustedClient {
         let response = await this.sendMessage(message);
         return response;
 
+      case "CreateBucket":
+        let createPerm = {
+          createBucket: [{ name: message.name, size: message.size }]
+        };
+        if (!hasPermission(permissions, createPerm)) {
+          return new Message("Error", { error: "Missing permission" });
+        }
+        let client = this.newClient();
+        let bucket;
+        try {
+          bucket = await client.createBucket(message.name, message.size);
+        } catch (e) {
+          return new Message("Error", { error: e.message });
+        }
+        return new Message("Data", {
+          bucket: bucket
+        });
+
       default:
         console.log(
           "the client sent an unexpected message type:",
@@ -195,11 +213,15 @@ export default class TrustedClient {
     }
   }
 
+  newClient(): ChainClient {
+    let kp = this.getBestEffortKeyPair();
+    return new ChainClient(kp, this.network);
+  }
+
   // Sends a Message upstream, signing with our keypair.
   // Returns a promise for the response Message.
   async sendMessage(message) {
-    let kp = this.getBestEffortKeyPair();
-    let client = new ChainClient(kp, this.network);
+    let client = this.newClient();
     return await client.sendMessage(message);
   }
 

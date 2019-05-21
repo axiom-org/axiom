@@ -59,6 +59,7 @@ export default class AxiomAPI {
     name: string,
     size: number
   ): Promise<Bucket> {
-    throw new Error("XXX");
+    let data = await this.untrustedClient.createBucket(application, name, size);
+    return this._makeBucket(data);
   }
 }

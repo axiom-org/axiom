@@ -147,6 +147,37 @@ export default class UntrustedClient {
     return this.publicKey;
   }
 
+  // Requests createBucket permission from the extension if we don't already have it.
+  // Throws an error if the user denies permission.
+  async createBucket(
+    application: string,
+    name: string,
+    size: number
+  ): Promise<object> {
+    let bucketName = `${application}:${name}`;
+    let permissions = {
+      createBucket: [
+        {
+          name: bucketName,
+          size: size
+        }
+      ],
+      updateBucket: [{ name: bucketName }]
+    };
+    if (!hasPermission(this.permissions, permissions)) {
+      await this.requestPermission(permissions);
+    }
+    let message = new Message("CreateBucket", {
+      name: bucketName,
+      size: size
+    });
+    let response = await this.sendMessage(message);
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    return response.bucket;
+  }
+
   // Sends a query message, given the query properties.
   // Returns a promise for a message - a data message if the query worked, an error
   // message if it did not.

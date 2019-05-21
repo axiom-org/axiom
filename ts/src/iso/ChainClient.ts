@@ -234,7 +234,7 @@ export default class ChainClient {
   }
 
   // Returns the information for the newly-created bucket.
-  async createBucket(name, size: number) {
+  async createBucket(name: string, size: number) {
     await this.performOperation("CreateBucket", { name, size });
     this.log("the CreateBucket operation has been accepted");
     let bucket = await this.getBucket(name);
