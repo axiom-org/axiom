@@ -165,6 +165,7 @@ export default class TrustedClient {
   // Returns the message they should get back, or null if there is none.
   async handleUntrustedMessage(message, host) {
     let permissions = this.getPermissions(host);
+    let client = this.newClient();
 
     switch (message.type) {
       case "RequestPermission":
@@ -195,7 +196,6 @@ export default class TrustedClient {
             error: "Missing CreateBucket permission"
           });
         }
-        let client = this.newClient();
         try {
           await client.createBucket(message.name, message.size);
         } catch (e) {
@@ -212,7 +212,6 @@ export default class TrustedClient {
             error: "Missing UpdateBucket permission"
           });
         }
-        let client = this.newClient();
         try {
           await client.updateBucket(message.name, message.magnet);
         } catch (e) {

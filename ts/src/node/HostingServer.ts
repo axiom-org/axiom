@@ -3,7 +3,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import rimraf from "rimraf";
+const rimraf = require("rimraf");
 
 import ChainClient from "../iso/ChainClient";
 import KeyPair from "../iso/KeyPair";
@@ -12,6 +12,8 @@ import ProviderListener from "./ProviderListener";
 import TorrentClient from "../iso/TorrentClient";
 import { sleep } from "../iso/Util";
 import { isDirectory, loadKeyPair } from "./FileUtil";
+
+console.log("XXX rimraf:", rimraf);
 
 // Throws an error if the magnet url is an unknown format
 function getInfoHash(magnet) {
@@ -68,7 +70,10 @@ export default class HostingServer {
     this.directory = options.directory;
     this.verbose = !!options.verbose;
     this.client = new TorrentClient(options.network);
-    this.client.verbose = this.verbose;
+
+    // These messages are things like "x got uninterested. y is choking us."
+    // If we have network-level troubles we might want to expose these.
+    // this.client.verbose = this.verbose;
 
     // Maps info hash to bucket object
     this.infoMap = {};
@@ -93,7 +98,7 @@ export default class HostingServer {
       this.log("infoHash suspiciously short:", infoHash);
       return null;
     }
-    this.log("removing", infoHash);
+    this.log("no longer hosting hash", infoHash);
     await this.client.remove(infoHash);
     let promise = new Promise((resolve, reject) => {
       rimraf(this.subdirectory(infoHash), { disableGlob: true }, err => {
@@ -124,6 +129,8 @@ export default class HostingServer {
     // Handle data that is being deleted
     for (let infoHash in this.infoMap) {
       if (!newInfoMap[infoHash]) {
+        let bucket = this.infoMap[infoHash];
+        this.log(`bucket ${bucket.name} is no longer using hash ${infoHash}`);
         await this.remove(infoHash);
       }
     }
@@ -131,12 +138,12 @@ export default class HostingServer {
     // Handle data that is being added
     for (let infoHash in newInfoMap) {
       if (!this.infoMap[infoHash]) {
-        this.log("adding", infoHash);
-
         // Start seeding this torrent. If the directory is already there from a previous run,
         // this should reuse it.
         let dir = this.subdirectory(infoHash);
         let bucket = newInfoMap[infoHash];
+        this.log(`downloading bucket ${bucket.name} with hash ${infoHash}`);
+
         let torrent = this.client.download(bucket.magnet, dir);
 
         // Check to make sure that this torrent isn't too large
