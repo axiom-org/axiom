@@ -72,15 +72,16 @@ setBlackHoleProxy(config.getProxy()).then(() => {
 });
 
 let downloader = new TorrentDownloader(process.env.NETWORK);
+downloader.verbose = true;
 
 // Handle non-html requests by redirecting them to a data URL
 chrome.webRequest.onBeforeRequest.addListener(
   details => {
     let url = new URL(details.url);
     let file = downloader.getFileFromCache(url.hostname, url.pathname);
-    if (!file.data) {
+    if (!file || !file.data) {
       console.log("no data found for", url.hostname, url.pathname);
-      return { redirectUrl: "about:blank" };
+      return { cancel: true };
     }
     console.log("data found for", url.hostname, url.pathname);
     return { redirectUrl: file.data };

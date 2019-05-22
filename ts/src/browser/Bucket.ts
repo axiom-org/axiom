@@ -96,7 +96,7 @@ export default class Bucket {
     }
     this.torrentFiles = {};
     for (let file of this.torrent.torrent.files) {
-      this.torrentFiles[file.name] = file;
+      this.torrentFiles[file.path] = file;
     }
     this.downloadPending = false;
   }
@@ -151,7 +151,7 @@ export default class Bucket {
   }
 
   // Returns null if there is no such file.
-  async getFile(filename: string): Promise<File> {
+  async getFile(path: string): Promise<File> {
     await this.download();
     if (filename in this.files) {
       return this.files[filename];
@@ -164,7 +164,7 @@ export default class Bucket {
   }
 
   // Returns null if there is no such file.
-  async getText(filename: string, encoding?: string): Promise<string> {
+  async getText(path: string, encoding?: string): Promise<string> {
     let file = await this.getFile(filename);
     if (!file) {
       return null;
@@ -176,22 +176,22 @@ export default class Bucket {
   // Returns null if there is no such file.
   // Throws an error if we haven't downloaded this bucket.
   // This has to be async because the browser file-reading APIs are async.
-  async getJSON(filename: string): Promise<any> {
+  async getJSON(path: string): Promise<any> {
     let text = await this.getText(filename);
     return JSON.parse(text);
   }
 
-  setFile(filename: string, file: File) {
+  setFile(path: string, file: File) {
     this.files[filename] = file;
   }
 
   // Only supports utf-8
-  setText(filename: string, text: string) {
+  setText(path: string, text: string) {
     let file = new File([text], filename);
     this.setFile(filename, file);
   }
 
-  setJSON(filename: string, data: any) {
+  setJSON(path: string, data: any) {
     let text = JSON.stringify(data);
     this.setText(filename, text);
   }

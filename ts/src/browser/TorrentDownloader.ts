@@ -41,21 +41,13 @@ async function readFile(file) {
   });
 }
 
-// Turns a torrent into a map from filename to data
-async function readTorrent(torrent) {
-  let data = {};
-  for (let file of torrent.files) {
-    data[file.name] = await readFile(file);
-  }
-  return data;
-}
-
 export default class TorrentDownloader {
   client: TorrentClient;
   lastFetchTime: { [hostname: string]: Date };
   magnets: any;
   cache: any;
   network: string;
+  verbose: boolean;
 
   constructor(network: string) {
     this.network = network;
@@ -70,6 +62,24 @@ export default class TorrentDownloader {
     // this.cache[magnet][filename] is the cache for the file.
     // files are stored either as { html: html } or { data: dataURL } objects.
     this.cache = {};
+
+    this.verbose = false;
+  }
+
+  log(...args) {
+    if (this.verbose) {
+      console.log(...args);
+    }
+  }
+
+  // Turns a torrent into a map from filename to data
+  async readTorrent(torrent) {
+    let data = {};
+    for (let file of torrent.files) {
+      this.log("got data for", file.path);
+      data[file.path] = await readFile(file);
+    }
+    return data;
   }
 
   // Starts downloading and resolves when the download finishes.
@@ -80,7 +90,8 @@ export default class TorrentDownloader {
     }
     let torrent = await this.client.download(magnet);
     await torrent.waitForDone();
-    let data = await readTorrent(torrent.torrent);
+    this.log("finished", torrent.infoHash);
+    let data = await this.readTorrent(torrent.torrent);
     this.cache[magnet] = data;
     return data;
   }
