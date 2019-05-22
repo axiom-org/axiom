@@ -7,6 +7,8 @@ console.log("XXX content-main");
 window.addEventListener(
   "message",
   event => {
+    console.log("XXX event:", event);
+
     if (event.source != window || event.data.type != "toAxiom") {
       return;
     }
