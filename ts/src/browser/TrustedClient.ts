@@ -167,6 +167,8 @@ export default class TrustedClient {
     let permissions = this.getPermissions(host);
     let client = this.newClient();
 
+    console.log(host, "sent us a message:", message);
+
     switch (message.type) {
       case "RequestPermission":
         return await this.handleRequestPermission(host, message.permissions);

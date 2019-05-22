@@ -22,8 +22,9 @@ export default class UntrustedClient {
   callbacks: { [id: string]: any };
   permissions: any;
   popupURL: string;
+  verbose: boolean;
 
-  constructor() {
+  constructor(verbose?: boolean) {
     // publicKey is null before permissions are acquired
     this.publicKey = null;
 
@@ -36,6 +37,8 @@ export default class UntrustedClient {
 
     // Where to ask about new permissions
     this.popupURL = null;
+
+    this.verbose = !!verbose;
 
     window.addEventListener("message", event => {
       if (
@@ -76,6 +79,12 @@ export default class UntrustedClient {
     });
   }
 
+  log(...args) {
+    if (this.verbose) {
+      console.log(...args);
+    }
+  }
+
   // Each browser message has an id
   getMessageId() {
     return "" + Math.random();
@@ -90,6 +99,7 @@ export default class UntrustedClient {
     };
     return new Promise((resolve, reject) => {
       this.callbacks[id] = resolve;
+      this.log("window.postMessage", data);
       window.postMessage(data, "*");
     });
   }

@@ -22,7 +22,7 @@ export default class App extends React.Component<any, any> {
       balance: null
     };
 
-    this.axiom = new AxiomAPI({ network: NETWORK });
+    this.axiom = new AxiomAPI({ network: NETWORK, verbose: true });
   }
 
   fetchBlockchainData() {

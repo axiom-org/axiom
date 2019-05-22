@@ -13,13 +13,15 @@ export default class AxiomAPI {
   chainClient: ChainClient;
   torrentClient: TorrentClient;
   untrustedClient: UntrustedClient;
+  verbose: boolean;
 
-  constructor(options?: { network?: string }) {
+  constructor(options?: { network?: string; verbose?: boolean }) {
     options = options || {};
     this.network = options.network || "alpha";
 
+    this.verbose = !!options.verbose;
     this.torrentClient = new TorrentClient(this.network);
-    this.untrustedClient = new UntrustedClient();
+    this.untrustedClient = new UntrustedClient(this.verbose);
     this.chainClient = new ChainClient(null, this.network);
   }
 
