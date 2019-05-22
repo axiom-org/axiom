@@ -194,8 +194,18 @@ export default class TorrentDownloader {
 
     // This logic could certainly be more robust but it should err on
     // the side of not inlining.
-    let regex = /<script src="[^"<>]*\.js"><\/script>/g;
-    console.log("XXX", html.matchAll(regex));
-    return html;
+    let regex = /<script src="([^"<>]*\.js)"><\/script>/g;
+    let newHtml = html.replace(regex, (match, $1) => {
+      // TODO: this won't work for scripts on subpages will it?
+      // TODO: this also doesn't maintain sourcemaps.
+      let p = cleanPathname($1);
+      let src = data[p].text;
+      if (!p) {
+        return match;
+      }
+
+      return "<script>" + src + "</script>";
+    });
+    return newHtml;
   }
 }
