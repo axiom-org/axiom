@@ -11,13 +11,16 @@
   "bin": {
     "axiom": "./build/node/node/cli-main.js"
   },
+  "main": null,
   "scripts": {
     "app": "parcel app/index.html",
+    "build-api": "tsc --project tsconfig.browser.json",
     "build-cli": "tsc --project tsconfig.node.json",
     "cli": "ts-node --project tsconfig.node.json src/node/cli-main.ts",
     "ext-alpha": "NETWORK=alpha parcel -p 2345 --no-hmr build src/browser/popup-main.tsx src/browser/background-main.ts src/browser/content-main.ts src/browser/loader-main.ts -d ext-alpha/",
     "ext-local": "NETWORK=local parcel -p 2345 --no-hmr build src/browser/popup-main.tsx src/browser/background-main.ts src/browser/content-main.ts src/browser/loader-main.ts -d ext-local/",
     "hserver": "ts-node --project tsconfig.node.json src/node/hserver-main.ts --keypair=./mint.json --capacity=1000",
+    "repackage": "ts-node src/node/repackage-main.ts",
     "test": "jest"
   },
   "browserslist": [
