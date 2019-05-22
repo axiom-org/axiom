@@ -39,6 +39,6 @@ export default class Tracker {
   }
 
   onStart(addr) {
-    console.log("got torrent start message from", addr);
+    // console.log("got torrent start message from", addr);
   }
 }
