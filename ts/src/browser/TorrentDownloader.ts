@@ -17,8 +17,7 @@ function cleanPathname(pathname) {
   return pathname;
 }
 
-// Async file reader
-async function readFile(file) {
+async function readAsText(file): Promise<string> {
   return await new Promise((resolve, reject) => {
     file.getBlob((err, blob) => {
       if (err) {
@@ -26,19 +25,37 @@ async function readFile(file) {
       }
       let reader = new FileReader();
 
-      if (file.name.endsWith(".html")) {
-        reader.onload = e => {
-          resolve({ html: (e.target as any).result });
-        };
-        reader.readAsText(blob);
-      } else {
-        reader.onload = e => {
-          resolve({ data: (e.target as any).result });
-        };
-        reader.readAsDataURL(blob);
-      }
+      reader.onload = e => {
+        resolve((e.target as any).result);
+      };
+      reader.readAsText(blob);
     });
   });
+}
+
+async function readAsDataURL(file): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    file.getBlob((err, blob) => {
+      if (err) {
+        reject(err);
+      }
+      let reader = new FileReader();
+
+      reader.onload = e => {
+        resolve((e.target as any).result);
+      };
+      reader.readAsDataURL(blob);
+    });
+  });
+}
+
+// Async file reader.
+// TODO: stop using this, the API is weird.
+async function readFile(file): Promise<any> {
+  if (file.name.endsWith(".html")) {
+    return { html: await readAsText(file) };
+  }
+  return { data: await readAsDataURL(file) };
 }
 
 export default class TorrentDownloader {
@@ -154,5 +171,10 @@ export default class TorrentDownloader {
     let data = await this.downloadHostname(hostname);
     this.lastFetchTime[hostname] = new Date();
     return data[pathname];
+  }
+
+  // Returns an html string but scripts are inlined.
+  async inlineJavaScript(hostname, pathname) {
+    // XXX
   }
 }

@@ -123,6 +123,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   downloader
     .getFile(hostname, pathname)
     .then(file => {
+      // This assumes that anything typed in directly by the user is html.
       // TODO: handle non html stuff
       console.log("sending response:", file.html);
       sendResponse(file.html);
