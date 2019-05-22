@@ -124,7 +124,7 @@ export default class Bucket {
     this.torrentFiles = null;
 
     // Start a new torrent
-    this.torrent = await this.torrentClient.seed(fileList);
+    this.torrent = await this.torrentClient.seed(fileList, this.name);
 
     // Update the magnet on the blockchain
     await this.untrustedClient.updateBucket(this.name, this.torrent.magnet);

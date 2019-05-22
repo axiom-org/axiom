@@ -188,7 +188,8 @@ async function deploy(directory, bucketName) {
   let dir = path.resolve(directory);
   let client = new TorrentClient(getNetwork());
   console.log("creating torrent...");
-  let torrent = await client.seed(dir);
+  process.chdir(dir);
+  let torrent = await client.seed(".", bucketName);
   console.log("serving torrent", torrent.infoHash, "via", torrent.magnet);
   await setMagnet(bucketName, torrent.magnet);
   console.log("chain updated. waiting for host to sync torrent...");
