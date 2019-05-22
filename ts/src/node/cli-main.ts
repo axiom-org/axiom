@@ -593,6 +593,27 @@ async function main() {
     return;
   }
 
+  if (op === "version") {
+    if (rest.length != 0) {
+      fatal("Usage: axiom version");
+    }
+    let dir = __dirname;
+    while (true) {
+      try {
+	let text = fs.readFileSync(path.join(dir, "package.json"), "utf8");
+	let data = JSON.parse(text);
+	console.log(data.version);
+	return;
+      } catch (e) {}
+
+      let newDir = path.join(dir, "..");
+      if (dir === newDir) {
+	fatal("could not find package.json");
+      }
+      dir = newDir;
+    }
+  }
+  
   fatal("unrecognized operation: " + op);
 }
 
