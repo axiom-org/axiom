@@ -37,7 +37,7 @@ function getPackage() {
 }
 
 function writePackage(data) {
-  fs.writeFileSync(FILENAME, JSON.stringify(data, null, 2));
+  fs.writeFileSync(FILENAME, JSON.stringify(data, null, 2) + "\n");
 }
 
 function main() {
