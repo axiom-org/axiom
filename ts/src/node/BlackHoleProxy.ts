@@ -1,19 +1,13 @@
 // Due to the inner workings of Chrome extensions, to make our pseudo-domain work well
-// we need to have an external proxy that just redirects everything to a single tatic page.
+// we need to have an external proxy that just redirects everything to a single static page.
 // This is that proxy.
 
 import * as http from "http";
 
-// This code should never run in browsers because the document load gets canceled
 const CONTENT = `
 <html>
-<head>
-<script>
-console.log("running black hole code");
-</script>
-</head>
 <body>
-this is the black hole proxy
+loading...
 </body>
 </html>
 `;

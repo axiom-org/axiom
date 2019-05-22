@@ -1,12 +1,8 @@
 // This code is injected into .axiom pages in order to load their actual content.
 
-// Stops the process of loading the nonexistent .axiom url
-window.stop();
-
-// It makes the UI more comprehensible to show something new, rather
-// than whatever document was previously shown in the browser. Making
-// this empty just causes the browser to not show anything yet.
-document.write("loading...");
+// TODO: we can't just call window.stop() because that will also stop the content
+// script's message listener from running. But it would be more secure to not even display
+// anything from the black hole proxy.
 
 // Parcel will automatically insert this variable
 declare var process: any;

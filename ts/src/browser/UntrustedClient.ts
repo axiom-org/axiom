@@ -79,8 +79,7 @@ export default class UntrustedClient {
   }
 
   async initializePermissions() {
-    let error = false;
-    while (!error) {
+    for (let i = 0; i < 10; i++) {
       if (this.popupURL) {
         // They are initialized
         return;
@@ -89,7 +88,6 @@ export default class UntrustedClient {
         new Message("RequestPermission", { permissions: {} })
       ).then(response => {
         if (response.type === "Error") {
-          error = true;
           console.log("initialization error:", response.error);
         }
       });
