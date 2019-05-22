@@ -204,9 +204,10 @@ async function download(bucketName) {
   if (!bucket || !bucket.magnet || !bucket.magnet.startsWith("magnet")) {
     fatal("bucket has no magnet: " + JSON.stringify(bucket));
   }
-  console.log("downloading", bucket.magnet, "to", process.cwd());
+  fs.mkdirSync(bucketName);
+  console.log("downloading", bucket.magnet, "to", bucketName);
   let tc = new TorrentClient(getNetwork());
-  let torrent = tc.download(bucket.magnet, process.cwd());
+  let torrent = tc.download(bucket.magnet, bucketName);
   await torrent.waitForDone();
   await tc.destroy();
 }
