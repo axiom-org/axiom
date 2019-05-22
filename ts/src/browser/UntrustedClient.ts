@@ -1,5 +1,6 @@
 import Message from "../iso/Message";
 import { missingPermissions, hasPermission } from "./Permission";
+import { sleep } from "../iso/Util";
 
 // Client is designed to be included in applications and run in an untrusted application
 // environment. It gets permissions by requesting them from the extension, whose code
@@ -53,7 +54,7 @@ export default class UntrustedClient {
 
       if (message.type == "Permission") {
         if (!this.popupURL && message.popupURL) {
-          console.log("initializing permissions to", message.permissions);
+          this.log("initializing permissions to", message.permissions);
         }
         this.permissions = message.permissions;
         this.popupURL = message.popupURL;
@@ -69,14 +70,32 @@ export default class UntrustedClient {
     });
 
     // Initialize the permissions by asking the extension for what we have
-    console.log("initializing permissions...");
-    this.sendMessage(
-      new Message("RequestPermission", { permissions: {} })
-    ).then(response => {
-      if (response.type === "Error") {
-        console.log("initialization error:", response.error);
+    this.log("initializing permissions...");
+
+    // Don't await this, because it's in the constructor.
+    // Since we need to wait for user input to run a popup anyway, it
+    // should be okay to delay initialization.
+    this.initializePermissions();
+  }
+
+  async initializePermissions() {
+    let error = false;
+    while (!error) {
+      if (this.popupURL) {
+        // They are initialized
+        return;
       }
-    });
+      this.sendMessage(
+        new Message("RequestPermission", { permissions: {} })
+      ).then(response => {
+        if (response.type === "Error") {
+          error = true;
+          console.log("initialization error:", response.error);
+        }
+      });
+
+      await sleep(100);
+    }
   }
 
   log(...args) {
