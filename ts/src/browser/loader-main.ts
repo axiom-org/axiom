@@ -1,11 +1,13 @@
 // This code is injected into .axiom pages in order to load their actual content.
 
-// TODO: we can't just call window.stop() because that will also stop the content
-// script's message listener from running. But it would be more secure to not even display
-// anything from the black hole proxy.
+import { routeWindowMessages } from "./WindowUtil";
 
 // Parcel will automatically insert this variable
 declare var process: any;
+
+window.stop();
+
+document.write("loading...");
 
 console.log("loading from", process.env.NETWORK, "network begins");
 
@@ -30,5 +32,7 @@ chrome.runtime.sendMessage(
     } else {
       document.write(response);
     }
+
+    routeWindowMessages();
   }
 );
