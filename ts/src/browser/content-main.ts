@@ -1,8 +1,9 @@
 // This code runs in our content script, in the context of every web page.
 // It does not run in the context of web pages that failed to load.
-// It does not run in .axiom pages because the loader stops subsequent page loading.
 
 console.log("XXX content-main");
+console.log("XXX c-m window.location.href", window.location.href);
+console.log("XXX c-m window.origin", window.origin);
 
 window.addEventListener(
   "message",

@@ -116,7 +116,9 @@ export default class UntrustedClient {
     };
     return new Promise((resolve, reject) => {
       this.callbacks[id] = resolve;
-      this.log("window.postMessage", data);
+      this.log("UntrustedClient window.location.href", window.location.href);
+      this.log("UntrustedClient window.origin", window.origin);
+      this.log("UntrustedClient window.postMessage", data);
       window.postMessage(data, "*");
     });
   }
