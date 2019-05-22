@@ -56,7 +56,7 @@ export default class App extends React.Component<any, any> {
       return;
     }
     await bucket.download();
-    console.log("filenames:", await bucket.getFilenames());
+    console.log("paths:", await bucket.getPaths());
     let text = await bucket.getText("index.html");
     console.log("text:", text);
   }

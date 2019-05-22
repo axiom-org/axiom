@@ -33,8 +33,8 @@ export default class Bucket {
   torrentClient: TorrentClient;
   untrustedClient: UntrustedClient;
   torrent?: Torrent;
-  torrentFiles?: { [filename: string]: any };
-  files: { [filename: string]: File };
+  torrentFiles?: { [path: string]: any };
+  files: { [path: string]: File };
   downloadPending: boolean;
 
   constructor(
@@ -111,9 +111,9 @@ export default class Bucket {
     // Get a list of all our files.
     // This also makes sure all data is cached in this.files, so we can drop torrentFiles
     let fileList: File[] = [];
-    let filenames = await this.getFilenames();
-    for (let filename of filenames) {
-      fileList.push(await this.getFile(filename));
+    let paths = await this.getPaths();
+    for (let p of paths) {
+      fileList.push(await this.getFile(p));
     }
 
     // Stop using the old download-centric torrent
@@ -133,7 +133,7 @@ export default class Bucket {
     await this.torrent.waitForSeeds(1);
   }
 
-  async getFilenames(): Promise<string[]> {
+  async getPaths(): Promise<string[]> {
     await this.download();
     let answer = [];
     for (let fname in this.files) {
@@ -153,19 +153,19 @@ export default class Bucket {
   // Returns null if there is no such file.
   async getFile(path: string): Promise<File> {
     await this.download();
-    if (filename in this.files) {
-      return this.files[filename];
+    if (path in this.files) {
+      return this.files[path];
     }
-    if (this.torrentFiles && filename in this.torrentFiles) {
-      this.files[filename] = await convertFile(this.torrentFiles[filename]);
-      return this.files[filename];
+    if (this.torrentFiles && path in this.torrentFiles) {
+      this.files[path] = await convertFile(this.torrentFiles[path]);
+      return this.files[path];
     }
     return null;
   }
 
   // Returns null if there is no such file.
   async getText(path: string, encoding?: string): Promise<string> {
-    let file = await this.getFile(filename);
+    let file = await this.getFile(path);
     if (!file) {
       return null;
     }
@@ -177,22 +177,22 @@ export default class Bucket {
   // Throws an error if we haven't downloaded this bucket.
   // This has to be async because the browser file-reading APIs are async.
   async getJSON(path: string): Promise<any> {
-    let text = await this.getText(filename);
+    let text = await this.getText(path);
     return JSON.parse(text);
   }
 
   setFile(path: string, file: File) {
-    this.files[filename] = file;
+    this.files[path] = file;
   }
 
   // Only supports utf-8
   setText(path: string, text: string) {
-    let file = new File([text], filename);
-    this.setFile(filename, file);
+    let file = new File([text], path);
+    this.setFile(path, file);
   }
 
   setJSON(path: string, data: any) {
     let text = JSON.stringify(data);
-    this.setText(filename, text);
+    this.setText(path, text);
   }
 }
