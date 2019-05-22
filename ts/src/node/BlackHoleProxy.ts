@@ -4,6 +4,8 @@
 
 import * as http from "http";
 
+// This shouldn't get shown unless something goes wrong.
+// The extension doesn't load any actual content from the black hole proxy, for security.
 const CONTENT = `
 <html>
 <body>
