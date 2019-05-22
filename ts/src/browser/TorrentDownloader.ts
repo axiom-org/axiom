@@ -50,12 +50,17 @@ async function readAsDataURL(file): Promise<string> {
 }
 
 // Async file reader.
-// TODO: stop using this, the API is weird.
+// We keep a data url around because to redirect to it, we need it to be available
+// synchronously.
 async function readFile(file): Promise<any> {
-  if (file.name.endsWith(".html")) {
-    return { html: await readAsText(file) };
+  let answer = {} as any;
+  if (file.name.endsWith("html") || file.name.endsWith("js")) {
+    answer.text = await readAsText(file);
   }
-  return { data: await readAsDataURL(file) };
+  if (!file.name.endsWith("html")) {
+    answer.data = await readAsDataURL(file);
+  }
+  return answer;
 }
 
 export default class TorrentDownloader {
@@ -77,7 +82,7 @@ export default class TorrentDownloader {
     this.magnets = {};
 
     // this.cache[magnet][filename] is the cache for the file.
-    // files are stored either as { html: html } or { data: dataURL } objects.
+    // files are stored with maybe { text: text } and maybe { data: dataURL }.
     this.cache = {};
 
     this.verbose = false;
@@ -164,6 +169,7 @@ export default class TorrentDownloader {
   }
 
   // Rejects if there is no such file or if there is a loading failure.
+  // TODO: remove if nothing is using this
   async getFile(hostname, pathname) {
     pathname = cleanPathname(pathname);
     console.log("loading", pathname, "from", hostname);
@@ -174,7 +180,22 @@ export default class TorrentDownloader {
   }
 
   // Returns an html string but scripts are inlined.
-  async inlineJavaScript(hostname, pathname) {
-    // XXX
+  async inlineJavaScript(hostname, pathname): Promise<string> {
+    pathname = cleanPathname(pathname);
+    console.log("loading", pathname, "from", hostname);
+
+    let data = await this.downloadHostname(hostname);
+    this.lastFetchTime[hostname] = new Date();
+
+    let html = data[pathname].text;
+    if (!html) {
+      throw new Error("no html present for " + pathname);
+    }
+
+    // This logic could certainly be more robust but it should err on
+    // the side of not inlining.
+    let regex = /<script src="[^"<>]*\.js"><\/script>/g;
+    console.log("XXX", html.matchAll(regex));
+    return html;
   }
 }

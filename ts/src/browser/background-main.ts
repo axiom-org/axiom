@@ -121,12 +121,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   let { hostname, pathname } = message.getFile;
   downloader
-    .getFile(hostname, pathname)
-    .then(file => {
+    .inlineJavaScript(hostname, pathname)
+    .then(html => {
       // This assumes that anything typed in directly by the user is html.
       // TODO: handle non html stuff
-      console.log("sending response:", file.html);
-      sendResponse(file.html);
+      console.log("sending", html.length, "bytes of html response");
+      sendResponse(html);
     })
     .catch(e => {
       console.log("sending error response:", e);
