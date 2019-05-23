@@ -27,6 +27,7 @@ export default class Tracker {
       if (parsed.pathname !== "/prepareUpdateBucket") {
         return;
       }
+      res.setHeader("Access-Control-Allow-Origin", "*");
       res.write("OK");
       res.end();
       if (this.onMagnet) {
