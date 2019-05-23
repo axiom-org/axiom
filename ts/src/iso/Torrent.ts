@@ -26,6 +26,10 @@ export default class Torrent {
     return this.torrent.progress == 1;
   }
 
+  getProgress(): number {
+    return this.torrent.progress;
+  }
+
   // Returns the number of seeders, not counting this client.
   // If we aren't sure, we are pessimistic and assume a peer is not a seeder.
   // In particular if we don't have metadata yet we return 0 because we are confident in
