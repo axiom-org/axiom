@@ -142,7 +142,6 @@ export default class HostingServer {
         // this should reuse it.
         let dir = this.subdirectory(infoHash);
         let bucket = newInfoMap[infoHash];
-        this.log(`downloading bucket ${bucket.name} with hash ${infoHash}`);
 
         let torrent = this.client.download(bucket.magnet, dir);
 
@@ -150,6 +149,13 @@ export default class HostingServer {
         await torrent.waitForMetadata();
         let bucketBytes = bucket.size * 1024 * 1024;
         let torrentBytes = torrent.totalBytes();
+
+        this.log(
+          `downloading ${torrentBytes} bytes with hash ${infoHash} for bucket ${
+            bucket.name
+          }`
+        );
+
         if (torrentBytes > bucketBytes) {
           // The torrent *is* too large.
           this.log(

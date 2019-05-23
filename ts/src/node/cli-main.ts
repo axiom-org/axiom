@@ -165,9 +165,8 @@ async function setMagnet(bucketName, magnet) {
   }
   let kp = await login();
   let client = newChainClient(kp);
-  let bucket = await client.updateBucket(bucketName, magnet);
+  await client.updateBucket(bucketName, magnet);
   console.log("magnet set to", magnet);
-  console.log(bucket);
 }
 
 async function allocate(bucketName, providerID) {
