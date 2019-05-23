@@ -1,3 +1,5 @@
+const url = require("url");
+
 import { Server } from "bittorrent-tracker";
 
 // Run a webtorrent tracker
@@ -5,6 +7,7 @@ import { Server } from "bittorrent-tracker";
 
 export default class Tracker {
   server: Server;
+  onMagnet: (string) => void;
 
   constructor(port) {
     this.server = new Server({
@@ -15,8 +18,20 @@ export default class Tracker {
       filter: (infoHash, params, callback) => {
         // Allow tracking all torrents
         // TODO: restrict this in a logical way
-        // console.log("tracking", infoHash);
         callback(null);
+      }
+    });
+
+    this.server.http.on("request", (req, res) => {
+      let parsed = url.parse(req.url, true);
+      if (parsed.pathname !== "/prepareUpdateBucket") {
+        return;
+      }
+      res.write("OK");
+      res.end();
+      if (this.onMagnet) {
+        console.log("preparing magnet:", parsed.query.magnet);
+        this.onMagnet(parsed.query.magnet);
       }
     });
 

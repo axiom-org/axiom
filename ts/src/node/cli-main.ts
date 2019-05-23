@@ -190,9 +190,11 @@ async function deploy(directory, bucketName) {
   process.chdir(dir);
   let torrent = await client.seed(".", bucketName);
   console.log("content hash is", torrent.infoHash);
-  await setMagnet(bucketName, torrent.magnet);
-  console.log("chain updated. waiting for host to sync torrent...");
+  await client.prepareUpdateBucket(torrent.magnet);
+  console.log("waiting for host to sync torrent...");
   await torrent.waitForSeeds(1);
+  console.log("updating blockchain...");
+  await setMagnet(bucketName, torrent.magnet);
   console.log("deploy complete. cleaning up...");
   await client.destroy();
 }

@@ -9,6 +9,7 @@ import ChainClient from "../iso/ChainClient";
 import KeyPair from "../iso/KeyPair";
 import NetworkConfig from "../iso/NetworkConfig";
 import ProviderListener from "./ProviderListener";
+import Torrent from "../iso/Torrent";
 import TorrentClient from "../iso/TorrentClient";
 import { sleep } from "../iso/Util";
 import { isDirectory, isFile, loadKeyPair } from "./FileUtil";
@@ -91,22 +92,43 @@ export default class HostingServer {
     return path.join(this.directory, infoHash);
   }
 
-  // Also cleans up the files on disk.
-  // You can call this twice on an infoHash.
-  async remove(infoHash) {
-    if (infoHash.length < 5) {
-      this.log("infoHash suspiciously short:", infoHash);
-      return null;
+  async cleanUpFiles() {
+    let files = fs.readdirSync(this.directory);
+    let hashes = {};
+    for (let file of files) {
+      let hash = file.split(".")[0];
+      if (!hash || hash.length == 0) {
+        continue;
+      }
+      hashes[hash] = true;
     }
-    this.log("removing data for hash", infoHash);
-    if (this.client.hasTorrent(infoHash)) {
-      await this.client.remove(infoHash);
+
+    let kept = 0;
+    let deleted = 0;
+    for (let hash in hashes) {
+      let tfile = this.subdirectory(hash) + ".torrent";
+      if (!isFile(tfile)) {
+        this.log(`${hash} data is incomplete. removing it`);
+        await this.deleteTorrentFiles(hash);
+        deleted += 1;
+      } else {
+        kept += 1;
+      }
     }
+
+    this.log(`kept ${kept} cached torrents, deleted ${deleted}`);
+  }
+
+  async deleteTorrentFiles(infoHash) {
     let dir = this.subdirectory(infoHash);
     let tfile = dir + ".torrent";
+
+    // Delete the .torrent file
     if (isFile(tfile)) {
       fs.unlinkSync(tfile);
     }
+
+    // Delete all the content
     let promise = new Promise((resolve, reject) => {
       rimraf(this.subdirectory(infoHash), { disableGlob: true }, err => {
         if (err) {
@@ -118,49 +140,89 @@ export default class HostingServer {
     return await promise;
   }
 
-  // Starts downloading, checks if the torrent is too large, and cancels it if so.
-  async seedBucket(bucket) {
-    let infoHash = getInfoHash(bucket.magnet);
+  // Also cleans up the files on disk.
+  // You can call this twice on an infoHash.
+  async remove(infoHash) {
+    if (infoHash.length < 5) {
+      this.log("infoHash suspiciously short:", infoHash);
+      return null;
+    }
+    this.log("removing data for hash", infoHash);
+    if (this.client.hasTorrent(infoHash)) {
+      await this.client.remove(infoHash);
+    }
+    return await this.deleteTorrentFiles(infoHash);
+  }
+
+  // Starts seeding based on a magnet url.
+  // This can be called when we don't necessarily want this data to persist.
+  // In particular, this won't write a .torrent file.
+  // Logs but does not throw on errors.
+  async seedMagnet(magnet): Promise<Torrent> {
+    let infoHash;
+    try {
+      infoHash = getInfoHash(magnet);
+    } catch (e) {
+      this.log("bad magnet:", magnet);
+      return;
+    }
+
+    if (this.client.hasTorrent(infoHash)) {
+      this.log(`already seeding hash ${infoHash}`);
+      return this.client.getTorrent(infoHash);
+    }
+
     let dir = this.subdirectory(infoHash);
     let tfile = dir + ".torrent";
 
     if (isFile(tfile) && isDirectory(dir)) {
       let t = this.client.seedWithTorrentFile(tfile, dir);
       await t.waitForDone();
-      this.log(`seeding bucket ${bucket.name} from preexisting files`);
-      return;
+      this.log(`seeding ${infoHash} from preexisting files`);
+      return t;
     }
 
-    this.log(`downloading bucket ${bucket.name} with hash ${infoHash}`);
-    let torrent = this.client.download(bucket.magnet, dir);
+    this.log(`downloading hash ${infoHash}`);
+    let torrent = this.client.download(magnet, dir);
+    return torrent;
+  }
+
+  // Starts downloading, checks if the torrent is too large, and cancels it if so.
+  async seedBucket(bucket) {
+    let infoHash = getInfoHash(bucket.magnet);
+    this.log(`seeding bucket ${bucket.name} with hash ${infoHash}`);
+
+    let torrent = await this.seedMagnet(bucket.magnet);
 
     // Check to make sure that this torrent isn't too large
     await torrent.waitForMetadata();
     let bucketBytes = bucket.size * 1024 * 1024;
     let torrentBytes = torrent.totalBytes();
 
-    this.log(`${infoHash} contains ${torrentBytes} bytes`);
-
     if (torrentBytes > bucketBytes) {
       // The torrent *is* too large.
       this.log(
-        "torrent",
-        infoHash,
-        "contains",
-        torrentBytes,
-        "bytes but bucket",
-        bucket.name,
-        "only holds",
-        bucketBytes,
-        "bytes"
+        `hash ${infoHash} contains ${torrentBytes} bytes, but bucket ${
+          bucket.name
+        } only holds ${bucketBytes} bytes`
       );
       await this.remove(infoHash);
+    } else {
+      this.log(
+        `hash ${infoHash} contains ${torrentBytes} bytes, which is fine because bucket ${
+          bucket.name
+        } can hold ${bucketBytes} bytes`
+      );
     }
 
     await torrent.waitForDone();
-    let buffer = torrent.getTorrentFileBuffer();
-    this.log("download complete. saving torrent file to", tfile);
-    fs.writeFileSync(tfile, buffer);
+    let dir = this.subdirectory(infoHash);
+    let tfile = dir + ".torrent";
+    if (!isFile(tfile)) {
+      let buffer = torrent.getTorrentFileBuffer();
+      this.log("download complete. saving torrent file to", tfile);
+      fs.writeFileSync(tfile, buffer);
+    }
   }
 
   async handleBuckets(buckets) {
@@ -263,6 +325,7 @@ export default class HostingServer {
   }
 
   async serve() {
+    await this.cleanUpFiles();
     await this.checkKeyPair();
     try {
       await this.acquireProviderID();

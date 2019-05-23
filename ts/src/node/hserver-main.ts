@@ -75,3 +75,5 @@ let proxy = new BlackHoleProxy(flags.proxy);
 
 // Run a tracker
 let tracker = new Tracker(flags.tracker);
+
+tracker.onMagnet = magnet => host.seedMagnet(magnet);

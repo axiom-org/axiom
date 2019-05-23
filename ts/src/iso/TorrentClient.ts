@@ -1,5 +1,5 @@
 // A wrapper around the WebTorrent client with an async API.
-
+import axios from "axios";
 import WebTorrent = require("webtorrent-hybrid");
 
 const DEBUG_WIRE = false;
@@ -78,6 +78,23 @@ export default class TorrentClient {
     });
   }
 
+  // Sends a prepareUpdateBucket message to the trackers, so they know we are going to
+  // update a bucket with this.
+  async prepareUpdateBucket(magnet) {
+    for (let tracker of this.trackers) {
+      let url =
+        tracker.replace(/^ws:/, "http:") + "/prepareUpdateBucket?magnet=";
+      url += encodeURIComponent(magnet);
+      try {
+        let response = await axios.post(url);
+      } catch (e) {
+        // Just ignore errors for now. A single connection just speeds this up
+        // and is not mandatory.
+        this.log(`error sending prepareUpdateBucket to ${tracker}`);
+      }
+    }
+  }
+
   // Returns an array of Torrent objects
   getTorrents() {
     let answer = [];
@@ -138,11 +155,20 @@ export default class TorrentClient {
     return new Torrent(t, this.verbose);
   }
 
-  //  Whether this client is working on a torrent with the given id.
+  // Whether this client is working on a torrent with the given id.
   // Accepts either a magnet URL or an infoHash
   hasTorrent(id: string): boolean {
     let t = this.client.get(id);
     return t ? true : false;
+  }
+
+  // Gets a Torrent object based on magnet URL or infoHash
+  getTorrent(id: string): Torrent {
+    let t = this.client.get(id);
+    if (!t) {
+      throw new Error("bad getTorrent id: " + id);
+    }
+    return new Torrent(t);
   }
 
   // Stops downloading a torrent.

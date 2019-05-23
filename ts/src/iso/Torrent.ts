@@ -89,6 +89,9 @@ export default class Torrent {
 
   // Always returns null
   async waitForMetadata() {
+    if (this.isDone()) {
+      return null;
+    }
     if (this.torrent.files.length > 0) {
       return null;
     }
