@@ -127,6 +127,17 @@ export default class TorrentClient {
     return new Torrent(t, this.verbose);
   }
 
+  // Call this when you already have all the files, and a torrent file, and
+  // you just want to seed it.
+  // The benefit of using this over seed is that if there is an existing torrent
+  // but you can't currently connect to any other seeders, this will join
+  // the same swarm.
+  seedWithTorrentFile(tfile, path) {
+    let t = this.client.add(tfile, { path: path });
+    this.logTorrentEvents(t);
+    return new Torrent(t, this.verbose);
+  }
+
   //  Whether this client is working on a torrent with the given id.
   // Accepts either a magnet URL or an infoHash
   hasTorrent(id: string): boolean {

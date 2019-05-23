@@ -11,7 +11,7 @@ import NetworkConfig from "../iso/NetworkConfig";
 import ProviderListener from "./ProviderListener";
 import TorrentClient from "../iso/TorrentClient";
 import { sleep } from "../iso/Util";
-import { isDirectory, loadKeyPair } from "./FileUtil";
+import { isDirectory, isFile, loadKeyPair } from "./FileUtil";
 
 // Throws an error if the magnet url is an unknown format
 function getInfoHash(magnet) {
@@ -102,6 +102,11 @@ export default class HostingServer {
     if (this.client.hasTorrent(infoHash)) {
       await this.client.remove(infoHash);
     }
+    let dir = this.subdirectory(infoHash);
+    let tfile = dir + ".torrent";
+    if (isFile(tfile)) {
+      fs.unlinkSync(tfile);
+    }
     let promise = new Promise((resolve, reject) => {
       rimraf(this.subdirectory(infoHash), { disableGlob: true }, err => {
         if (err) {
@@ -117,6 +122,14 @@ export default class HostingServer {
   async seedBucket(bucket) {
     let infoHash = getInfoHash(bucket.magnet);
     let dir = this.subdirectory(infoHash);
+    let tfile = dir + ".torrent";
+
+    if (isFile(tfile) && isDirectory(dir)) {
+      let t = this.client.seedWithTorrentFile(tfile, dir);
+      await t.waitForDone();
+      this.log(`seeding bucket ${bucket.name} from preexisting files`);
+      return;
+    }
 
     this.log(`downloading bucket ${bucket.name} with hash ${infoHash}`);
     let torrent = this.client.download(bucket.magnet, dir);
@@ -146,9 +159,8 @@ export default class HostingServer {
 
     await torrent.waitForDone();
     let buffer = torrent.getTorrentFileBuffer();
-    let fname = dir + ".torrent";
-    this.log("download complete. saving torrent file to", fname);
-    fs.writeFileSync(fname, buffer);
+    this.log("download complete. saving torrent file to", tfile);
+    fs.writeFileSync(tfile, buffer);
   }
 
   async handleBuckets(buckets) {
