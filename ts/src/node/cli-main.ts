@@ -166,7 +166,7 @@ async function setMagnet(bucketName, magnet) {
   let kp = await login();
   let client = newChainClient(kp);
   let bucket = await client.updateBucket(bucketName, magnet);
-  console.log("updated bucket:");
+  console.log("magnet set to", magnet);
   console.log(bucket);
 }
 
@@ -190,7 +190,7 @@ async function deploy(directory, bucketName) {
   console.log("creating torrent...");
   process.chdir(dir);
   let torrent = await client.seed(".", bucketName);
-  console.log("serving torrent", torrent.infoHash, "via", torrent.magnet);
+  console.log("content hash is", torrent.infoHash);
   await setMagnet(bucketName, torrent.magnet);
   console.log("chain updated. waiting for host to sync torrent...");
   await torrent.waitForSeeds(1);
