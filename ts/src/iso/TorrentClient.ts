@@ -124,9 +124,16 @@ export default class TorrentClient {
     return new Torrent(t, this.verbose);
   }
 
+  //  Whether this client is working on a torrent with the given id.
+  // Accepts either a magnet URL or an infoHash
+  hasTorrent(id: string): boolean {
+    let t = this.client.get(id);
+    return t ? true : false;
+  }
+
   // Stops downloading a torrent.
   // Accepts either a magnet URL or an infoHash
-  async remove(id) {
+  async remove(id: string) {
     let promise = new Promise((resolve, reject) => {
       this.client.remove(id, err => {
         if (err) {

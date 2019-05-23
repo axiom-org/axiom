@@ -97,7 +97,9 @@ export default class HostingServer {
       return null;
     }
     this.log("no longer hosting hash", infoHash);
-    await this.client.remove(infoHash);
+    if (this.client.hasTorrent(infoHash)) {
+      await this.client.remove(infoHash);
+    }
     let promise = new Promise((resolve, reject) => {
       rimraf(this.subdirectory(infoHash), { disableGlob: true }, err => {
         if (err) {
