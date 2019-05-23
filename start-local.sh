@@ -39,4 +39,4 @@ do
 done
 
 sleep 0.1
-ps aux | grep [^a-z]cserver | grep -v grep
+ps aux | grep [^a-z]cserver | grep -v grep | grep database
