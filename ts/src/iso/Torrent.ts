@@ -4,7 +4,7 @@ import { sleep } from "./Util";
 export default class Torrent {
   torrent: any;
   magnet: string;
-  infoHash: number;
+  infoHash: string;
   verbose: boolean;
 
   // This constructor should be cheap, since we often construct many Torrent objects from
@@ -61,12 +61,15 @@ export default class Torrent {
   }
 
   async monitorProgress() {
+    let delay = 1000;
     while (!this.isDone()) {
-      console.log("progress:", this.torrent.progress);
-      await sleep(1000);
+      await sleep(delay);
+      delay = Math.min(2 * delay, 1000 * 60 * 60);
+      this.log(this.infoHash, "progress:", this.torrent.progress);
     }
-    console.log(
-      "progress complete.",
+    this.log(
+      this.infoHash,
+      "download complete.",
       this.torrent.downloaded,
       "bytes downloaded"
     );
@@ -79,6 +82,10 @@ export default class Torrent {
       answer += file.length;
     }
     return answer;
+  }
+
+  getTorrentFileBuffer() {
+    return this.torrent.torrentFile;
   }
 
   // Always returns null
@@ -97,13 +104,10 @@ export default class Torrent {
 
   // Always returns null
   async waitForDone() {
-    this.log("progress:", this.torrent.progress);
     if (this.isDone()) {
-      this.log("waitForDone is done because we are already done");
       return null;
     }
     let promise = new Promise((resolve, reject) => {
-      this.log("waiting for 'done' event");
       this.torrent.on("done", () => {
         resolve(null);
       });

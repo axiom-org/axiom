@@ -2,6 +2,8 @@
 
 import WebTorrent = require("webtorrent-hybrid");
 
+const DEBUG_WIRE = false;
+
 // Bug workaround as described at:
 // https://github.com/webtorrent/webtorrent/issues/1604#issuecomment-493573782
 declare var window: any;
@@ -49,26 +51,28 @@ export default class TorrentClient {
     torrent.on("warning", err => {
       this.log("warning:", err.message);
     });
-    torrent.on("wire", (wire, addr) => {
-      let pid = nicePeerId(wire.peerId);
-      this.log("connected to", pid, "at", addr);
+    if (DEBUG_WIRE) {
+      torrent.on("wire", (wire, addr) => {
+        let pid = nicePeerId(wire.peerId);
+        this.log("connected to", pid, "at", addr);
 
-      wire.on("interested", () => {
-        this.log(pid, "got interested");
+        wire.on("interested", () => {
+          this.log(pid, "got interested");
+        });
+        wire.on("uninterested", () => {
+          this.log(pid, "got uninterested");
+        });
+        wire.on("choke", () => {
+          this.log(pid, "is choking us");
+        });
+        wire.on("unchoke", () => {
+          this.log(pid, "is no longer choking us");
+        });
+        wire.on("request", (index, offset, length) => {
+          this.log(pid, "requests", index, offset, length);
+        });
       });
-      wire.on("uninterested", () => {
-        this.log(pid, "got uninterested");
-      });
-      wire.on("choke", () => {
-        this.log(pid, "is choking us");
-      });
-      wire.on("unchoke", () => {
-        this.log(pid, "is no longer choking us");
-      });
-      wire.on("request", (index, offset, length) => {
-        this.log(pid, "requests", index, offset, length);
-      });
-    });
+    }
     torrent.on("error", err => {
       this.log("torrent error:", err.message);
     });
@@ -119,7 +123,6 @@ export default class TorrentClient {
       options.path = path;
     }
     let t = this.client.add(magnet, options);
-    this.log("downloading", magnet);
     this.logTorrentEvents(t);
     return new Torrent(t, this.verbose);
   }

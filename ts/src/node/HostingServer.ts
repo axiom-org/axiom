@@ -68,6 +68,7 @@ export default class HostingServer {
     this.directory = options.directory;
     this.verbose = !!options.verbose;
     this.client = new TorrentClient(options.network);
+    this.client.verbose = this.verbose;
 
     // These messages are things like "x got uninterested. y is choking us."
     // If we have network-level troubles we might want to expose these.
@@ -90,13 +91,14 @@ export default class HostingServer {
     return path.join(this.directory, infoHash);
   }
 
-  // Also cleans up the files on disk
+  // Also cleans up the files on disk.
+  // You can call this twice on an infoHash.
   async remove(infoHash) {
     if (infoHash.length < 5) {
       this.log("infoHash suspiciously short:", infoHash);
       return null;
     }
-    this.log("no longer hosting hash", infoHash);
+    this.log("removing data for hash", infoHash);
     if (this.client.hasTorrent(infoHash)) {
       await this.client.remove(infoHash);
     }
@@ -109,6 +111,44 @@ export default class HostingServer {
       });
     });
     return await promise;
+  }
+
+  // Starts downloading, checks if the torrent is too large, and cancels it if so.
+  async seedBucket(bucket) {
+    let infoHash = getInfoHash(bucket.magnet);
+    let dir = this.subdirectory(infoHash);
+
+    this.log(`downloading bucket ${bucket.name} with hash ${infoHash}`);
+    let torrent = this.client.download(bucket.magnet, dir);
+
+    // Check to make sure that this torrent isn't too large
+    await torrent.waitForMetadata();
+    let bucketBytes = bucket.size * 1024 * 1024;
+    let torrentBytes = torrent.totalBytes();
+
+    this.log(`${infoHash} contains ${torrentBytes} bytes`);
+
+    if (torrentBytes > bucketBytes) {
+      // The torrent *is* too large.
+      this.log(
+        "torrent",
+        infoHash,
+        "contains",
+        torrentBytes,
+        "bytes but bucket",
+        bucket.name,
+        "only holds",
+        bucketBytes,
+        "bytes"
+      );
+      await this.remove(infoHash);
+    }
+
+    await torrent.waitForDone();
+    let buffer = torrent.getTorrentFileBuffer();
+    let fname = dir + ".torrent";
+    this.log("download complete. saving torrent file to", fname);
+    fs.writeFileSync(fname, buffer);
   }
 
   async handleBuckets(buckets) {
@@ -138,39 +178,11 @@ export default class HostingServer {
     // Handle data that is being added
     for (let infoHash in newInfoMap) {
       if (!this.infoMap[infoHash]) {
-        // Start seeding this torrent. If the directory is already there from a previous run,
-        // this should reuse it.
-        let dir = this.subdirectory(infoHash);
         let bucket = newInfoMap[infoHash];
 
-        let torrent = this.client.download(bucket.magnet, dir);
-
-        // Check to make sure that this torrent isn't too large
-        await torrent.waitForMetadata();
-        let bucketBytes = bucket.size * 1024 * 1024;
-        let torrentBytes = torrent.totalBytes();
-
-        this.log(
-          `downloading ${torrentBytes} bytes with hash ${infoHash} for bucket ${
-            bucket.name
-          }`
-        );
-
-        if (torrentBytes > bucketBytes) {
-          // The torrent *is* too large.
-          this.log(
-            "torrent",
-            infoHash,
-            "contains",
-            torrentBytes,
-            "bytes but bucket",
-            bucket.name,
-            "only holds",
-            bucketBytes,
-            "bytes"
-          );
-          await this.remove(infoHash);
-        }
+        // Don't await. If we do await, a delay in downloading metadata can stall
+        // this whole thread.
+        this.seedBucket(bucket);
       }
     }
 
