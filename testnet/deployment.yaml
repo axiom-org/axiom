@@ -34,8 +34,6 @@ spec:
           - name: keypairX
             mountPath: /secrets/keypair
             readOnly: true
-          - name: volumeX
-            mountPath: /hostfiles
         env:
         - name: FORCE_REDEPLOY
           value: 'DEPLOY_TIME'
@@ -69,6 +67,8 @@ spec:
           - name: keypairX
             mountPath: /secrets/keypair
             readOnly: true
+          - name: volumeX
+            mountPath: /hostfiles
         env:
         - name: FORCE_REDEPLOY
           value: 'DEPLOY_TIME'
