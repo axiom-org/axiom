@@ -32,8 +32,8 @@ export default class Torrent {
 
   // Returns the number of seeders, not counting this client.
   // If we aren't sure, we are pessimistic and assume a peer is not a seeder.
-  // In particular if we don't have metadata yet we return 0 because we are confident in
-  // zero seeders.
+  // In particular if we don't have metadata yet we return 0 because we are
+  // not confident in any seeders.
   // This also doesn't pick up seeds that already have all the data, and so do we, but the
   // peer wasn't connected to the network at the time we created this
   // torrent, because we have never had any need to communicate with those peers.
@@ -45,11 +45,6 @@ export default class Torrent {
 
     let answer = 0;
     for (let wire of this.torrent.wires) {
-      if (wire.peerPieces.buffer.length != numPieces) {
-        // No need to iterate, this isn't a seed
-        continue;
-      }
-
       let wireIsSeed = true;
       for (let i = 0; i < numPieces; i++) {
         if (!wire.peerPieces.get(i)) {
