@@ -126,11 +126,12 @@ export default class Bucket {
     // Start a new torrent
     this.torrent = await this.torrentClient.seed(fileList, this.name);
 
+    // Wait for a hosting provider to seed
+    await this.torrentClient.prepareUpdateBucket(this.torrent.magnet);
+    await this.torrent.waitForSeeds(1);
+
     // Update the magnet on the blockchain
     await this.untrustedClient.updateBucket(this.name, this.torrent.magnet);
-
-    // Wait for a hosting provider to seed
-    await this.torrent.waitForSeeds(1);
   }
 
   async getPaths(): Promise<string[]> {
