@@ -207,12 +207,6 @@ export default class HostingServer {
         } only holds ${bucketBytes} bytes`
       );
       await this.remove(infoHash);
-    } else {
-      this.log(
-        `hash ${infoHash} contains ${torrentBytes} bytes, which is fine because bucket ${
-          bucket.name
-        } can hold ${bucketBytes} bytes`
-      );
     }
 
     await torrent.waitForDone();

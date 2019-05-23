@@ -16,8 +16,9 @@ export default class Tracker {
       ws: true,
       stats: true,
       filter: (infoHash, params, callback) => {
-        // Allow tracking all torrents
-        // TODO: restrict this in a logical way
+        // Any content you don't want to host, you can reject here based on infoHash.
+        // TODO: validate prepareUpdateBucket calls and only allow tracking torrents
+        // that have previously sent this validation.
         callback(null);
       }
     });
