@@ -21,7 +21,7 @@
     "prepublish": "npm run build-api",
     "repackage": "ts-node src/node/repackage-main.ts",
     "test": "jest",
-    "zip", "NODE_ENV=production NETWORK=alpha ./build-extension.sh"
+    "zip": "NODE_ENV=production NETWORK=alpha ./build-extension.sh"
   },
   "browserslist": [
     "last 10 chrome versions"
