@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Axiom Authenticator",
   "description": "An in-browser Axiom authenticator. Connects to the alpha network. See axiom.org for more details.",
-  "version": "0.1",
+  "version": "0.0.14",
   "permissions": [
     "activeTab",
     "proxy",
