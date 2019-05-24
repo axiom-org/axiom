@@ -622,7 +622,12 @@ async function main() {
       fatal("Usage: axiom get-private-key");
     }
     let config = new CLIConfig();
-    console.log(config.getKeyPair().getPrivateKey());
+    let kp = config.getKeyPair();
+    if (kp) {
+      console.log(kp.getPrivateKey());
+    } else {
+      console.log("you are not logged in");
+    }
     return;
   }
   
