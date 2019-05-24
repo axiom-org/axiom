@@ -30,5 +30,8 @@
   }],
   "web_accessible_resources": [
     "popup.html"
-  ]
+  ],
+  "icons": {
+    "128": "icon128.png"
+  }
 }
