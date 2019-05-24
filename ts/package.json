@@ -1,15 +1,17 @@
 {
-  "name": "axiom-api",
-  "version": "0.0.14",
-  "description": "API for interacting with the Axiom.org cryptocurrency platform",
+  "name": "axiom-cli",
+  "version": "0.0.15",
+  "description": "CLI for interacting with the Axiom.org cryptocurrency platform",
   "repository": {
     "type": "git",
     "url": "https://github.com/axiom-org/axiom.git"
   },
   "license": "MIT",
   "author": "Kevin Lacker",
-  "bin": {},
-  "main": "build/browser/browser/AxiomAPI.js",
+  "bin": {
+    "axiom": "./build/node/node/cli-main.js"
+  },
+  "main": null,
   "scripts": {
     "app": "parcel app/index.html",
     "build-api": "tsc --project tsconfig.browser.json",
@@ -18,7 +20,7 @@
     "ext-alpha": "NETWORK=alpha ./build-extension.sh",
     "ext-local": "NETWORK=local ./build-extension.sh",
     "hserver": "ts-node --project tsconfig.node.json src/node/hserver-main.ts --keypair=./mint.json --capacity=1000",
-    "prepublish": "npm run build-api",
+    "prepublish": "npm run build-cli",
     "repackage": "ts-node src/node/repackage-main.ts",
     "test": "jest",
     "zip": "NODE_ENV=production NETWORK=alpha ./build-extension.sh"

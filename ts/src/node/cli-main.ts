@@ -616,6 +616,15 @@ async function main() {
       dir = newDir;
     }
   }
+
+  if (op === "get-private-key") {
+    if (rest.length != 0) {
+      fatal("Usage: axiom get-private-key");
+    }
+    let config = new CLIConfig();
+    console.log(config.getKeyPair().getPrivateKey());
+    return;
+  }
   
   fatal("unrecognized operation: " + op);
 }
