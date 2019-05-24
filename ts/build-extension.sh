@@ -18,3 +18,8 @@ parcel -p 2345 --no-hmr build \
        src/browser/content-main.ts \
        src/browser/loader-main.ts \
        -d ext-$NETWORK/
+
+if [ "$NODE_ENV" == "production"]
+then
+    echo zipping extension files...
+fi

@@ -20,7 +20,8 @@
     "hserver": "ts-node --project tsconfig.node.json src/node/hserver-main.ts --keypair=./mint.json --capacity=1000",
     "prepublish": "npm run build-api",
     "repackage": "ts-node src/node/repackage-main.ts",
-    "test": "jest"
+    "test": "jest",
+    "zip", "NODE_ENV=production NETWORK=alpha ./build-extension.sh"
   },
   "browserslist": [
     "last 10 chrome versions"
