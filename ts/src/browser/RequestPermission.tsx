@@ -42,6 +42,8 @@ export default class RequestPermission extends React.Component<any, any> {
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
+            wordWrap: "break-word",
+            width: "100%",
             flex: 3
           }}
         >

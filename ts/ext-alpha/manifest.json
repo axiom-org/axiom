@@ -3,7 +3,7 @@
   "name": "Axiom Authenticator",
   "short_name": "Axiom Auth",
   "description": "An in-browser Axiom authenticator. Connects to the alpha network. See axiom.org for more details.",
-  "version": "0.0.14",
+  "version": "0.0.16",
   "permissions": [
     "activeTab",
     "proxy",
