@@ -1,6 +1,6 @@
 {
   "name": "axiom-cli",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "CLI for interacting with the Axiom.org cryptocurrency platform",
   "repository": {
     "type": "git",
@@ -46,7 +46,8 @@
     "text-encoding-shim": "^1.0.3",
     "tweetnacl": "^1.0.1",
     "typeface-roboto": "0.0.54",
-    "webtorrent-hybrid": "^2.1.0"
+    "webtorrent-hybrid": "^2.1.0",
+    "wrtc": "^0.4.1"
   },
   "devDependencies": {
     "@types/chrome": "0.0.82",
