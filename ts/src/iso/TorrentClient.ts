@@ -86,11 +86,13 @@ export default class TorrentClient {
         tracker.replace(/^ws:/, "http:") + "/prepareUpdateBucket?magnet=";
       url += encodeURIComponent(magnet);
       try {
-        let response = await axios.post(url);
+        let response = await axios.post(url, {
+          timeout: 5000
+        });
       } catch (e) {
         // Just ignore errors for now. A single connection just speeds this up
         // and is not mandatory.
-        this.log(`error sending prepareUpdateBucket to ${tracker}`);
+        console.log(`warning: error sending prepareUpdateBucket to ${tracker}`);
       }
     }
   }

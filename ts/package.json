@@ -1,6 +1,6 @@
 {
   "name": "axiom-cli",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "description": "CLI for interacting with the Axiom.org cryptocurrency platform",
   "repository": {
     "type": "git",
