@@ -1,1 +1,3 @@
-This directory contains zipped extensions.
+This directory contains files that aren't readable source code.
+
+
