@@ -28,7 +28,7 @@ parcel $ARGS build \
 if [ "$NODE_ENV" == "production" ]
 then
     echo zipping extension files...
-    FILE=zips/extension-$NETWORK-$VERSION.zip
+    FILE=files/extension-$NETWORK-$VERSION.zip
     zip -r $FILE ext-$NETWORK
     echo zip created at $FILE
 fi

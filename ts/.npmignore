@@ -5,5 +5,5 @@ npm-debug.log
 .cache
 dist
 node_modules
-zips
+*.zip
 *~
