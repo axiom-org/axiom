@@ -31,6 +31,10 @@ function newChainClient(kp?: KeyPair): ChainClient {
   return client;
 }
 
+function logBucket(bucket) {
+  console.log(bucket);
+}
+
 // Asks the CLI user a question, asynchronously returns the response.
 async function ask(question, hideResponse): Promise<string> {
   let r = readline.createInterface({
@@ -116,7 +120,7 @@ async function getBucket(name) {
   let client = newChainClient();
   let bucket = await client.getBucket(name);
   if (bucket) {
-    console.log(bucket);
+    logBucket(bucket);
   } else {
     console.log("no bucket with name " + name);
   }
@@ -128,7 +132,7 @@ async function getBuckets(query) {
   let word = buckets.length === 1 ? "bucket" : "buckets";
   console.log(buckets.length + " " + word + " found");
   for (let b of buckets) {
-    console.log(b);
+    logBucket(b);
   }
 }
 
@@ -139,7 +143,7 @@ async function createUnallocatedBucket(name, size) {
   await client.createBucket(name, size);
   let bucket = await client.getBucket(name);
   console.log("created unallocated bucket:");
-  console.log(bucket);
+  logBucket(bucket);
 }
 
 // First creates a bucket, then allocates it to some providers.
@@ -149,7 +153,7 @@ async function createBucket(name, size) {
   await client.createBucket(name, size);
   let bucket = await client.getBucket(name);
   console.log("created bucket:");
-  console.log(bucket);
+  logBucket(bucket);
 }
 
 async function deleteBucket(name) {
