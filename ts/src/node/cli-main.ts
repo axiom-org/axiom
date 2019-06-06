@@ -6,6 +6,7 @@ import * as readline from "readline";
 
 import axios from "axios";
 const checksum = require("checksum");
+const yargs = require("yargs");
 
 import ChainClient from "../iso/ChainClient";
 import CLIConfig from "./CLIConfig";
@@ -15,6 +16,13 @@ import NetworkConfig from "../iso/NetworkConfig";
 import ProviderListener from "./ProviderListener";
 import TorrentClient from "../iso/TorrentClient";
 import { makeBucketName } from "../iso/Util";
+
+const ARGV = yargs.option("verbose", {
+  alias: "v",
+  description: "Output extra logs, useful for debugging",
+  type: "boolean",
+}).argv;
+
 
 function fatal(message) {
   console.log(message);
@@ -28,6 +36,17 @@ function getNetwork(): string {
 
 function newChainClient(kp?: KeyPair): ChainClient {
   let client = new ChainClient(kp, getNetwork());
+  if (ARGV.verbose) {
+    client.verbose = true;
+  }
+  return client;
+}
+
+function newTorrentClient(): TorrentClient {
+  let client = new TorrentClient(getNetwork());
+  if (ARGV.verbose) {
+    client.verbose = true;
+  }
   return client;
 }
 
@@ -189,7 +208,7 @@ async function deallocate(bucketName, providerID) {
 
 async function deploy(directory, bucketName) {
   let dir = path.resolve(directory);
-  let client = new TorrentClient(getNetwork());
+  let client = newTorrentClient();
   console.log("creating torrent...");
   process.chdir(dir);
   let torrent = await client.seed(".", bucketName);
@@ -211,7 +230,7 @@ async function download(bucketName) {
   }
   fs.mkdirSync(bucketName);
   console.log("downloading", bucket.magnet, "to", bucketName);
-  let tc = new TorrentClient(getNetwork());
+  let tc = newTorrentClient();
   let torrent = tc.download(bucket.magnet, bucketName);
   await torrent.waitForDone();
   await tc.destroy();
@@ -295,7 +314,7 @@ async function send(to: string, amount: number) {
 }
 
 async function main() {
-  let args = process.argv.slice(2);
+  let args = ARGV._;
 
   if (args.length == 0) {
     fatal("Usage: axiom <operation> <arguments>");
