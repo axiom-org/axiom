@@ -8,12 +8,13 @@ echo ------------------------------ hserver-entrypoint.sh ----------------------
 KEYPAIR=`find /secrets/keypair | grep json | head -1`
 echo loading keypair: $KEYPAIR
 
-TS_NODE_PROJECT=tsconfig.node.json \
-	       node \
-	       -r ts-node/register \
-	       --prof \
-	       src/node/hserver-main.ts \
-	       --keypair=$KEYPAIR \
-	       --network=alpha \
-	       --directory=/hostfiles \
-	       --capacity=10000
+echo compiling...
+node_modules/.bin/tsc --build tsconfig.node.json
+
+echo running hserver-main.js
+node --prof ./build/node/node/hserver-main.js \
+     src/node/hserver-main.ts \
+     --keypair=$KEYPAIR \
+     --network=alpha \
+     --directory=/hostfiles \
+     --capacity=10000
