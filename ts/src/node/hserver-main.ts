@@ -26,6 +26,8 @@ args
 
 const flags = args.parse(process.argv);
 
+process.on("warning", e => console.warn(e.stack));
+
 if (flags.capacity <= 0) {
   console.log("to host files you must set --capacity");
   process.exit(1);
