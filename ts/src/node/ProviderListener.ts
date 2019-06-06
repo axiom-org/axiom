@@ -10,6 +10,7 @@ export default class ProviderListener {
 
   constructor(network: string, verbose: boolean) {
     this.client = new ChainClient(null, network);
+    this.client.verbose = verbose;
     this.verbose = verbose;
     this.bucketsCallback = null;
   }
