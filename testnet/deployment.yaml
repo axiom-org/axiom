@@ -29,7 +29,9 @@ spec:
         image: gcr.io/PROJECT_ID/cserver
         resources:
           limits:
-            cpu: 200m
+            cpu: "0.5"
+          requests:
+            cpu: "0.1"
         ports:
         - containerPort: 8000
         - containerPort: 9000
@@ -65,7 +67,9 @@ spec:
         image: gcr.io/PROJECT_ID/hserver
         resources:
           limits:
-            cpu: 700m
+            cpu: "1"
+          requests:
+            cpu: "0.5"
         ports:
         - containerPort: 3000
         - containerPort: 4000
