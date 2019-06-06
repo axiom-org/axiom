@@ -27,6 +27,9 @@ spec:
         
       - name: cserverX
         image: gcr.io/PROJECT_ID/cserver
+        resources:
+          limits:
+            cpu: 200m
         ports:
         - containerPort: 8000
         - containerPort: 9000
@@ -60,6 +63,9 @@ spec:
             
       - name: hserverX
         image: gcr.io/PROJECT_ID/hserver
+        resources:
+          limits:
+            cpu: 700m
         ports:
         - containerPort: 3000
         - containerPort: 4000

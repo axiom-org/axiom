@@ -220,8 +220,6 @@ export default class HostingServer {
   }
 
   async handleBuckets(buckets) {
-    this.log("handling buckets");
-
     // Figure out the new info map
     let newInfoMap = {};
     for (let bucket of buckets) {
@@ -257,7 +255,6 @@ export default class HostingServer {
     }
 
     this.infoMap = newInfoMap;
-    this.log("bucket handling complete");
   }
 
   // Makes sure that this.id is set, creating a new provider if need be.
