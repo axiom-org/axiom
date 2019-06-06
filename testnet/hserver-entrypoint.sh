@@ -9,7 +9,6 @@ KEYPAIR=`find /secrets/keypair | grep json | head -1`
 echo loading keypair: $KEYPAIR
 
 node --prof ./build/node/node/hserver-main.js \
-     src/node/hserver-main.ts \
      --keypair=$KEYPAIR \
      --network=alpha \
      --directory=/hostfiles \
