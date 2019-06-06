@@ -6,6 +6,8 @@ WORKDIR /axiom/ts
 
 RUN npm install
 
+RUN node_modules/.bin/tsc --build tsconfig.node.json
+
 ENTRYPOINT ../testnet/hserver-entrypoint.sh
 
 # Proxy
