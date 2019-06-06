@@ -159,6 +159,7 @@ export default class HostingServer {
   // In particular, this won't write a .torrent file.
   // Logs but does not throw on errors.
   async seedMagnet(magnet): Promise<Torrent> {
+    console.log("XXX start seedMagnet");
     let infoHash;
     try {
       infoHash = getInfoHash(magnet);
@@ -179,11 +180,13 @@ export default class HostingServer {
       let t = this.client.seedWithTorrentFile(tfile, dir);
       await t.waitForDone();
       this.log(`seeding ${infoHash} from preexisting files`);
+      console.log("XXX end seedMagnet");
       return t;
     }
 
     this.log(`downloading hash ${infoHash}`);
     let torrent = this.client.download(magnet, dir);
+    console.log("XXX end seedMagnet");
     return torrent;
   }
 
