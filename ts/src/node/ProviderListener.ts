@@ -41,9 +41,13 @@ export default class ProviderListener {
     let buckets = {};
 
     while (true) {
+      console.log("XXX 1");
       let bucketList = await this.client.getBuckets({ provider: id });
+      console.log("XXX 2");
       await this.handleBuckets(bucketList);
+      console.log("XXX 3");
       await sleep(2000);
+      console.log("XXX 4");
     }
   }
 }
