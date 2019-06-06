@@ -220,6 +220,8 @@ export default class HostingServer {
   }
 
   async handleBuckets(buckets) {
+    this.log("handling buckets");
+
     // Figure out the new info map
     let newInfoMap = {};
     for (let bucket of buckets) {
@@ -227,8 +229,8 @@ export default class HostingServer {
       try {
         infoHash = getInfoHash(bucket.magnet);
       } catch (e) {
-        // TODO: I want to log bad magnets in some way, but just once rather than every time
-        // we go through this code.
+        // TODO: I want to log bad magnets in some way, but just once
+        // rather than every time we go through this code.
         continue;
       }
       newInfoMap[infoHash] = bucket;
@@ -255,6 +257,7 @@ export default class HostingServer {
     }
 
     this.infoMap = newInfoMap;
+    this.log("bucket handling complete");
   }
 
   // Makes sure that this.id is set, creating a new provider if need be.
