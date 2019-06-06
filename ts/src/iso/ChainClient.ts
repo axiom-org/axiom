@@ -64,7 +64,8 @@ export default class ChainClient {
       try {
         let response = await axios.post(url, body, {
           headers: { "Content-Type": "text/plain" },
-          responseType: "text"
+          responseType: "text",
+          timeout: 5000
         });
         return response;
       } catch (e) {
