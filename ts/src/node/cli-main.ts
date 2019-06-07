@@ -6,6 +6,7 @@ import * as readline from "readline";
 
 import axios from "axios";
 const checksum = require("checksum");
+const SegfaultHandler = require("segfault-handler");
 const yargs = require("yargs");
 
 import ChainClient from "../iso/ChainClient";
@@ -17,12 +18,22 @@ import ProviderListener from "./ProviderListener";
 import TorrentClient from "../iso/TorrentClient";
 import { makeBucketName } from "../iso/Util";
 
-const ARGV = yargs.option("verbose", {
-  alias: "v",
-  description: "Output extra logs, useful for debugging",
-  type: "boolean",
-}).argv;
+const ARGV = yargs
+      .option("verbose", {
+	alias: "v",
+	description: "Output extra logs, useful for debugging",
+	type: "boolean",
+      })
+      .option("segfault", {
+	description: "Catch seg fault information in this file",
+	type: "string",
+      })
+      .argv;
 
+if (ARGV.segfault) {
+  console.log("any segmentation fault will log information to", ARGV.segfault);
+  SegfaultHandler.registerHandler(ARGV.segfault);
+}
 
 function fatal(message) {
   console.log(message);
@@ -664,6 +675,10 @@ async function main() {
       console.log("you are not logged in");
     }
     return;
+  }
+
+  if (op === "crash") {
+    SegfaultHandler.causeSegfault();
   }
   
   fatal("unrecognized operation: " + op);
