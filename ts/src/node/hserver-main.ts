@@ -69,8 +69,8 @@ if (flags.id >= 1) {
   options.keyPair = flags.keypair;
 }
 
-// XXX let host = new HostingServer(options);
-// XXX host.serve();
+let host = new HostingServer(options);
+host.serve();
 
 // Run a black hole proxy
 let proxy = new BlackHoleProxy(flags.proxy);
@@ -78,4 +78,4 @@ let proxy = new BlackHoleProxy(flags.proxy);
 // Run a tracker
 let tracker = new Tracker(flags.tracker);
 
-// XXX tracker.onMagnet = magnet => host.seedMagnet(magnet);
+tracker.onMagnet = magnet => host.seedMagnet(magnet);
