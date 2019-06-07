@@ -75,7 +75,9 @@ host.serve();
 // Run a black hole proxy
 let proxy = new BlackHoleProxy(flags.proxy);
 
+/* XXX
 // Run a tracker
 let tracker = new Tracker(flags.tracker);
 
 tracker.onMagnet = magnet => host.seedMagnet(magnet);
+*/
