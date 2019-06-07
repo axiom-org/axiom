@@ -26,6 +26,13 @@ args
 
 const flags = args.parse(process.argv);
 
+// XXX just to show slowness
+let counter = 1;
+setInterval(() => {
+  console.log("XXX YYY", counter);
+  counter++;
+}, 10000);
+
 process.on("warning", e => console.warn(e.stack));
 
 if (flags.capacity <= 0) {
