@@ -59,8 +59,11 @@ function logBucket(bucket) {
 }
 
 function logProvider(provider) {
-  console.log("XXX");
-  console.log(provider);
+  console.log(`Provider #${provider.id}:`);
+  console.log(`  owner: ${provider.owner}`);
+  console.log(`  capacity: ${provider.capacity}`);
+  console.log(`  available: ${provider.available}`);
+  console.log(`  ${provider.buckets.length} buckets`);
 }
 
 // Asks the CLI user a question, asynchronously returns the response.
