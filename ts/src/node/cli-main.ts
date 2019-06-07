@@ -51,7 +51,11 @@ function newTorrentClient(): TorrentClient {
 }
 
 function logBucket(bucket) {
-  console.log(bucket);
+  console.log(`Bucket: ${bucket.name}`);
+  console.log(`  owner: ${bucket.owner}`);
+  console.log(`  size: ${bucket.size}`);
+  console.log(`  magnet: ${bucket.magnet || '""'}`);
+  console.log(`  ${bucket.providers.length} providers`);
 }
 
 // Asks the CLI user a question, asynchronously returns the response.
