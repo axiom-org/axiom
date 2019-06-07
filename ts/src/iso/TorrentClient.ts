@@ -31,7 +31,7 @@ export default class TorrentClient {
     this.trackers = config.trackers;
 
     this.client = new WebTorrent({
-      maxConns: 20
+      maxConns: 10
     });
     this.client.on("error", err => {
       console.log("fatal error in TorrentClient:", err.message);
