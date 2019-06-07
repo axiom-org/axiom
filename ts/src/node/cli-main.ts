@@ -58,6 +58,11 @@ function logBucket(bucket) {
   console.log(`  ${bucket.providers.length} providers`);
 }
 
+function logProvider(provider) {
+  console.log("XXX");
+  console.log(provider);
+}
+
 // Asks the CLI user a question, asynchronously returns the response.
 async function ask(question, hideResponse): Promise<string> {
   let r = readline.createInterface({
@@ -115,7 +120,7 @@ async function getProvider(id) {
   let client = newChainClient();
   let provider = await client.getProvider(id);
   if (provider) {
-    console.log(provider);
+    logProvider(provider);
   } else {
     console.log("no provider with id", id);
   }
@@ -127,7 +132,7 @@ async function getProviders(query) {
   let word = providers.length === 1 ? "provider" : "providers";
   console.log(providers.length + " " + word + " found");
   for (let p of providers) {
-    console.log(p);
+    logProvider(p);
   }
 }
 
@@ -136,7 +141,7 @@ async function createProvider(capacity) {
   let client = newChainClient(kp);
   let provider = await client.createProvider(capacity);
   console.log("created provider:");
-  console.log(provider);
+  logProvider(provider);
 }
 
 async function getBucket(name) {
