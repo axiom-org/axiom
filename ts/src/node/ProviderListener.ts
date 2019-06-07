@@ -41,10 +41,15 @@ export default class ProviderListener {
     // buckets maps bucket name to information about the bucket
     let buckets = {};
 
+    let ticks = 0;
     while (true) {
+      ticks++;
       let bucketList = await this.client.getBuckets({ provider: id });
       await this.handleBuckets(bucketList);
-      await sleep(2000);
+      await sleep(1000);
+      if (ticks % 100 == 0) {
+        this.log(`processed ${ticks} ticks in ProviderListener`);
+      }
     }
   }
 }

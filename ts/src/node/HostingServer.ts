@@ -220,8 +220,6 @@ export default class HostingServer {
   }
 
   async handleBuckets(buckets) {
-    let changes = 0;
-
     // Figure out the new info map
     let newInfoMap = {};
     for (let bucket of buckets) {
@@ -239,7 +237,6 @@ export default class HostingServer {
     // Handle data that is being deleted
     for (let infoHash in this.infoMap) {
       if (!newInfoMap[infoHash]) {
-        changes++;
         let bucket = this.infoMap[infoHash];
         this.log(`bucket ${bucket.name} is no longer using hash ${infoHash}`);
         await this.remove(infoHash);
@@ -249,19 +246,18 @@ export default class HostingServer {
     // Handle data that is being added
     for (let infoHash in newInfoMap) {
       if (!this.infoMap[infoHash]) {
-        changes++;
         let bucket = newInfoMap[infoHash];
 
         // Don't await. If we do await, a delay in downloading metadata can stall
         // this whole thread.
+        // However, starting many seeds simultaneously can bork
+        // webtorrent. So we do add a sleep here.
         this.seedBucket(bucket);
+        await sleep(1000);
       }
     }
 
     this.infoMap = newInfoMap;
-    if (changes == 0) {
-      this.log("no bucket changes");
-    }
   }
 
   // Makes sure that this.id is set, creating a new provider if need be.
