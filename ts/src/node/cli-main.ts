@@ -244,7 +244,7 @@ async function download(bucketName) {
   console.log("downloading", bucket.magnet, "to", bucketName);
   let tc = newTorrentClient();
   let torrent = tc.download(bucket.magnet, bucketName);
-  await torrent.waitForDone();
+  await torrent.waitForDoneWithProgress();
   await tc.destroy();
 }
 

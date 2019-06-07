@@ -59,12 +59,16 @@ export default class Torrent {
     return answer;
   }
 
-  async monitorProgress() {
+  // Like waitForDone but logs about the progress
+  async waitForDoneWithProgress() {
     let delay = 1000;
+    let ticks = 0;
     while (!this.isDone()) {
-      await sleep(delay);
-      delay = Math.min(2 * delay, 1000 * 60 * 60);
-      this.log(this.infoHash, "progress:", this.torrent.progress);
+      await sleep(1000);
+      ticks++;
+      if (ticks % 5 === 0) {
+        this.log("progress:", this.torrent.progress);
+      }
     }
     this.log(
       this.infoHash,
