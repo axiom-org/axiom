@@ -210,7 +210,7 @@ async function deallocate(bucketName, providerID) {
   console.log("deallocated", bucketName, "bucket from provider", providerID);
 }
 
-async function deploy(directory, bucketName) {
+async function upload(directory, bucketName) {
   let dir = path.resolve(directory);
   let client = newTorrentClient();
   console.log("creating torrent...");
@@ -222,7 +222,7 @@ async function deploy(directory, bucketName) {
   await torrent.waitForSeeds(1);
   console.log("updating blockchain...");
   await setMagnet(bucketName, torrent.magnet);
-  console.log("deploy complete. cleaning up...");
+  console.log("upload complete. cleaning up...");
   await client.destroy();
 }
 
@@ -550,7 +550,7 @@ async function main() {
 
     let directory = rest[0];
     let bucketName = makeBucketName(rest[1]);
-    await deploy(directory, bucketName);
+    await upload(directory, bucketName);
     return;
   }
 
