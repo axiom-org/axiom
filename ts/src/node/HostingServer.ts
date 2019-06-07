@@ -159,7 +159,6 @@ export default class HostingServer {
   // In particular, this won't write a .torrent file.
   // Logs but does not throw on errors.
   async seedMagnet(magnet): Promise<Torrent> {
-    console.log("XXX start seedMagnet");
     let infoHash;
     try {
       infoHash = getInfoHash(magnet);
@@ -180,13 +179,11 @@ export default class HostingServer {
       let t = this.client.seedWithTorrentFile(tfile, dir);
       await t.waitForDone();
       this.log(`seeding ${infoHash} from preexisting files`);
-      console.log("XXX end seedMagnet");
       return t;
     }
 
     this.log(`downloading hash ${infoHash}`);
     let torrent = this.client.download(magnet, dir);
-    console.log("XXX end seedMagnet");
     return torrent;
   }
 
@@ -223,7 +220,8 @@ export default class HostingServer {
   }
 
   async handleBuckets(buckets) {
-    console.log("XXX handleBuckets");
+    let changes = 0;
+
     // Figure out the new info map
     let newInfoMap = {};
     for (let bucket of buckets) {
@@ -241,6 +239,7 @@ export default class HostingServer {
     // Handle data that is being deleted
     for (let infoHash in this.infoMap) {
       if (!newInfoMap[infoHash]) {
+        changes++;
         let bucket = this.infoMap[infoHash];
         this.log(`bucket ${bucket.name} is no longer using hash ${infoHash}`);
         await this.remove(infoHash);
@@ -250,6 +249,7 @@ export default class HostingServer {
     // Handle data that is being added
     for (let infoHash in newInfoMap) {
       if (!this.infoMap[infoHash]) {
+        changes++;
         let bucket = newInfoMap[infoHash];
 
         // Don't await. If we do await, a delay in downloading metadata can stall
@@ -259,7 +259,9 @@ export default class HostingServer {
     }
 
     this.infoMap = newInfoMap;
-    console.log("XXX done with handleBuckets");
+    if (changes == 0) {
+      this.log("no bucket changes");
+    }
   }
 
   // Makes sure that this.id is set, creating a new provider if need be.

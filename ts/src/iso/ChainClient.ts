@@ -78,9 +78,7 @@ export default class ChainClient {
         }
         // Exponential backoff
         let duration = numDigits(tries) * STANDARD_WAIT;
-        this.log("XXX waiting", duration);
         await sleep(duration);
-        this.log("XXX wait complete");
       }
     }
   }
