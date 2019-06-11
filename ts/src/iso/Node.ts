@@ -1,4 +1,4 @@
-import SimplePeer from "simple-peer";
+import * as SimplePeer from "simple-peer";
 
 // Optional dependencies.
 // TODO: solve this at compile-time rather than at runtime
