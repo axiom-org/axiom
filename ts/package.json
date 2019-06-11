@@ -49,6 +49,7 @@
     "tweetnacl": "^1.0.1",
     "typeface-roboto": "0.0.54",
     "webtorrent-hybrid": ">=2.1.1",
+    "wrtc": "^0.4.1",
     "yargs": "^13.2.4"
   },
   "devDependencies": {
