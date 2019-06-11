@@ -6,11 +6,11 @@ let OPTIONAL = {
   http: null,
   wrtc: null
 };
-declare var window: any;
 declare var global: any;
 declare var require: any;
-if (typeof global === "object" && typeof window === "undefined") {
-  // Looks like a node environment
+if (typeof global === "object") {
+  // Looks like a node environment.
+  // Could also be the jest pretending-to-be-a-browser-but-really-node environment.
   OPTIONAL.wrtc = require("wrtc");
   OPTIONAL.http = require("http");
 }
