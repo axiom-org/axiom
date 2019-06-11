@@ -1,6 +1,10 @@
 import SimplePeer from "simple-peer";
 
-let DEPS = {};
+// TODO: solve this at compile-time rather than at runtime
+let DEPS = { wrtc: null };
+declare var window: any;
+declare var global: any;
+declare var require: any;
 if (typeof global === "object" && typeof window === "undefined") {
   // Looks like a node environment
   DEPS.wrtc = require("wrtc");
@@ -26,7 +30,7 @@ export default class Node {
       throw new Error("cannot makePeer twice");
     }
 
-    let options = { initiator: initiator };
+    let options = { initiator: initiator, wrtc: undefined };
     if (DEPS.wrtc) {
       options.wrtc = DEPS.wrtc;
     }
