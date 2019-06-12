@@ -1,4 +1,6 @@
+import * as http from "http";
 import * as WebSocket from "ws";
+const url = require("url");
 
 import Peer from "../iso/Peer";
 import Sequence from "../iso/Sequence";
@@ -9,15 +11,22 @@ export default class PeerServer {
   verbose: boolean;
   peerHandler: (Peer) => void;
   port: number;
-  wss: WebSocket.Server;
 
   constructor(port: number, verbose: boolean) {
     this.port = port;
     this.verbose = verbose;
     this.peerHandler = null;
 
-    this.wss = new WebSocket.Server({ port: port });
-    this.wss.on("connection", ws => {
+    let server = http.createServer((req, res) => {
+      let parsed = url.parse(req.url, true);
+      if (parsed.pathname === "/healthz") {
+        res.write("OK");
+        res.end();
+      }
+    });
+
+    let wss = new WebSocket.Server({ server: server });
+    wss.on("connection", ws => {
       let peer = new Peer({ verbose: verbose });
 
       peer.signals.forEach(data => {
@@ -43,6 +52,8 @@ export default class PeerServer {
         this.peerHandler(peer);
       }
     });
+
+    server.listen(port);
   }
 
   log(...args) {
