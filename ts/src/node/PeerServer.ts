@@ -1,6 +1,7 @@
 import * as WebSocket from "ws";
 
 import Peer from "../iso/Peer";
+import Sequence from "../iso/Sequence";
 
 // A PeerServer listens for websockets and exchanges enough information over them
 // to construct a Peer connection.
@@ -24,7 +25,7 @@ export default class PeerServer {
         console.log("XXX server error:", err);
       });
 
-      peer.onSignal(data => {
+      peer.signals.forEach(data => {
         console.log("XXX server sending signal:", data);
         ws.send(JSON.stringify(data));
       });
@@ -33,15 +34,17 @@ export default class PeerServer {
         console.log("XXX server sees connection");
       });
 
+      let incomingSignals = new Sequence<object>();
       ws.on("message", encoded => {
         try {
           let signal = JSON.parse(encoded);
           console.log("XXX server received signal:", encoded);
-          peer.signal(signal);
+          incomingSignals.push(signal);
         } catch (e) {
-          console.log("decoding error:", e);
+          console.log("websocket decoding error:", e);
         }
       });
+      peer.connect(incomingSignals);
 
       if (this.peerHandler) {
         this.peerHandler(peer);

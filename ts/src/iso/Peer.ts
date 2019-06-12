@@ -39,17 +39,13 @@ export default class Peer {
       });
     };
 
-    ws.onclose = () => {
-      console.log("XXX client onclose");
-    };
-
     let incomingSignals = new Sequence<object>();
-    ws.onmessage = data => {
-      console.log("XXX client got signal:", data);
+    ws.onmessage = event => {
+      console.log("XXX client got signal:", event.data);
       try {
-        incomingSignals.push(JSON.parse(data));
+        incomingSignals.push(JSON.parse(event.data));
       } catch (e) {
-        console.log("XXX data parsing error:", e);
+        console.log("websocket decoding error:", e);
       }
     };
     peer.connect(incomingSignals);
