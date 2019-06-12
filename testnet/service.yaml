@@ -9,7 +9,7 @@ spec:
       name: http
       targetPort: 8000
     - port: 9000
-      name: p2p
+      name: chainpeer
       targetPort: 9000
     - port: 3000
       name: proxy
@@ -17,5 +17,8 @@ spec:
     - port: 4000
       name: tracker
       targetPort: 4000
+    - port: 3500
+      name: hostingpeer
+      targetPort: 3500
   selector:
     app: cserverX
