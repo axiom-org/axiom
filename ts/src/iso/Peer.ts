@@ -34,14 +34,12 @@ export default class Peer {
 
     ws.onopen = () => {
       peer.signals.forEach(signal => {
-        console.log("XXX client sending signal:", signal);
         ws.send(JSON.stringify(signal));
       });
     };
 
     let incomingSignals = new Sequence<object>();
     ws.onmessage = event => {
-      console.log("XXX client got signal:", event.data);
       try {
         incomingSignals.push(JSON.parse(event.data));
       } catch (e) {
@@ -51,12 +49,7 @@ export default class Peer {
     peer.connect(incomingSignals);
 
     peer.onConnect(() => {
-      console.log("XXX client sees connection");
       ws.close();
-    });
-
-    peer.onError(err => {
-      console.log("XXX client error:", err);
     });
 
     return peer;

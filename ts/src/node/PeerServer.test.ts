@@ -8,9 +8,6 @@ test("PeerServer basics", async () => {
   let serverPeer: Peer = await new Promise((resolve, reject) => {
     s.onPeer(peer => resolve(peer));
   });
-  console.log("XXX got serverPeer");
   await serverPeer.waitUntilConnected();
-  console.log("XXX serverPeer connected");
   await clientPeer.waitUntilConnected();
-  console.log("XXX clientPeer connected");
 });
