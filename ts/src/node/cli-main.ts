@@ -14,6 +14,7 @@ import CLIConfig from "./CLIConfig";
 import KeyPair from "../iso/KeyPair";
 import Message from "../iso/Message";
 import NetworkConfig from "../iso/NetworkConfig";
+import Peer from "../iso/Peer";
 import ProviderListener from "./ProviderListener";
 import TorrentClient from "../iso/TorrentClient";
 import { makeBucketName } from "../iso/Util";
@@ -679,6 +680,27 @@ async function main() {
 
   if (op === "crash") {
     SegfaultHandler.causeSegfault();
+  }
+
+  if (op === "ping") {
+    if (rest.length != 1) {
+      fatal("Usage: axiom ping <url>");
+    }
+    let [url] = rest;
+    let peer = Peer.connectToServer(url, ARGV.verbose);
+    await peer.waitUntilConnected();
+    peer.send("ping");
+    await new Promise((resolve, reject) => {
+      peer.onData(data => {
+	let s = data.toString();
+	console.log(s);
+	if (s === "pong") {
+	  resolve();
+	}
+      });
+    });
+    peer.destroy();
+    return;
   }
   
   fatal("unrecognized operation: " + op);

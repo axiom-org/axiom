@@ -9,11 +9,13 @@ import * as diskusage from "diskusage";
 
 import BlackHoleProxy from "./BlackHoleProxy";
 import HostingServer from "./HostingServer";
+import PeerServer from "./PeerServer";
 import Tracker from "./Tracker";
 
 args
   .option("tracker", "The port on which the tracker will be running", 4000)
   .option("proxy", "The port on which the proxy will be running", 3000)
+  .option("peer", "The port on which the peer server will be running", 3500)
   .option("id", "The provider id to host files for", 0)
   .option("keypair", "File containing keys for the user to host files for", "")
   .option("capacity", "Amount of space in megabytes to host", 0)
@@ -79,3 +81,16 @@ let proxy = new BlackHoleProxy(flags.proxy);
 let tracker = new Tracker(flags.tracker);
 
 tracker.onMagnet = magnet => host.seedMagnet(magnet);
+
+// Run a PeerServer
+let peerServer = new PeerServer(flags.peer, true);
+console.log("PeerServer listening on port", flags.peer);
+peerServer.onPeer(peer => {
+  peer.onData(data => {
+    let s = data.toString();
+    console.log("peerserver got data:", s);
+    if (s === "ping") {
+      peer.send("pong");
+    }
+  });
+});

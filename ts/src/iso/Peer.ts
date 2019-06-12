@@ -41,7 +41,8 @@ export default class Peer {
     let incomingSignals = new Sequence<object>();
     ws.onmessage = event => {
       try {
-        incomingSignals.push(JSON.parse(event.data));
+        let signal = JSON.parse(event.data);
+        incomingSignals.push(signal);
       } catch (e) {
         console.log("websocket decoding error:", e);
       }
