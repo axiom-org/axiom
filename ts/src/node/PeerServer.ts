@@ -26,7 +26,7 @@ export default class PeerServer {
 
       peer.onSignal(data => {
         console.log("XXX server sending signal:", data);
-        ws.send(data);
+        ws.send(JSON.stringify(data));
       });
 
       peer.onConnect(() => {

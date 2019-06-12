@@ -1,6 +1,8 @@
 import * as SimplePeer from "simple-peer";
 import WebSocket = require("isomorphic-ws");
 
+import Sequence from "./Sequence";
+
 // Optional dependencies.
 // TODO: solve this at compile-time rather than at runtime
 let OPTIONAL = {
@@ -19,43 +21,38 @@ if (typeof global === "object") {
 // network.
 export default class Peer {
   verbose: boolean;
+
+  // The signals emitted by this peer
+  signals: Sequence<object>;
+
   _peer: SimplePeer;
 
-  // Connects to a PeerServer
-  static connect(url: string, verbose: boolean): Peer {
+  // Creates a Peer by connecting to a PeerServer
+  static connectToServer(url: string, verbose: boolean): Peer {
     let peer = new Peer({ initiator: true, verbose: verbose });
     let ws = new WebSocket(url);
 
-    // Whether the websocket is opened
-    let opened = false;
-
-    // Most recent encoded signal data
-    let encoded = null;
-
     ws.onopen = () => {
-      opened = true;
-      if (encoded) {
-        console.log("XXX client sending signal:", encoded);
-        ws.send(encoded);
-      }
+      peer.signals.forEach(signal => {
+        console.log("XXX client sending signal:", signal);
+        ws.send(JSON.stringify(signal));
+      });
     };
 
     ws.onclose = () => {
-      console.log("XXX onclose");
+      console.log("XXX client onclose");
     };
 
+    let incomingSignals = new Sequence<object>();
     ws.onmessage = data => {
       console.log("XXX client got signal:", data);
-      peer.signal(data);
-    };
-
-    peer.onSignal(signal => {
-      encoded = JSON.stringify(signal);
-      if (opened) {
-        console.log("XXX client sending signal:", encoded);
-        ws.send(encoded);
+      try {
+        incomingSignals.push(JSON.parse(data));
+      } catch (e) {
+        console.log("XXX data parsing error:", e);
       }
-    });
+    };
+    peer.connect(incomingSignals);
 
     peer.onConnect(() => {
       console.log("XXX client sees connection");
@@ -75,16 +72,23 @@ export default class Peer {
       initiator: !!options.initiator,
       wrtc: OPTIONAL.wrtc
     });
+
+    this.signals = new Sequence<object>();
+    this._peer.on("signal", obj => {
+      this.signals.push(obj);
+    });
+  }
+
+  connect(signals: Sequence<object>) {
+    signals.forEach(obj => {
+      this._peer.signal(obj);
+    });
   }
 
   log(...args) {
     if (this.verbose) {
       console.log(...args);
     }
-  }
-
-  onSignal(callback: (data: object) => void) {
-    this._peer.on("signal", callback);
   }
 
   onConnect(callback: () => void) {
@@ -99,16 +103,13 @@ export default class Peer {
     this._peer.on("error", callback);
   }
 
-  signal(data: object) {
-    this._peer.signal(data);
-  }
-
   send(data: any) {
     this._peer.send(data);
   }
 
   destroy() {
     this._peer.destroy();
+    this.signals.finish();
   }
 
   async waitUntilConnected() {
