@@ -20,7 +20,7 @@ export default class PeerServer {
     let server = http.createServer((req, res) => {
       let parsed = url.parse(req.url, true);
       if (parsed.pathname === "/healthz") {
-        res.write("OK");
+        res.write("OK\n");
         res.end();
       }
     });
