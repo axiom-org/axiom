@@ -231,7 +231,9 @@ To expose the `cserver` to public internet ports, you need to create a load bala
 ./expose.sh 0
 ```
 
-You only need to expose it once; you don't need to run that on every deploy.
+You only need to expose it once; you don't need to run that on every deploy. However, if
+you change the firewall rules later, you may also need to change the firewall rules in
+the Google Cloud config (as opposed to Kubernetes). See: https://console.cloud.google.com/networking/firewalls/list
 
 To find the external ip, run:
 
