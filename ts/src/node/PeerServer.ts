@@ -33,9 +33,14 @@ export default class PeerServer {
         console.log("XXX server sees connection");
       });
 
-      ws.on("message", data => {
-        console.log("XXX server got signal:", data);
-        peer.signal(data);
+      ws.on("message", encoded => {
+        try {
+          let signal = JSON.parse(encoded);
+          console.log("XXX server received signal:", encoded);
+          peer.signal(signal);
+        } catch (e) {
+          console.log("decoding error:", e);
+        }
       });
 
       if (this.peerHandler) {

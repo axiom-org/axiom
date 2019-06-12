@@ -29,14 +29,14 @@ export default class Peer {
     // Whether the websocket is opened
     let opened = false;
 
-    // Most recent signal data
-    let signal = null;
+    // Most recent encoded signal data
+    let encoded = null;
 
     ws.onopen = () => {
       opened = true;
-      if (signal) {
-        console.log("XXX client sending signal:", signal);
-        ws.send(signal);
+      if (encoded) {
+        console.log("XXX client sending signal:", encoded);
+        ws.send(encoded);
       }
     };
 
@@ -49,11 +49,11 @@ export default class Peer {
       peer.signal(data);
     };
 
-    peer.onSignal(data => {
-      signal = data;
+    peer.onSignal(signal => {
+      encoded = JSON.stringify(signal);
       if (opened) {
-        console.log("XXX client sending signal:", signal);
-        ws.send(signal);
+        console.log("XXX client sending signal:", encoded);
+        ws.send(encoded);
       }
     });
 
