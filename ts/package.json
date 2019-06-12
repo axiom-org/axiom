@@ -22,7 +22,8 @@
     "hserver": "TS_NODE_PROJECT=tsconfig.node.json node -r ts-node/register src/node/hserver-main.ts --keypair=./mint.json --capacity=1000",
     "prepublish": "npm run build-cli",
     "repackage": "ts-node src/node/repackage-main.ts",
-    "test": "jest",
+    "test-browser": "jest --config jest.config.browser.js",
+    "test-node": "jest --config jest.config.node.js",
     "zip": "NODE_ENV=production NETWORK=alpha ./build-extension.sh"
   },
   "browserslist": [
@@ -35,6 +36,7 @@
     "base64-js": "^1.3.0",
     "checksum": "^0.1.1",
     "diskusage": "^1.1.0",
+    "isomorphic-ws": "^4.0.1",
     "json-stable-stringify": "^1.0.1",
     "node-forge": "^0.7.6",
     "parcel-bundler": "^1.10.3",
@@ -50,6 +52,7 @@
     "typeface-roboto": "0.0.54",
     "webtorrent-hybrid": ">=2.1.1",
     "wrtc": "^0.4.1",
+    "ws": "^7.0.0",
     "yargs": "^13.2.4"
   },
   "devDependencies": {
