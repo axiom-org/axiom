@@ -10,11 +10,9 @@ declare var global: any;
 declare var require: any;
 if (typeof global === "object") {
   // Looks like a node environment.
-  // Could also be the jest pretending-to-be-a-browser-but-really-node environment.
-  console.log("XXX looks like node");
+  // TODO: could it be the jest pretending-to-be-a-browser-but-really-node environment?
+  // That will be required to make any jest-browser tests use this file.
   OPTIONAL.wrtc = require("wrtc");
-} else {
-  console.log("XXX looks like browser");
 }
 
 // A Peer represents a connection to a single other node in the Axiom peer-to-peer
@@ -28,8 +26,18 @@ export default class Peer {
     let peer = new Peer({ initiator: true, verbose: verbose });
     let ws = new WebSocket(url);
 
+    // Whether the websocket is opened
+    let opened = false;
+
+    // Most recent signal data
+    let signal = null;
+
     ws.onopen = () => {
-      console.log("XXX onopen");
+      opened = true;
+      if (signal) {
+        console.log("XXX client sending signal:", signal);
+        ws.send(signal);
+      }
     };
 
     ws.onclose = () => {
@@ -42,12 +50,20 @@ export default class Peer {
     };
 
     peer.onSignal(data => {
-      console.log("XXX client sending signal:", data);
-      ws.send(data);
+      signal = data;
+      if (opened) {
+        console.log("XXX client sending signal:", signal);
+        ws.send(signal);
+      }
     });
 
     peer.onConnect(() => {
       console.log("XXX client sees connection");
+      ws.close();
+    });
+
+    peer.onError(err => {
+      console.log("XXX client error:", err);
     });
 
     return peer;
@@ -77,6 +93,10 @@ export default class Peer {
 
   onData(callback: (data: any) => void) {
     this._peer.on("data", callback);
+  }
+
+  onError(callback: (Error) => void) {
+    this._peer.on("error", callback);
   }
 
   signal(data: object) {

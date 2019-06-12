@@ -20,6 +20,10 @@ export default class PeerServer {
       console.log("XXX creating server peer");
       let peer = new Peer({ verbose: verbose });
 
+      peer.onError(err => {
+        console.log("XXX server error:", err);
+      });
+
       peer.onSignal(data => {
         console.log("XXX server sending signal:", data);
         ws.send(data);
