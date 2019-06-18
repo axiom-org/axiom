@@ -1,7 +1,10 @@
 import * as SimplePeer from "simple-peer";
 import WebSocket = require("isomorphic-ws");
 
+import KeyPair from "./KeyPair";
+import Message from "./Message";
 import Sequence from "./Sequence";
+import SignedMessage from "./SignedMessage";
 
 // Optional dependencies.
 // TODO: solve this at compile-time rather than at runtime
@@ -21,6 +24,11 @@ if (typeof global === "object") {
 // network.
 export default class Peer {
   verbose: boolean;
+  keyPair: KeyPair;
+
+  // The public key we expect to be connecting to.
+  // This is null if we don't care who we are connecting to.
+  peerPublicKey: string;
 
   // The signals emitted by this peer
   signals: Sequence<object>;
@@ -56,8 +64,19 @@ export default class Peer {
     return peer;
   }
 
-  constructor(options: { initiator?: boolean; verbose?: boolean }) {
+  constructor(options: {
+    keyPair?: KeyPair;
+    peerPublicKey?: string;
+    initiator?: boolean;
+    verbose?: boolean;
+  }) {
     this.verbose = !!options.verbose;
+
+    this.keyPair = options.keyPair;
+    if (!this.keyPair) {
+      this.keyPair = KeyPair.fromRandom();
+    }
+    this.peerPublicKey = options.peerPublicKey;
     this._peer = new SimplePeer({
       initiator: !!options.initiator,
       wrtc: OPTIONAL.wrtc
@@ -93,8 +112,37 @@ export default class Peer {
     this._peer.on("error", callback);
   }
 
-  send(data: any) {
+  sendData(data: any) {
     this._peer.send(data);
+  }
+
+  sendMessage(message: Message) {
+    let signed = SignedMessage.fromSigning(message, this.keyPair);
+    this.sendData(signed.serialize());
+  }
+
+  onMessage(callback: (message: Message) => void) {
+    this.onData(data => {
+      // TODO: don't convert to string needlessly
+      let s = data.toString();
+      let sm;
+      try {
+        sm = SignedMessage.fromSerialized(s);
+      } catch (e) {
+        this.log("error in decoding signed message:", e);
+        return;
+      }
+      if (this.peerPublicKey && this.peerPublicKey != sm.signer) {
+        this.log(
+          "expected message from",
+          this.peerPublicKey,
+          "but received message from",
+          sm.signer
+        );
+        return;
+      }
+      callback(sm.message);
+    });
   }
 
   destroy() {

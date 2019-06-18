@@ -1,3 +1,4 @@
+import Message from "./Message";
 import Peer from "./Peer";
 
 test("Peer basics", async () => {
@@ -9,4 +10,11 @@ test("Peer basics", async () => {
 
   await peer1.waitUntilConnected();
   await peer2.waitUntilConnected();
+
+  let mp = new Promise((resolve, reject) => {
+    peer2.onMessage(resolve);
+  });
+  peer1.sendMessage(new Message("Ping"));
+  let message = (await mp) as Message;
+  expect(message.type).toBe("Ping");
 });
