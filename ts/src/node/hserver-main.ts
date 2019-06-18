@@ -9,6 +9,7 @@ import * as diskusage from "diskusage";
 
 import BlackHoleProxy from "./BlackHoleProxy";
 import HostingServer from "./HostingServer";
+import Message from "../iso/Message";
 import PeerServer from "./PeerServer";
 import Tracker from "./Tracker";
 
