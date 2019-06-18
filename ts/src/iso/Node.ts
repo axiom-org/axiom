@@ -4,7 +4,8 @@ import Peer from "./Peer";
 export default class Node {
   verbose: boolean;
 
-  // When a new peer connects, it is added to peers.
+  // Every connection in peers should already be connected, and it
+  // already should have identified itself with a public key.
   // When a peer disconnects, it is destroyed.
   // A node should only store one Peer per public key.
   peers: { [publicKey: string]: Peer };
@@ -45,7 +46,7 @@ export default class Node {
     }
 
     if (!peer.isConnected()) {
-      throw new Error("only call addPeer once a peer connects");
+      throw new Error("only connected peers can be added to a Node");
     }
 
     if (this.peers[pk]) {

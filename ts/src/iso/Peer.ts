@@ -122,6 +122,10 @@ export default class Peer {
     this._peer.send(data);
   }
 
+  ping() {
+    this.sendMessage(new Message("Ping"));
+  }
+
   sendMessage(message: Message) {
     let signed = SignedMessage.fromSigning(message, this.keyPair);
     this.sendData(signed.serialize());
@@ -136,7 +140,9 @@ export default class Peer {
         this.log("error in decoding signed message:", e);
         return;
       }
-      if (this.peerPublicKey && this.peerPublicKey != sm.signer) {
+      if (!this.peerPublicKey) {
+        this.peerPublicKey = sm.signer;
+      } else if (this.peerPublicKey != sm.signer) {
         this.log(
           "expected message from",
           this.peerPublicKey,

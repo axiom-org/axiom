@@ -689,7 +689,7 @@ async function main() {
     let [url] = rest;
     let peer = Peer.connectToServer(url, ARGV.verbose);
     await peer.waitUntilConnected();
-    peer.sendMessage(new Message("Ping"));
+    peer.ping();
     await new Promise((resolve, reject) => {
       peer.onMessage(m => {
 	console.log(m.type);

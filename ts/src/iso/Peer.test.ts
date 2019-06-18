@@ -14,7 +14,7 @@ test("Peer basics", async () => {
   let mp = new Promise((resolve, reject) => {
     peer2.onMessage(resolve);
   });
-  peer1.sendMessage(new Message("Ping"));
+  peer1.ping();
   let message = (await mp) as Message;
   expect(message.type).toBe("Ping");
 });
