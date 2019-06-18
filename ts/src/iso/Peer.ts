@@ -28,8 +28,12 @@ export default class Peer {
   keyPair: KeyPair;
 
   // The public key we expect to be connecting to.
-  // This is null if we don't care who we are connecting to.
+  // This is null if we don't know who we are connecting to.
+  // In that case, it gets filled in the first time we receive a message.
   peerPublicKey: string;
+
+  // A callback for whenever peerPublicKey is discovered.
+  onPublicKey: () => void;
 
   // The signals emitted by this peer
   signals: Sequence<object>;
@@ -131,7 +135,7 @@ export default class Peer {
     this.sendData(signed.serialize());
   }
 
-  onMessage(callback: (message: Message) => void) {
+  onSignedMessage(callback: (sm: SignedMessage) => void) {
     this.onData(data => {
       let sm;
       try {
@@ -140,9 +144,7 @@ export default class Peer {
         this.log("error in decoding signed message:", e);
         return;
       }
-      if (!this.peerPublicKey) {
-        this.peerPublicKey = sm.signer;
-      } else if (this.peerPublicKey != sm.signer) {
+      if (this.peerPublicKey && this.peerPublicKey != sm.signer) {
         this.log(
           "expected message from",
           this.peerPublicKey,
@@ -151,8 +153,12 @@ export default class Peer {
         );
         return;
       }
-      callback(sm.message);
+      callback(sm);
     });
+  }
+
+  onMessage(callback: (m: Message) => void) {
+    this.onSignedMessage(sm => callback(sm.message));
   }
 
   destroy() {
