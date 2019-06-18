@@ -42,6 +42,24 @@ export default class SignedMessage {
   // Throws an error if it receives an invalid message
   // Returns null if the serialization is just an "ok"
   static fromSerialized(serialized) {
+    if (!serialized.constructor) {
+      throw new Error("failed to stringify constructorless: " + serialized);
+    }
+
+    if (serialized.constructor.name === "Buffer") {
+      // Check for "e:"
+      if (serialized[0] !== 101 || serialized[1] !== 58) {
+        throw new Error("invalid Buffer: " + serialized);
+      }
+      serialized = serialized.toString();
+    }
+
+    if (serialized.constructor.name !== "String") {
+      throw new Error(
+        "cannot deserialize " + serialized.constructor.name + ": " + serialized
+      );
+    }
+
     if (serialized == "ok") {
       return null;
     }

@@ -123,11 +123,9 @@ export default class Peer {
 
   onMessage(callback: (message: Message) => void) {
     this.onData(data => {
-      // TODO: don't convert to string needlessly
-      let s = data.toString();
       let sm;
       try {
-        sm = SignedMessage.fromSerialized(s);
+        sm = SignedMessage.fromSerialized(data);
       } catch (e) {
         this.log("error in decoding signed message:", e);
         return;
