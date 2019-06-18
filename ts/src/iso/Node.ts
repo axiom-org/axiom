@@ -26,6 +26,14 @@ export default class Node {
       return;
     }
 
+    if (message.type === "Ping") {
+      peer.sendMessage(new Message("Pong"));
+    } else if (message.type === "Pong") {
+      // Ignore
+    } else {
+      this.log("unexpected message type:", message.type);
+    }
+
     throw new Error("XXX");
   }
 
