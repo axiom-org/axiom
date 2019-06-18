@@ -24,6 +24,7 @@ if (typeof global === "object") {
 // network.
 export default class Peer {
   verbose: boolean;
+  createdAt: Date;
   keyPair: KeyPair;
 
   // The public key we expect to be connecting to.
@@ -71,6 +72,7 @@ export default class Peer {
     verbose?: boolean;
   }) {
     this.verbose = !!options.verbose;
+    this.createdAt = new Date();
 
     this.keyPair = options.keyPair;
     if (!this.keyPair) {
