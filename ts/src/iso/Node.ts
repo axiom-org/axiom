@@ -19,4 +19,43 @@ export default class Node {
       console.log(...args);
     }
   }
+
+  handleMessage(publicKey, peer, message) {
+    if (this.peers[publicKey] !== peer) {
+      // We received a message from a peer that we removed
+      return;
+    }
+
+    throw new Error("XXX");
+  }
+
+  // Ownership of the peer passes to this Node.
+  addPeer(peer: Peer) {
+    let pk = peer.peerPublicKey;
+    if (!pk) {
+      throw new Error("only peers with a public key can be added to a Node");
+    }
+
+    if (!peer.isConnected()) {
+      throw new Error("only call addPeer once a peer connects");
+    }
+
+    if (this.peers[pk]) {
+      // We already have a peer connection open to this node.
+      peer.destroy();
+      return;
+    }
+
+    this.peers[pk] = peer;
+
+    peer.onClose(() => {
+      if (this.peers[pk] === peer) {
+        delete this.peers[pk];
+      }
+    });
+
+    peer.onMessage(message => {
+      this.handleMessage(pk, peer, message);
+    });
+  }
 }

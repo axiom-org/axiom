@@ -114,6 +114,10 @@ export default class Peer {
     this._peer.on("error", callback);
   }
 
+  onClose(callback: () => void) {
+    this._peer.on("close", callback);
+  }
+
   sendData(data: any) {
     this._peer.send(data);
   }
@@ -150,8 +154,12 @@ export default class Peer {
     this.signals.finish();
   }
 
+  isConnected() {
+    return this._peer.connected;
+  }
+
   async waitUntilConnected() {
-    if (this._peer.connected) {
+    if (this.isConnected()) {
       return;
     }
     return new Promise((resolve, reject) => {
