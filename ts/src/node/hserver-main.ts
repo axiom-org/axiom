@@ -86,11 +86,20 @@ tracker.onMagnet = magnet => host.seedMagnet(magnet);
 let peerServer = new PeerServer(flags.peer, true);
 console.log("PeerServer listening on port", flags.peer);
 peerServer.onPeer(peer => {
+  // For compatibility with CLI 0.0.25
   peer.onData(data => {
     let s = data.toString();
     console.log("peerserver got data:", s);
     if (s === "ping") {
-      peer.send("pong");
+      peer.sendData("pong");
+    }
+  });
+
+  // Handles CLI 0.0.26 and beyond
+  peer.onMessage(message => {
+    if (message.type === "Ping") {
+      console.log("peerserver got ping");
+      peer.sendMessage(new Message("Pong"));
     }
   });
 });

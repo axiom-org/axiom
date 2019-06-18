@@ -689,12 +689,11 @@ async function main() {
     let [url] = rest;
     let peer = Peer.connectToServer(url, ARGV.verbose);
     await peer.waitUntilConnected();
-    peer.send("ping");
+    peer.sendMessage(new Message("Ping"));
     await new Promise((resolve, reject) => {
-      peer.onData(data => {
-	let s = data.toString();
-	console.log(s);
-	if (s === "pong") {
+      peer.onMessage(m => {
+	console.log(m.type);
+	if (m.type === "Pong") {
 	  resolve();
 	}
       });
