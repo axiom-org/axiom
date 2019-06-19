@@ -11,14 +11,26 @@ export default class Node {
   // If we do not know the public key of a Peer yet, it is not stored in peers.
   peers: { [publicKey: string]: Peer };
 
-  constructor(verbose: boolean) {
+  // WebSocket urls to bootstrap this node with
+  urls: string[];
+
+  constructor(urls: string[], verbose: boolean) {
+    this.urls = urls;
     this.verbose = verbose;
     this.peers = {};
+
+    this.bootstrap();
   }
 
   log(...args) {
     if (this.verbose) {
       console.log(...args);
+    }
+  }
+
+  bootstrap() {
+    for (let url of this.urls) {
+      this.connectToServer(url);
     }
   }
 
@@ -33,6 +45,12 @@ export default class Node {
 
     this.peers[peer.peerPublicKey] = peer;
     return true;
+  }
+
+  async connectToServer(url: string) {
+    let peer = Peer.connectToServer(url, this.verbose);
+    await peer.waitUntilConnected();
+    this.addPeer(peer);
   }
 
   handleSignedMessage(peer: Peer, sm: SignedMessage) {
@@ -63,9 +81,11 @@ export default class Node {
     }
 
     if (peer.peerPublicKey) {
-      if (!this.indexPeer) {
+      if (!this.indexPeer(peer)) {
         return;
       }
+    } else {
+      peer.ping();
     }
 
     peer.onClose(() => {

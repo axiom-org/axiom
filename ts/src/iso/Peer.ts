@@ -27,6 +27,9 @@ export default class Peer {
   createdAt: Date;
   keyPair: KeyPair;
 
+  // url is set for Peers created by connectToServer
+  url: string;
+
   // The public key we expect to be connecting to.
   // This is null if we don't know who we are connecting to.
   // In that case, it gets filled in the first time we receive a message.
@@ -42,7 +45,7 @@ export default class Peer {
 
   // Creates a Peer by connecting to a PeerServer
   static connectToServer(url: string, verbose: boolean): Peer {
-    let peer = new Peer({ initiator: true, verbose: verbose });
+    let peer = new Peer({ initiator: true, verbose: verbose, url: url });
     let ws = new WebSocket(url);
 
     ws.onopen = () => {
@@ -74,8 +77,10 @@ export default class Peer {
     peerPublicKey?: string;
     initiator?: boolean;
     verbose?: boolean;
+    url?: string;
   }) {
     this.verbose = !!options.verbose;
+    this.url = options.url;
     this.createdAt = new Date();
 
     this.keyPair = options.keyPair;
