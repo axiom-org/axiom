@@ -2,6 +2,7 @@ import * as http from "http";
 import * as WebSocket from "ws";
 const url = require("url");
 
+import Node from "../iso/Node";
 import Peer from "../iso/Peer";
 import Sequence from "../iso/Sequence";
 
@@ -67,5 +68,13 @@ export default class PeerServer {
       throw new Error("onPeer can only be called once");
     }
     this.peerHandler = callback;
+  }
+
+  // Let peers connect to the provided node through this PeerServer.
+  connectNode(node: Node) {
+    this.onPeer(async peer => {
+      await peer.waitUntilConnected();
+      node.addPeer(peer);
+    });
   }
 }
