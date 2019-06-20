@@ -44,7 +44,7 @@ export default class Node {
   // Returns the number of peers for which we have identified their public key
   numPeers(): number {
     let answer = 0;
-    for (let peer of peers) {
+    for (let key in this.peers) {
       answer++;
     }
     return answer;

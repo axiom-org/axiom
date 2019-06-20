@@ -13,7 +13,7 @@ test("PeerServer basics", async () => {
   await clientPeer.waitUntilConnected();
 });
 
-test("Node bootstrapping with real websockets", async () => {
+test("PeerServer bootstrapping with Nodes", async () => {
   let urls = [
     "ws://localhost:2223",
     "ws://localhost:2224",
