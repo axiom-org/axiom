@@ -1,3 +1,5 @@
+import { isEmpty } from "./Util";
+import Message from "./Message";
 import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
 
@@ -85,6 +87,7 @@ export default class Node {
       this.indexPeer(peer);
     }
 
+    let message = sm.message;
     if (message.type === "Ping") {
       peer.sendMessage(new Message("Pong"));
     } else if (message.type === "Pong") {
