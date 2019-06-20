@@ -43,7 +43,8 @@ export default class Peer {
 
   _peer: SimplePeer;
 
-  // Creates a Peer by connecting to a PeerServer
+  // Creates a Peer by connecting to a PeerServer.
+  // Returns immediately rather than waiting for the connection.
   static connectToServer(url: string, verbose: boolean): Peer {
     let peer = new Peer({ initiator: true, verbose: verbose, url: url });
     let ws = new WebSocket(url);

@@ -4,6 +4,13 @@ export function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export function isEmpty(obj: object): boolean {
+  for (let key in obj) {
+    return false;
+  }
+  return true;
+}
+
 // Makes a validated bucket name from a user-provided one.
 // Throws an error if the input is invalid.
 export function makeBucketName(input): string {

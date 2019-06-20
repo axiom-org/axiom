@@ -2,6 +2,7 @@ import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
 
 // A Node represents a member of the Axiom peer-to-peer network.
+// See the README in this directory for a description of message formats.
 export default class Node {
   verbose: boolean;
 
@@ -11,11 +12,18 @@ export default class Node {
   // If we do not know the public key of a Peer yet, it is not stored in peers.
   peers: { [publicKey: string]: Peer };
 
-  // WebSocket urls to bootstrap this node with
-  urls: string[];
+  // The Peers that are being connected but aren't connected yet.
+  // The key is WebSocket url, the value is the Peer.
+  // Once the peer connects, the value is replaced with a null.
+  // This way the keys with null values are things we can retry.
+  pending: { [url: string]: Peer };
 
   constructor(urls: string[], verbose: boolean) {
-    this.urls = urls;
+    this.pending = {};
+    for (let url of urls) {
+      this.pending[url] = null;
+    }
+
     this.verbose = verbose;
     this.peers = {};
 
@@ -28,8 +36,10 @@ export default class Node {
     }
   }
 
+  // Starts to connect to any peer that we aren't already in the process of
+  // connecting to
   bootstrap() {
-    for (let url of this.urls) {
+    for (let url in this.pending) {
       this.connectToServer(url);
     }
   }
@@ -47,10 +57,20 @@ export default class Node {
     return true;
   }
 
-  async connectToServer(url: string) {
+  // Returns immediately rather than waiting for the connection
+  connectToServer(url: string) {
+    if (!(url in this.pending)) {
+      throw new Error("cannot connect to new url: " + url);
+    }
+    if (this.pending[url]) {
+      // A connection to this url is already in progress
+      return;
+    }
     let peer = Peer.connectToServer(url, this.verbose);
-    await peer.waitUntilConnected();
-    this.addPeer(peer);
+    peer.onConnect(() => {
+      this.addPeer(peer);
+    });
+    this.pending[url] = peer;
   }
 
   handleSignedMessage(peer: Peer, sm: SignedMessage) {
@@ -80,6 +100,13 @@ export default class Node {
       throw new Error("only connected peers can be added to a Node");
     }
 
+    if (peer.url) {
+      if (this.pending[peer.url] !== peer) {
+        throw new Error("bad pending");
+      }
+      this.pending[peer.url] = null;
+    }
+
     if (peer.peerPublicKey) {
       if (!this.indexPeer(peer)) {
         return;
@@ -91,6 +118,11 @@ export default class Node {
     peer.onClose(() => {
       if (this.peers[peer.peerPublicKey] === peer) {
         delete this.peers[peer.peerPublicKey];
+      }
+
+      if (isEmpty(this.peers)) {
+        this.log("lost connection to every node. rebootstrapping...");
+        this.bootstrap();
       }
     });
 
