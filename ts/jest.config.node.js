@@ -9,5 +9,6 @@ module.exports = {
     "ts-jest": {
       tsConfig: "tsconfig.node.json"
     }
-  }
+  },
+  testEnvironment: "node"
 };

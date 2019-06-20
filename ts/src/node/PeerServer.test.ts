@@ -13,18 +13,6 @@ test("PeerServer basics", async () => {
   await clientPeer.waitUntilConnected();
 });
 
-// Workaround for https://github.com/feross/simple-peer/issues/481
-// Overriding bug where simple-peer tries to check .unref on the return value
-// of setInterval when it's undefined, during shutdown
-let oldSetInterval = global.setInterval;
-global.setInterval = function(...args): any {
-  let answer = oldSetInterval(...args);
-  if (!answer) {
-    return {};
-  }
-  return answer;
-};
-
 test("PeerServer bootstrapping with Nodes", async () => {
   let urls = [
     "ws://localhost:2223",
