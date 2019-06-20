@@ -129,6 +129,11 @@ export default class Peer {
   }
 
   sendData(data: any) {
+    // Work around https://github.com/feross/simple-peer/issues/480
+    if (this._peer._channel && this._peer._channel.readyState !== "open") {
+      return;
+    }
+
     this._peer.send(data);
   }
 

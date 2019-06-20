@@ -23,6 +23,9 @@ export default class Node {
   // Callbacks that will run on the next message received
   nextMessageCallbacks: ((SignedMessage) => void)[];
 
+  // Whether this Node has been destroyed
+  destroyed: boolean;
+
   // A Node doesn't start connecting to the network until you call bootstrap()
   constructor(urls: string[], verbose: boolean) {
     this.pending = {};
@@ -30,6 +33,7 @@ export default class Node {
       this.pending[url] = null;
     }
 
+    this.destroyed = false;
     this.verbose = verbose;
     this.peers = {};
     this.nextMessageCallbacks = [];
@@ -92,6 +96,9 @@ export default class Node {
 
   // Returns immediately rather than waiting for the connection
   connectToServer(url: string) {
+    if (this.destroyed) {
+      return;
+    }
     if (!(url in this.pending)) {
       throw new Error("cannot connect to new url: " + url);
     }
@@ -136,6 +143,9 @@ export default class Node {
 
   // Ownership of the peer passes to this Node.
   addPeer(peer: Peer) {
+    if (this.destroyed) {
+      return;
+    }
     if (!peer.isConnected()) {
       throw new Error("only connected peers can be added to a Node");
     }
@@ -160,7 +170,7 @@ export default class Node {
         delete this.peers[peer.peerPublicKey];
       }
 
-      if (isEmpty(this.peers)) {
+      if (isEmpty(this.peers) && !this.destroyed) {
         this.log("lost connection to every node. rebootstrapping...");
         this.bootstrap();
       }
@@ -169,5 +179,20 @@ export default class Node {
     peer.onSignedMessage(sm => {
       this.handleSignedMessage(peer, sm);
     });
+  }
+
+  getPeers(): Peer[] {
+    let answer = [];
+    for (let key in this.peers) {
+      answer.push(this.peers[key]);
+    }
+    return answer;
+  }
+
+  destroy() {
+    this.destroyed = true;
+    for (let peer of this.getPeers()) {
+      peer.destroy();
+    }
   }
 }
