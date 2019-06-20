@@ -20,6 +20,10 @@ export default class Node {
   // This way the keys with null values are things we can retry.
   pending: { [url: string]: Peer };
 
+  // Callbacks that will run on the next message received
+  nextMessageCallbacks: ((SignedMessage) => void)[];
+
+  // A Node doesn't start connecting to the network until you call bootstrap()
   constructor(urls: string[], verbose: boolean) {
     this.pending = {};
     for (let url of urls) {
@@ -28,8 +32,7 @@ export default class Node {
 
     this.verbose = verbose;
     this.peers = {};
-
-    this.bootstrap();
+    this.nextMessageCallbacks = [];
   }
 
   log(...args) {
@@ -38,11 +41,39 @@ export default class Node {
     }
   }
 
+  // Returns the number of peers for which we have identified their public key
+  numPeers(): number {
+    let answer = 0;
+    for (let peer of peers) {
+      answer++;
+    }
+    return answer;
+  }
+
   // Starts to connect to any peer that we aren't already in the process of
   // connecting to
   bootstrap() {
     for (let url in this.pending) {
       this.connectToServer(url);
+    }
+  }
+
+  onNextMessage(callback: (SignedMessage) => void) {
+    this.nextMessageCallbacks.push(callback);
+  }
+
+  // Returns the next time we receive a SignedMessage
+  async waitForMessage(): Promise<SignedMessage> {
+    return new Promise((resolve, reject) => {
+      this.onNextMessage(resolve);
+    });
+  }
+
+  // Calls f both right now and after every received message.
+  // Once it is true, this function completes.
+  async waitUntil(f: () => boolean) {
+    while (!f()) {
+      await this.waitForMessage();
     }
   }
 
@@ -94,6 +125,12 @@ export default class Node {
       // Ignore
     } else {
       this.log("unexpected message type:", message.type);
+    }
+
+    let callbacks = this.nextMessageCallbacks;
+    this.nextMessageCallbacks = [];
+    for (let callback of callbacks) {
+      callback(sm);
     }
   }
 
