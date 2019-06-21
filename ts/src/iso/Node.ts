@@ -24,6 +24,9 @@ export default class Node {
   // Callbacks that will run on the next message received
   nextMessageCallbacks: ((SignedMessage) => void)[];
 
+  // Callbacks that will run on every message received
+  everyMessageCallbacks: ((SignedMessage) => void)[];
+
   // Whether this Node has been destroyed
   destroyed: boolean;
 
@@ -45,6 +48,7 @@ export default class Node {
     this.verbose = verbose;
     this.peers = {};
     this.nextMessageCallbacks = [];
+    this.everyMessageCallbacks = [];
   }
 
   log(...args) {
@@ -72,6 +76,10 @@ export default class Node {
 
   onNextMessage(callback: (SignedMessage) => void) {
     this.nextMessageCallbacks.push(callback);
+  }
+
+  onEveryMessage(callback: (SignedMessage) => void) {
+    this.everyMessageCallbacks.push(callback);
   }
 
   // Returns the next time we receive a SignedMessage
@@ -147,9 +155,13 @@ export default class Node {
       this.log("unexpected message type:", message.type);
     }
 
-    let callbacks = this.nextMessageCallbacks;
+    let nextCallbacks = this.nextMessageCallbacks;
     this.nextMessageCallbacks = [];
-    for (let callback of callbacks) {
+    let everyCallbacks = [...this.everyMessageCallbacks];
+    for (let callback of nextCallbacks) {
+      callback(sm);
+    }
+    for (let callback of everyCallbacks) {
       callback(sm);
     }
   }
@@ -182,11 +194,13 @@ export default class Node {
     }
 
     peer.onClose(() => {
+      let alreadyEmpty = isEmpty(this.peers);
+
       if (this.peers[peer.peerPublicKey] === peer) {
         delete this.peers[peer.peerPublicKey];
       }
 
-      if (isEmpty(this.peers) && !this.destroyed) {
+      if (!alreadyEmpty && isEmpty(this.peers) && !this.destroyed) {
         this.log("lost connection to every node. rebootstrapping...");
         this.bootstrap();
       }
