@@ -25,6 +25,8 @@ if (typeof global === "object") {
 export default class Peer {
   verbose: boolean;
   createdAt: Date;
+
+  // Our keypair
   keyPair: KeyPair;
 
   // url is set for Peers created by connectToServer

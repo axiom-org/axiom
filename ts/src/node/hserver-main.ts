@@ -12,6 +12,7 @@ import HostingServer from "./HostingServer";
 import Message from "../iso/Message";
 import PeerServer from "./PeerServer";
 import Tracker from "./Tracker";
+import { loadKeyPair } from "./FileUtil";
 
 args
   .option("tracker", "The port on which the tracker will be running", 4000)
@@ -69,7 +70,7 @@ let options = {
 if (flags.id >= 1) {
   options.id = flags.id;
 } else {
-  options.keyPair = flags.keypair;
+  options.keyPair = loadKeyPair(flags.keypair);
 }
 
 let host = new HostingServer(options);
@@ -84,7 +85,7 @@ let tracker = new Tracker(flags.tracker);
 tracker.onMagnet = magnet => host.seedMagnet(magnet);
 
 // Run a PeerServer
-let peerServer = new PeerServer(flags.peer, true);
+let peerServer = new PeerServer(options.keyPair, flags.peer, true);
 console.log("PeerServer listening on port", flags.peer);
 peerServer.onPeer(peer => {
   // For compatibility with CLI 0.0.25

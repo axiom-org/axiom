@@ -129,6 +129,11 @@ export default class Node {
 
     if (!peer.peerPublicKey) {
       // We have just learned the identity of this peer
+      if (sm.signer === this.keyPair.getPublicKey()) {
+        // Oops, we connected to ourselves. Hang up
+        peer.destroy();
+        return;
+      }
       peer.peerPublicKey = sm.signer;
       this.indexPeer(peer);
     }
@@ -166,6 +171,9 @@ export default class Node {
     }
 
     if (peer.peerPublicKey) {
+      if (peer.peerPublicKey == this.keyPair.getPublicKey()) {
+        return;
+      }
       if (!this.indexPeer(peer)) {
         return;
       }

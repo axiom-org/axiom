@@ -687,7 +687,7 @@ async function main() {
       fatal("Usage: axiom ping <url>");
     }
     let [url] = rest;
-    let peer = Peer.connectToServer(url, ARGV.verbose);
+    let peer = Peer.connectToServer(null, url, ARGV.verbose);
     await peer.waitUntilConnected();
     peer.ping();
     await new Promise((resolve, reject) => {

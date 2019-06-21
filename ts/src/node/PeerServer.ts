@@ -2,6 +2,7 @@ import * as http from "http";
 import * as WebSocket from "ws";
 const url = require("url");
 
+import KeyPair from "../iso/KeyPair";
 import Node from "../iso/Node";
 import Peer from "../iso/Peer";
 import Sequence from "../iso/Sequence";
@@ -11,9 +12,14 @@ import Sequence from "../iso/Sequence";
 export default class PeerServer {
   verbose: boolean;
   peerHandler: (Peer) => void;
+  keyPair: KeyPair;
   port: number;
 
-  constructor(port: number, verbose: boolean) {
+  constructor(keyPair: KeyPair, port: number, verbose: boolean) {
+    this.keyPair = keyPair;
+    if (!this.keyPair) {
+      this.keyPair = KeyPair.fromRandom();
+    }
     this.port = port;
     this.verbose = verbose;
     this.peerHandler = null;
@@ -28,7 +34,7 @@ export default class PeerServer {
 
     let wss = new WebSocket.Server({ server: server });
     wss.on("connection", ws => {
-      let peer = new Peer({ verbose: verbose });
+      let peer = new Peer({ keyPair: this.keyPair, verbose: verbose });
 
       peer.signals.forEach(data => {
         ws.send(JSON.stringify(data));

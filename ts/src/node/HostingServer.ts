@@ -12,7 +12,7 @@ import ProviderListener from "./ProviderListener";
 import Torrent from "../iso/Torrent";
 import TorrentClient from "../iso/TorrentClient";
 import { sleep } from "../iso/Util";
-import { isDirectory, isFile, loadKeyPair } from "./FileUtil";
+import { isDirectory, isFile } from "./FileUtil";
 
 // Throws an error if the magnet url is an unknown format
 function getInfoHash(magnet) {
@@ -38,13 +38,20 @@ export default class HostingServer {
 
   // options must contain exactly one way to specify the provider:
   // id - the id of the provider
-  // keyPair - the filename containing keys for the owner
+  // keyPair - a KeyPair object for the owner
   // other options:
   // capacity - how much space we have to store files, in megabytes
   // directory - where to store the hosted files
   // verbose - defaults to false
   // network - required
-  constructor(options) {
+  constructor(options: {
+    id?: number;
+    keyPair?: KeyPair;
+    capacity: number;
+    directory: string;
+    verbose?: boolean;
+    network: string;
+  }) {
     if (options.id && options.keyPair) {
       throw new Error(
         "only one of the id and keyPair options can be set for HostingServer"
@@ -61,7 +68,7 @@ export default class HostingServer {
     this.network = options.network;
 
     if (options.keyPair) {
-      this.keyPair = loadKeyPair(options.keyPair);
+      this.keyPair = options.keyPair;
     }
 
     this.capacity = options.capacity;
