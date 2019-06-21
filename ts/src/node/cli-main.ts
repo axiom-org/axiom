@@ -707,7 +707,7 @@ async function main() {
 
 main()
   .then(() => {
-    // console.log("done");
+    process.exit(0);
   })
   .catch(e => {
     console.log(e.stack);
