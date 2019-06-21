@@ -4,7 +4,7 @@ import PeerServer from "./PeerServer";
 
 test("PeerServer basics", async () => {
   let s = new PeerServer(2222, true);
-  let clientPeer = Peer.connectToServer("ws://localhost:2222", true);
+  let clientPeer = Peer.connectToServer(null, "ws://localhost:2222", true);
 
   let serverPeer: Peer = await new Promise((resolve, reject) => {
     s.onPeer(peer => resolve(peer));
@@ -21,9 +21,9 @@ test("PeerServer bootstrapping with Nodes", async () => {
   ];
   let verbose = true;
 
-  let node1 = new Node(urls, verbose);
-  let node2 = new Node(urls, verbose);
-  let node3 = new Node(urls, verbose);
+  let node1 = new Node(null, urls, verbose);
+  let node2 = new Node(null, urls, verbose);
+  let node3 = new Node(null, urls, verbose);
 
   let server1 = new PeerServer(2223, verbose);
   let server2 = new PeerServer(2224, verbose);

@@ -1,4 +1,5 @@
 import { isEmpty } from "./Util";
+import KeyPair from "./KeyPair";
 import Message from "./Message";
 import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
@@ -26,8 +27,15 @@ export default class Node {
   // Whether this Node has been destroyed
   destroyed: boolean;
 
+  keyPair: KeyPair;
+
   // A Node doesn't start connecting to the network until you call bootstrap()
-  constructor(urls: string[], verbose: boolean) {
+  constructor(keyPair: KeyPair, urls: string[], verbose: boolean) {
+    this.keyPair = keyPair;
+    if (!this.keyPair) {
+      this.keyPair = KeyPair.fromRandom();
+    }
+
     this.pending = {};
     for (let url of urls) {
       this.pending[url] = null;
@@ -106,7 +114,7 @@ export default class Node {
       // A connection to this url is already in progress
       return;
     }
-    let peer = Peer.connectToServer(url, this.verbose);
+    let peer = Peer.connectToServer(this.keyPair, url, this.verbose);
     peer.onConnect(() => {
       this.addPeer(peer);
     });
