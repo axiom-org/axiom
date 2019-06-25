@@ -118,7 +118,7 @@ export default class Node {
   // Starts connecting to a new peer whose public key we know, via an intermediary that
   // we're already connected to.
   connectToPeer(publicKey: string, intermediary: Peer) {
-    if (this.peers[publicKey] || this.pendingByPeer[publicKey]) {
+    if (this.peers[publicKey] || this.pendingByPublicKey[publicKey]) {
       // A connection is already in progress
       return;
     }
