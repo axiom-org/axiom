@@ -15,11 +15,16 @@ export default class Node {
   // If we do not know the public key of a Peer yet, it is not stored in peers.
   peers: { [publicKey: string]: Peer };
 
-  // The Peers that are being connected but aren't connected yet.
+  // The Peers that are being connected via server but aren't connected yet.
   // The key is WebSocket url, the value is the Peer.
   // Once the peer connects, the value is replaced with a null.
   // This way the keys with null values are things we can retry.
-  pending: { [url: string]: Peer };
+  pendingByURL: { [url: string]: Peer };
+
+  // The Peers that we are interested in connecting to.
+  // Maps publicKey we are interested in, to the key of the
+  // intermediary who might connect us.
+  pendingByPublicKey: { [publicKey: string]: string };
 
   // Callbacks that will run on the next message received
   nextMessageCallbacks: ((SignedMessage) => void)[];
@@ -39,9 +44,9 @@ export default class Node {
       this.keyPair = KeyPair.fromRandom();
     }
 
-    this.pending = {};
+    this.pendingByURL = {};
     for (let url of urls) {
-      this.pending[url] = null;
+      this.pendingByURL[url] = null;
     }
 
     this.destroyed = false;
@@ -69,7 +74,7 @@ export default class Node {
   // Starts to connect to any peer that we aren't already in the process of
   // connecting to
   bootstrap() {
-    for (let url in this.pending) {
+    for (let url in this.pendingByURL) {
       this.connectToServer(url);
     }
   }
@@ -110,15 +115,26 @@ export default class Node {
     return true;
   }
 
+  // Starts connecting to a new peer whose public key we know, via an intermediary that
+  // we're already connected to.
+  connectToPeer(publicKey: string, intermediary: Peer) {
+    if (this.peers[publicKey] || this.pendingByPeer[publicKey]) {
+      // A connection is already in progress
+      return;
+    }
+
+    console.log("XXX TODO");
+  }
+
   // Returns immediately rather than waiting for the connection
   connectToServer(url: string) {
     if (this.destroyed) {
       return;
     }
-    if (!(url in this.pending)) {
+    if (!(url in this.pendingByURL)) {
       throw new Error("cannot connect to new url: " + url);
     }
-    if (this.pending[url]) {
+    if (this.pendingByURL[url]) {
       // A connection to this url is already in progress
       return;
     }
@@ -126,7 +142,7 @@ export default class Node {
     peer.onConnect(() => {
       this.addPeer(peer);
     });
-    this.pending[url] = peer;
+    this.pendingByURL[url] = peer;
   }
 
   handleSignedMessage(peer: Peer, sm: SignedMessage) {
@@ -166,7 +182,9 @@ export default class Node {
       });
       peer.sendMessage(response);
     } else if (message.type === "Neighbors") {
-      this.log("XXX need to handle Neighbors");
+      for (let publicKey of message.neighbors) {
+        this.connectToPeer(publicKey, peer);
+      }
     } else {
       this.log("unexpected message type:", message.type);
     }
@@ -192,10 +210,10 @@ export default class Node {
     }
 
     if (peer.url) {
-      if (this.pending[peer.url] !== peer) {
-        throw new Error("bad pending");
+      if (this.pendingByURL[peer.url] !== peer) {
+        throw new Error("bad pendingByURL");
       }
-      this.pending[peer.url] = null;
+      this.pendingByURL[peer.url] = null;
     }
 
     if (peer.peerPublicKey) {
