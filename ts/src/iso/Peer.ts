@@ -40,6 +40,9 @@ export default class Peer {
   // The signals emitted by this peer
   signals: Sequence<object>;
 
+  // An incrementing integer for requests sent
+  nextRequestID: number;
+
   _peer: SimplePeer;
 
   // Creates a Peer by connecting to a PeerServer.
@@ -86,6 +89,7 @@ export default class Peer {
     this.verbose = !!options.verbose;
     this.url = options.url;
     this.createdAt = new Date();
+    this.nextRequestID = 1;
 
     this.keyPair = options.keyPair;
     if (!this.keyPair) {
