@@ -34,7 +34,7 @@ export default class Peer {
 
   // The public key we expect to be connecting to.
   // This is null if we don't know who we are connecting to.
-  // In that case, it gets filled in the first time we receive a message.
+  // In that case, the Node fills this in, the first time we receive a message.
   peerPublicKey: string;
 
   // The signals emitted by this peer
