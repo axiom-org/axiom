@@ -37,9 +37,6 @@ export default class Peer {
   // In that case, it gets filled in the first time we receive a message.
   peerPublicKey: string;
 
-  // A callback for whenever peerPublicKey is discovered.
-  onPublicKey: () => void;
-
   // The signals emitted by this peer
   signals: Sequence<object>;
 
