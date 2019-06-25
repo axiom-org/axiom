@@ -151,6 +151,22 @@ export default class Node {
       peer.sendMessage(new Message("Pong"));
     } else if (message.type === "Pong") {
       // Ignore
+    } else if (message.type === "FindNode") {
+      // Find all the neighbors besides the one talking to us
+      // TODO: use real Kademlia algorithm
+      let neighbors = [];
+      for (let pk in this.peers) {
+        if (pk !== peer.peerPublicKey) {
+          neighbors.push(pk);
+        }
+      }
+      let response = new Message("Neighbors", {
+        neighbors: neighbors,
+        responseID: message.requestID
+      });
+      peer.sendMessage(response);
+    } else if (message.type === "Neighbors") {
+      this.log("XXX need to handle Neighbors");
     } else {
       this.log("unexpected message type:", message.type);
     }
