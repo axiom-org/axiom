@@ -145,6 +145,57 @@ export default class Node {
     this.pendingByURL[url] = peer;
   }
 
+  handlePing(peer: Peer, sm: SignedMessage) {
+    peer.sendMessage(new Message("Pong"));
+  }
+
+  handlePong(peer: Peer, sm: SignedMessage) {}
+
+  handleFindNode(peer: Peer, sm: SignedMessage) {
+    // Find all the neighbors besides the one talking to us
+    // TODO: use Kademlia heuristics on sm.message.publicKey
+    let neighbors = [];
+    for (let pk in this.peers) {
+      if (pk !== peer.peerPublicKey) {
+        neighbors.push(pk);
+      }
+    }
+    let response = new Message("Neighbors", {
+      neighbors: neighbors
+    });
+    peer.sendMessage(response);
+  }
+
+  handleNeighbors(peer: Peer, sm: SignedMessage) {
+    // TODO: don't necessarily connect to all neighbors, use
+    // Kademlia heuristics
+    for (let publicKey of sm.message.neighbors) {
+      this.connectToPeer(publicKey, peer);
+    }
+  }
+
+  handleSignal(peer: Peer, sm: SignedMessage) {
+    // Signals should be forwarded to their destination
+    let destination = this.peers[sm.message.destination];
+    if (!destination) {
+      return;
+    }
+    let forward = new Message("Forward", {
+      message: sm.serialize()
+    });
+    destination.sendMessage(forward);
+  }
+
+  handleForward(peer: Peer, sm: SignedMessage) {
+    let nested;
+    try {
+      nested = SignedMessage.fromSerialized(sm.message.message);
+    } catch (e) {
+      return;
+    }
+    // XXX
+  }
+
   handleSignedMessage(peer: Peer, sm: SignedMessage) {
     if (peer.peerPublicKey && this.peers[peer.peerPublicKey] !== peer) {
       // We received a message from a peer that we previously removed
@@ -162,36 +213,27 @@ export default class Node {
       this.indexPeer(peer);
     }
 
-    let message = sm.message;
-    if (message.type === "Ping") {
-      peer.sendMessage(new Message("Pong"));
-    } else if (message.type === "Pong") {
-      // Ignore
-    } else if (message.type === "FindNode") {
-      // Find all the neighbors besides the one talking to us
-      // TODO: use real Kademlia algorithm
-      let neighbors = [];
-      for (let pk in this.peers) {
-        if (pk !== peer.peerPublicKey) {
-          neighbors.push(pk);
-        }
-      }
-      let response = new Message("Neighbors", {
-        neighbors: neighbors
-      });
-      peer.sendMessage(response);
-    } else if (message.type === "Neighbors") {
-      // TODO: don't necessarily connect to all neighbors, use
-      // Kademlia heuristics
-      for (let publicKey of message.neighbors) {
-        this.connectToPeer(publicKey, peer);
-      }
-    } else if (message.type === "Signal") {
-      // XXX
-    } else if (message.type === "Forward") {
-      // XXX
-    } else {
-      this.log("unexpected message type:", message.type);
+    switch (sm.message.type) {
+      case "Ping":
+        this.handlePing(peer, sm);
+        break;
+      case "Pong":
+        this.handlePong(peer, sm);
+        break;
+      case "FindNode":
+        this.handleFindNode(peer, sm);
+        break;
+      case "Neighbors":
+        this.handleNeighbors(peer, sm);
+        break;
+      case "Signal":
+        this.handleSignal(peer, sm);
+        break;
+      case "Forward":
+        this.handleForward(peer, sm);
+        break;
+      default:
+        this.log("unexpected message type:", sm.message.type);
     }
 
     let nextCallbacks = this.nextMessageCallbacks;
