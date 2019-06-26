@@ -117,13 +117,27 @@ export default class Node {
 
   // Starts connecting to a new peer whose public key we know, via an intermediary that
   // we're already connected to.
-  connectToPeer(publicKey: string, intermediary: Peer) {
+  connectToPeer(
+    publicKey: string,
+    intermediary: Peer,
+    initiator: boolean,
+    nonce: string
+  ) {
     if (this.peers[publicKey] || this.pendingByPublicKey[publicKey]) {
       // A connection is already in progress
       return;
     }
 
-    console.log("XXX TODO");
+    peer = new Peer({
+      keyPair: this.keyPair,
+      peerPublicKey: publicKey,
+      initiator: initiator,
+      verbose: this.verbose,
+      intermediary: intermediary.peerPublicKey,
+      nonce: nonce
+    });
+    this.pendingByPublicKey[publicKey] = peer;
+    this.pipeSignals(peer, intermediary);
   }
 
   // Returns immediately rather than waiting for the connection
@@ -170,7 +184,7 @@ export default class Node {
     // TODO: don't necessarily connect to all neighbors, use
     // Kademlia heuristics
     for (let publicKey of sm.message.neighbors) {
-      this.connectToPeer(publicKey, peer);
+      this.connectToPeer(publicKey, peer, true, "nonce" + Math.random());
     }
   }
 
@@ -186,14 +200,51 @@ export default class Node {
     destination.sendMessage(forward);
   }
 
-  handleForward(peer: Peer, sm: SignedMessage) {
+  // Pass signals used to connect to peer through the intermediary
+  pipeSignals(peer: Peer, intermediary: Peer) {
+    peer.signals.forEach(signal => {
+      let message = new Message("Signal", {
+        signal: signal,
+        destination: peer.peerPublicKey,
+        nonce: peer.nonce
+      });
+      intermediary.sendMessage(message);
+    });
+  }
+
+  handleForward(intermediary: Peer, sm: SignedMessage) {
     let nested;
     try {
       nested = SignedMessage.fromSerialized(sm.message.message);
     } catch (e) {
       return;
     }
-    // XXX
+    if (nested.type !== "Signal") {
+      return;
+    }
+    if (nested.destination !== this.keyPair.getPublicKey()) {
+      return;
+    }
+    if (this.peers[nested.signer]) {
+      return;
+    }
+    let peer = this.pendingByPublicKey[nested.signer];
+    if (!peer) {
+      if (!nested.initiate) {
+        // We don't have a pending connection so we can't use this signal
+        return;
+      }
+
+      this.connectToPeer(nested.signer, intermediary, false, nested.nonce);
+    } else {
+      if (nested.nonce !== peer.nonce) {
+        // This must be a message intended for a different connection
+        return;
+      }
+
+      // Pass this signal to the existing peer
+      peer.signal(nested.signal);
+    }
   }
 
   handleSignedMessage(peer: Peer, sm: SignedMessage) {
@@ -264,6 +315,10 @@ export default class Node {
     }
 
     if (peer.peerPublicKey) {
+      if (this.pendingByPublicKey[peer.peerPublicKey]) {
+        delete this.pendingByPublicKey[peer.peerPublicKey];
+      }
+
       if (peer.peerPublicKey == this.keyPair.getPublicKey()) {
         return;
       }

@@ -41,6 +41,10 @@ export default class Peer {
   // Null if we are not connecting via intermediary.
   intermediary: string;
 
+  // A random string that specifies this particular peer connection.
+  // If it's null, don't use nonce checks.
+  nonce: string;
+
   // The signals emitted by this peer
   signals: Sequence<object>;
 
@@ -87,11 +91,13 @@ export default class Peer {
     verbose?: boolean;
     url?: string;
     intermediary?: string;
+    nonce?: string;
   }) {
     this.verbose = !!options.verbose;
     this.url = options.url;
     this.createdAt = new Date();
     this.intermediary = options.intermediary;
+    this.nonce = options.nonce;
 
     this.keyPair = options.keyPair;
     if (!this.keyPair) {

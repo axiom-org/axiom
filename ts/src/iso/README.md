@@ -34,9 +34,11 @@ Used to exchange information to create a new peer connection.
 
 `signal` contains the opaque object produced by the simple peer
 
-`initiator` is true if this signal is attempting to initiate a connection.
-
 `destination` is the public key of the peer we are trying to connect to.
+
+`initiate` is true iff this signal is the first one of the connection.
+
+`nonce` is a random string that is kept the same for every connection attempt.
 
 ## Forward
 
