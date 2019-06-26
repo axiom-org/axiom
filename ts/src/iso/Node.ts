@@ -128,7 +128,7 @@ export default class Node {
       return;
     }
 
-    peer = new Peer({
+    let peer = new Peer({
       keyPair: this.keyPair,
       peerPublicKey: publicKey,
       initiator: initiator,
