@@ -37,11 +37,12 @@ export default class Peer {
   // In that case, the Node fills this in, the first time we receive a message.
   peerPublicKey: string;
 
+  // The public key of the intermediary node that is helping us connect.
+  // Null if we are not connecting via intermediary.
+  intermediary: string;
+
   // The signals emitted by this peer
   signals: Sequence<object>;
-
-  // An incrementing integer for requests sent
-  nextRequestID: number;
 
   _peer: SimplePeer;
 
@@ -85,11 +86,12 @@ export default class Peer {
     initiator?: boolean;
     verbose?: boolean;
     url?: string;
+    intermediary?: string;
   }) {
     this.verbose = !!options.verbose;
     this.url = options.url;
     this.createdAt = new Date();
-    this.nextRequestID = 1;
+    this.intermediary = options.intermediary;
 
     this.keyPair = options.keyPair;
     if (!this.keyPair) {
@@ -111,6 +113,10 @@ export default class Peer {
     signals.forEach(obj => {
       this._peer.signal(obj);
     });
+  }
+
+  signal(s: object) {
+    this._peer.signal(s);
   }
 
   log(...args) {

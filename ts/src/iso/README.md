@@ -21,8 +21,6 @@ Used to search for a particular public key on the network.
 
 `publicKey` contains the public key that the caller is searching for.
 
-`requestID` contains a number that is used to match request and response.
-
 ## Neighbors
 
 Used to respond to a FindNode request.
@@ -30,4 +28,18 @@ Used to respond to a FindNode request.
 `neighbors` contains a list of public keys. They are determined according to the
 Kademlia algorithm.
 
-`responseID` contains the request id of request that caused this response.
+## Signal
+
+Used to exchange information to create a new peer connection.
+
+`signal` contains the opaque object produced by the simple peer
+
+`initiator` is true if this signal is attempting to initiate a connection.
+
+`destination` is the public key of the peer we are trying to connect to.
+
+## Forward
+
+Used to forward Signal messages to the intended recipient.
+
+`message` is the encoded signed message we are forwarding

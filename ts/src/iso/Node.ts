@@ -21,10 +21,10 @@ export default class Node {
   // This way the keys with null values are things we can retry.
   pendingByURL: { [url: string]: Peer };
 
-  // The Peers that we are interested in connecting to.
-  // Maps publicKey we are interested in, to the key of the
-  // intermediary who might connect us.
-  pendingByPublicKey: { [publicKey: string]: string };
+  // The Peers that we are interested in connecting to, via other
+  // nodes.
+  // Each peer in this map should have peer.intermediary set.
+  pendingByPublicKey: { [publicKey: string]: Peer };
 
   // Callbacks that will run on the next message received
   nextMessageCallbacks: ((SignedMessage) => void)[];
@@ -177,14 +177,19 @@ export default class Node {
         }
       }
       let response = new Message("Neighbors", {
-        neighbors: neighbors,
-        responseID: message.requestID
+        neighbors: neighbors
       });
       peer.sendMessage(response);
     } else if (message.type === "Neighbors") {
+      // TODO: don't necessarily connect to all neighbors, use
+      // Kademlia heuristics
       for (let publicKey of message.neighbors) {
         this.connectToPeer(publicKey, peer);
       }
+    } else if (message.type === "Signal") {
+      // XXX
+    } else if (message.type === "Forward") {
+      // XXX
     } else {
       this.log("unexpected message type:", message.type);
     }
