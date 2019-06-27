@@ -263,7 +263,8 @@ export default class Node {
     if (!peer.peerPublicKey) {
       // We have just learned the identity of this peer
       if (sm.signer === this.keyPair.getPublicKey()) {
-        // Oops, we connected to ourselves. Hang up
+        // Oops, we connected to ourselves.
+        delete this.pendingByURL[peer.url];
         peer.destroy();
         return;
       }

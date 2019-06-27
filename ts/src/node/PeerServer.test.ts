@@ -6,7 +6,7 @@ process.on("unhandledRejection", error => {
   console.log("unhandled rejection:", (error as any).stack);
 });
 
-test("PeerServer basics", async () => {
+test("PeerServer single connection", async () => {
   let s = new PeerServer(null, 2222, true);
   let clientPeer = Peer.connectToServer(null, "ws://localhost:2222", true);
 
@@ -17,12 +17,8 @@ test("PeerServer basics", async () => {
   await clientPeer.waitUntilConnected();
 });
 
-test("PeerServer bootstrapping with Nodes", async () => {
-  let urls = [
-    "ws://localhost:2223",
-    "ws://localhost:2224",
-    "ws://localhost:2225"
-  ];
+test("PeerServer bootstrapping", async () => {
+  let urls = ["ws://localhost:2223", "ws://localhost:2224"];
   let verbose = true;
 
   let node1 = new Node(null, urls, verbose);
@@ -31,11 +27,9 @@ test("PeerServer bootstrapping with Nodes", async () => {
 
   let server1 = new PeerServer(null, 2223, verbose);
   let server2 = new PeerServer(null, 2224, verbose);
-  let server3 = new PeerServer(null, 2225, verbose);
 
   server1.connectNode(node1);
   server2.connectNode(node2);
-  server3.connectNode(node3);
 
   let check = () => {
     expect(node1.numPeers()).toBeLessThan(3);
