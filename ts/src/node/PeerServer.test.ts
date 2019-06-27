@@ -18,18 +18,16 @@ test("PeerServer single connection", async () => {
 });
 
 test("PeerServer bootstrapping", async () => {
-  let urls = ["ws://localhost:2223", "ws://localhost:2224"];
+  let urls = ["ws://localhost:2223"];
   let verbose = true;
 
   let node1 = new Node(null, urls, verbose);
   let node2 = new Node(null, urls, verbose);
   let node3 = new Node(null, urls, verbose);
 
-  let server1 = new PeerServer(null, 2223, verbose);
-  let server2 = new PeerServer(null, 2224, verbose);
+  let server = new PeerServer(null, 2223, verbose);
 
-  server1.connectNode(node1);
-  server2.connectNode(node2);
+  server.connectNode(node1);
 
   let check = () => {
     expect(node1.numPeers()).toBeLessThan(3);
