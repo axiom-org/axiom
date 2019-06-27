@@ -118,3 +118,14 @@ test("KeyPair.serialize", () => {
 test("KeyPair on a bad private key", () => {
   expect(() => KeyPair.fromPrivateKey("boop")).toThrow();
 });
+
+test("KeyPair hex string validation", () => {
+  expect(KeyPair.isValidHexString("0x0")).toBe(true);
+  expect(KeyPair.isValidHexString("0x03895679834256789")).toBe(true);
+  expect(KeyPair.isValidHexString("0xdeadbeef")).toBe(true);
+  expect(KeyPair.isValidHexString("0128397")).toBe(false);
+  expect(KeyPair.isValidHexString("0x")).toBe(false);
+  expect(KeyPair.isValidHexString("0x0324567890z")).toBe(false);
+  expect(KeyPair.isValidHexString("0x0324567890g")).toBe(false);
+  expect(KeyPair.isValidHexString("0x0324567890A")).toBe(false);
+});

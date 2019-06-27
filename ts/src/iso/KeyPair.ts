@@ -241,6 +241,21 @@ export default class KeyPair {
     }
   }
 
+  static isValidPublicKey(key: string) {
+    try {
+      KeyPair.decodePublicKey(key);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Only accepts lowercase letters
+  static isValidHexString(key: string) {
+    let regex = RegExp("^0x[a-f0-9]+$");
+    return regex.test(key);
+  }
+
   // decodePublicKey reads a public key from a string format.
   // This is parallel to Go's ReadPublicKey.
   // The string format starts with "0x" and is hex-encoded.

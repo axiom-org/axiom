@@ -117,6 +117,7 @@ export default class Node {
 
   // Starts connecting to a new peer whose public key we know, via an intermediary that
   // we're already connected to.
+  // Does nothing if we already connected or started connecting.
   connectToPeer(
     publicKey: string,
     intermediary: Peer,
@@ -125,6 +126,10 @@ export default class Node {
   ) {
     if (this.peers[publicKey] || this.pendingByPublicKey[publicKey]) {
       // A connection is already in progress
+      return;
+    }
+
+    if (!KeyPair.isValidPublicKey(publicKey)) {
       return;
     }
 
@@ -157,6 +162,11 @@ export default class Node {
       this.addPeer(peer);
     });
     this.pendingByURL[url] = peer;
+  }
+
+  findNode(publicKey: string) {
+    let message = new Message("FindNode", { publicKey });
+    // XXX
   }
 
   handlePing(peer: Peer, sm: SignedMessage) {
