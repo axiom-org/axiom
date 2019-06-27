@@ -49,6 +49,8 @@ export default class Node {
       this.pendingByURL[url] = null;
     }
 
+    this.pendingByPublicKey = {};
+
     this.destroyed = false;
     this.verbose = verbose;
     this.peers = {};
@@ -162,11 +164,6 @@ export default class Node {
       this.addPeer(peer);
     });
     this.pendingByURL[url] = peer;
-  }
-
-  findNode(publicKey: string) {
-    let message = new Message("FindNode", { publicKey });
-    // XXX
   }
 
   handlePing(peer: Peer, sm: SignedMessage) {
@@ -311,15 +308,23 @@ export default class Node {
   // Ownership of the peer passes to this Node.
   addPeer(peer: Peer) {
     if (this.destroyed) {
+      peer.destroy();
       return;
     }
+
     if (!peer.isConnected()) {
-      throw new Error("only connected peers can be added to a Node");
+      // A race condition where this peer connected and then
+      // disconnected before we could handle the connection.
+      peer.destroy();
+      return;
     }
 
     if (peer.url) {
       if (this.pendingByURL[peer.url] !== peer) {
-        throw new Error("bad pendingByURL");
+        // A race condition where this peer connected, but the node
+        // already abandoned it and started trying a new one.
+        peer.destroy();
+        return;
       }
       this.pendingByURL[peer.url] = null;
     }
@@ -330,13 +335,14 @@ export default class Node {
       }
 
       if (peer.peerPublicKey == this.keyPair.getPublicKey()) {
+        // This is a self-connection
+        peer.destroy();
         return;
       }
+
       if (!this.indexPeer(peer)) {
         return;
       }
-    } else {
-      peer.ping();
     }
 
     peer.onClose(() => {
@@ -355,6 +361,8 @@ export default class Node {
     peer.onSignedMessage(sm => {
       this.handleSignedMessage(peer, sm);
     });
+
+    peer.findNode(this.keyPair.getPublicKey());
   }
 
   getPeers(): Peer[] {

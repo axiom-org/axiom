@@ -160,6 +160,14 @@ export default class Peer {
     this.sendMessage(new Message("Ping"));
   }
 
+  findNode(publicKey: string) {
+    if (!KeyPair.isValidHexString(publicKey)) {
+      return;
+    }
+
+    this.sendMessage(new Message("FindNode", { publicKey }));
+  }
+
   sendMessage(message: Message) {
     let signed = SignedMessage.fromSigning(message, this.keyPair);
     this.sendData(signed.serialize());
