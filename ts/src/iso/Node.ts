@@ -37,6 +37,9 @@ export default class Node {
 
   keyPair: KeyPair;
 
+  // An interval timer that gets called repeatedly while this node is alive
+  ticker: any;
+
   // A Node doesn't start connecting to the network until you call bootstrap()
   constructor(keyPair: KeyPair, urls: string[], verbose: boolean) {
     this.keyPair = keyPair;
@@ -57,12 +60,22 @@ export default class Node {
     this.nextMessageCallbacks = [];
     this.everyMessageCallbacks = [];
 
+    this.ticker = setInterval(() => {
+      this.handleTick();
+    }, 2000);
+
     this.bootstrap();
   }
 
   log(...args) {
     if (this.verbose) {
       console.log(...args);
+    }
+  }
+
+  handleTick() {
+    if (this.numPeers() === 0) {
+      this.bootstrap();
     }
   }
 
@@ -78,6 +91,9 @@ export default class Node {
   // Starts to connect to any peer that we aren't already in the process of
   // connecting to
   bootstrap() {
+    if (this.destroyed) {
+      return;
+    }
     for (let url in this.pendingByURL) {
       this.connectToServer(url);
     }
@@ -377,6 +393,7 @@ export default class Node {
   }
 
   destroy() {
+    clearInterval(this.ticker);
     this.destroyed = true;
     for (let peer of this.getPeers()) {
       peer.destroy();
