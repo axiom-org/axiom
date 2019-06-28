@@ -232,6 +232,12 @@ export default class Node {
     let forward = new Message("Forward", {
       message: sm.serialize()
     });
+    this.log(
+      `forwarding from ${sm.signer.slice(
+        0,
+        6
+      )} to ${destination.peerPublicKey.slice(0, 6)}`
+    );
     destination.sendMessage(forward);
   }
 
@@ -243,26 +249,35 @@ export default class Node {
         destination: peer.peerPublicKey,
         nonce: peer.nonce
       });
+      this.log(`sending signal to ${peer.peerPublicKey.slice(0, 6)}`);
       intermediary.sendMessage(message);
     });
   }
 
   handleForward(intermediary: Peer, sm: SignedMessage) {
+    this.log("handleForward");
     let nested;
     try {
       nested = SignedMessage.fromSerialized(sm.message.message);
     } catch (e) {
+      this.log("bad forward:", e);
       return;
     }
-    if (nested.type !== "Signal") {
+    if (nested.message.type !== "Signal") {
       return;
     }
-    if (nested.destination !== this.keyPair.getPublicKey()) {
+    if (nested.message.destination !== this.keyPair.getPublicKey()) {
       return;
     }
     if (this.peers[nested.signer]) {
       return;
     }
+    this.log(
+      `got signal from ${nested.signer.slice(0, 6)} via ${sm.signer.slice(
+        0,
+        6
+      )}`
+    );
     let peer = this.pendingByPublicKey[nested.signer];
     if (!peer) {
       if (!nested.initiate) {
