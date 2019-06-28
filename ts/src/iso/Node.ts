@@ -65,6 +65,8 @@ export default class Node {
     }, 2000);
 
     this.bootstrap();
+
+    this.log(`creating node with public key ${this.keyPair.getPublicKey()}`);
   }
 
   log(...args) {
@@ -132,6 +134,7 @@ export default class Node {
     }
 
     this.peers[peer.peerPublicKey] = peer;
+    this.log(`connected to ${peer.peerPublicKey}`);
     return true;
   }
 
@@ -369,6 +372,7 @@ export default class Node {
 
       if (this.peers[peer.peerPublicKey] === peer) {
         delete this.peers[peer.peerPublicKey];
+        this.log(`disconnected from ${peer.peerPublicKey}`);
       }
 
       if (!alreadyEmpty && isEmpty(this.peers) && !this.destroyed) {

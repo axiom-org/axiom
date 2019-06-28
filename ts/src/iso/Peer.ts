@@ -126,6 +126,11 @@ export default class Peer {
     this._peer.on("signal", obj => {
       this.signals.push(obj);
     });
+    this._peer.on("error", err => {
+      this.log(
+        `error in connection to ${this.peerPublicKey || "peer"}: ${err.message}`
+      );
+    });
   }
 
   connect(signals: Sequence<object>) {

@@ -51,10 +51,6 @@ export default class PeerServer {
       });
       peer.connect(incomingSignals);
 
-      peer.onError(err => {
-        console.log("peer disconnected with error:", err.message);
-      });
-
       if (this.peerHandler) {
         this.peerHandler(peer);
       }
