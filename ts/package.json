@@ -20,6 +20,7 @@
     "ext-alpha": "NETWORK=alpha ./build-extension.sh",
     "ext-local": "NETWORK=local ./build-extension.sh",
     "hserver": "TS_NODE_PROJECT=tsconfig.node.json node -r ts-node/register src/node/hserver-main.ts --keypair=./mint.json --capacity=1000",
+    "peerserver": "TS_NODE_PROJECT=tsconfig.node.json node -r ts-node/register src/node/peerserver-main.ts",
     "prepublish": "npm run build-cli",
     "repackage": "ts-node src/node/repackage-main.ts",
     "test-browser": "jest --config jest.config.browser.js",
