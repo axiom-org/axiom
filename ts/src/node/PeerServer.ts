@@ -74,6 +74,9 @@ export default class PeerServer {
 
   // Let peers connect to the provided node through this PeerServer.
   connectNode(node: Node) {
+    if (this.keyPair.getPublicKey() !== node.keyPair.getPublicKey()) {
+      throw new Error("keys from PeerServer and Node must match");
+    }
     this.onPeer(async peer => {
       await peer.waitUntilConnected();
       node.addPeer(peer);

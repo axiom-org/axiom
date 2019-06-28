@@ -1,3 +1,4 @@
+import KeyPair from "../iso/KeyPair";
 import Node from "../iso/Node";
 import Peer from "../iso/Peer";
 import PeerServer from "./PeerServer";
@@ -21,11 +22,13 @@ test("PeerServer bootstrapping", async () => {
   let urls = ["ws://localhost:2223"];
   let verbose = true;
 
-  let node1 = new Node(null, urls, verbose);
+  let kp1 = KeyPair.fromRandom();
+  let node1 = new Node(kp1, urls, verbose);
+
   let node2 = new Node(null, urls, verbose);
   let node3 = new Node(null, urls, verbose);
 
-  let server = new PeerServer(null, 2223, verbose);
+  let server = new PeerServer(kp1, 2223, verbose);
 
   server.connectNode(node1);
 

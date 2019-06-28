@@ -66,12 +66,12 @@ export default class Node {
 
     this.bootstrap();
 
-    this.log(`creating node with public key ${this.keyPair.getPublicKey()}`);
+    this.log(`creating node`);
   }
 
   log(...args) {
     if (this.verbose) {
-      console.log(...args);
+      console.log(`${this.keyPair.getPublicKey().slice(0, 6)}:`, ...args);
     }
   }
 
@@ -134,7 +134,7 @@ export default class Node {
     }
 
     this.peers[peer.peerPublicKey] = peer;
-    this.log(`connected to ${peer.peerPublicKey}`);
+    this.log(`connected to ${peer.peerPublicKey.slice(0, 6)}`);
     return true;
   }
 
@@ -155,6 +155,13 @@ export default class Node {
     if (!KeyPair.isValidPublicKey(publicKey)) {
       return;
     }
+
+    this.log(
+      `attempting to connect to ${publicKey.slice(
+        0,
+        6
+      )} via ${intermediary.peerPublicKey.slice(0, 6)}`
+    );
 
     let peer = new Peer({
       keyPair: this.keyPair,
@@ -372,7 +379,7 @@ export default class Node {
 
       if (this.peers[peer.peerPublicKey] === peer) {
         delete this.peers[peer.peerPublicKey];
-        this.log(`disconnected from ${peer.peerPublicKey}`);
+        this.log(`disconnected from ${peer.peerPublicKey.slice(0, 6)}`);
       }
 
       if (!alreadyEmpty && isEmpty(this.peers) && !this.destroyed) {
