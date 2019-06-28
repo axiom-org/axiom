@@ -77,9 +77,22 @@ export default class Peer {
     };
     peer.connect(incomingSignals);
 
+    let peerConnected = false;
     peer.onConnect(() => {
+      peerConnected = true;
       ws.close();
     });
+
+    ws.onerror = event => {
+      peer.log(`websocket error: ${event.message}`);
+    };
+
+    ws.onclose = event => {
+      if (!peerConnected) {
+        peer.log(`${url} closed the socket before connecting`);
+        peer.destroy();
+      }
+    };
 
     return peer;
   }
