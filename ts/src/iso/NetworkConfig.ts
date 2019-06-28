@@ -24,7 +24,7 @@ export default class NetworkConfig {
       ];
       this.trackers = ["ws://localhost:4000"];
       this.proxies = ["localhost:3000"];
-      this.bootstrap = ["ws://localhost:2222"];
+      this.bootstrap = ["ws://localhost:3500"];
       this.retries = 3;
     } else if (name == "alpha") {
       this.chain = [
