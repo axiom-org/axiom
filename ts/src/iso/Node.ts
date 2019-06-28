@@ -71,13 +71,20 @@ export default class Node {
 
   log(...args) {
     if (this.verbose) {
-      console.log(
-        `${new Date().toISOString()} ${this.keyPair
-          .getPublicKey()
-          .slice(0, 6)}:`,
-        ...args
-      );
+      console.log(`${this.keyPair.getPublicKey().slice(0, 6)}:`, ...args);
     }
+  }
+
+  // Prints one line of status
+  statusLine() {
+    let keys = this.peerKeys();
+    let line = `connected to ${keys.length} peer${
+      keys.length === 1 ? "" : "s"
+    }`;
+    if (keys.length > 0) {
+      line += ": " + keys.map(x => x.slice(0, 6)).join(", ");
+    }
+    console.log(line);
   }
 
   handleTick() {
@@ -86,13 +93,17 @@ export default class Node {
     }
   }
 
-  // Returns the number of peers for which we have identified their public key
-  numPeers(): number {
-    let answer = 0;
+  peerKeys(): string[] {
+    let answer = [];
     for (let key in this.peers) {
-      answer++;
+      answer.push(key);
     }
     return answer;
+  }
+
+  // Returns the number of peers for which we have identified their public key
+  numPeers(): number {
+    return this.peerKeys().length;
   }
 
   // Starts to connect to any peer that we aren't already in the process of

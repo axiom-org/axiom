@@ -14,10 +14,11 @@ import CLIConfig from "./CLIConfig";
 import KeyPair from "../iso/KeyPair";
 import Message from "../iso/Message";
 import NetworkConfig from "../iso/NetworkConfig";
+import Node from "../iso/Node";
 import Peer from "../iso/Peer";
 import ProviderListener from "./ProviderListener";
 import TorrentClient from "../iso/TorrentClient";
-import { makeBucketName } from "../iso/Util";
+import { makeBucketName, sleep } from "../iso/Util";
 
 const ARGV = yargs
       .option("verbose", {
@@ -699,6 +700,20 @@ async function main() {
       });
     });
     peer.destroy();
+    return;
+  }
+
+  if (op === "scan") {
+    if (rest.length != 1) {
+      fatal("Usage: axiom scan <url>");
+    }
+    let [url] = rest;
+    let node = new Node(null, [url], ARGV.verbose);
+    while (true) {
+      await sleep(1000);
+      node.statusLine();
+    }
+    throw new Error("programmer error: control should not get here");
     return;
   }
   
