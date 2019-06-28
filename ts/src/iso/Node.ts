@@ -56,6 +56,8 @@ export default class Node {
     this.peers = {};
     this.nextMessageCallbacks = [];
     this.everyMessageCallbacks = [];
+
+    this.bootstrap();
   }
 
   log(...args) {

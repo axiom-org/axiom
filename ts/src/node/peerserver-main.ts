@@ -42,7 +42,6 @@ if (ARGV.bootstrap) {
 }
 
 let node = new Node(kp, bootstrap, ARGV.verbose);
-node.bootstrap();
 
 if (ARGV.port) {
   console.log("listening on port", ARGV.port);
