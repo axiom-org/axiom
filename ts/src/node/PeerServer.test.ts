@@ -20,7 +20,7 @@ test("PeerServer single connection", async () => {
 
 test("PeerServer bootstrapping", async () => {
   let urls = ["ws://localhost:2223"];
-  let verbose = true;
+  let verbose = false;
 
   let kp1 = KeyPair.fromRandom();
   let node1 = new Node(kp1, urls, verbose);

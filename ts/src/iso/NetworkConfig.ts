@@ -8,6 +8,7 @@ export default class NetworkConfig {
   chain: string[];
   trackers: string[];
   proxies: string[];
+  bootstrap: string[];
 
   // A negative number means no limit
   retries: number;
@@ -23,6 +24,7 @@ export default class NetworkConfig {
       ];
       this.trackers = ["ws://localhost:4000"];
       this.proxies = ["localhost:3000"];
+      this.bootstrap = ["ws://localhost:2222"];
       this.retries = 3;
     } else if (name == "alpha") {
       this.chain = [
@@ -42,6 +44,12 @@ export default class NetworkConfig {
         "1.alphatest.network:3000",
         "2.alphatest.network:3000",
         "3.alphatest.network:3000"
+      ];
+      this.bootstrap = [
+        "ws://0.alphatest.network:3500",
+        "ws://1.alphatest.network:3500",
+        "ws://2.alphatest.network:3500",
+        "ws://3.alphatest.network:3500"
       ];
       this.retries = -1;
     } else {

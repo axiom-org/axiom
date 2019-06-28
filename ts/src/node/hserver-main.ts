@@ -10,6 +10,7 @@ import * as diskusage from "diskusage";
 import BlackHoleProxy from "./BlackHoleProxy";
 import HostingServer from "./HostingServer";
 import Message from "../iso/Message";
+import Node from "./Node";
 import PeerServer from "./PeerServer";
 import Tracker from "./Tracker";
 import { loadKeyPair } from "./FileUtil";
@@ -85,23 +86,10 @@ let tracker = new Tracker(flags.tracker);
 tracker.onMagnet = magnet => host.seedMagnet(magnet);
 
 // Run a PeerServer
-let peerServer = new PeerServer(options.keyPair, flags.peer, true);
+let peerServer = new PeerServer(options.keyPair, flags.peer, options.verbose);
 console.log("PeerServer listening on port", flags.peer);
-peerServer.onPeer(peer => {
-  // For compatibility with CLI 0.0.25
-  peer.onData(data => {
-    let s = data.toString();
-    console.log("peerserver got data:", s);
-    if (s === "ping") {
-      peer.sendData("pong");
-    }
-  });
 
-  // Handles CLI 0.0.26 and beyond
-  peer.onMessage(message => {
-    if (message.type === "Ping") {
-      console.log("peerserver got ping");
-      peer.sendMessage(new Message("Pong"));
-    }
-  });
-});
+let config = new NetworkConfig(flags.network);
+let node = new Node(options.keyPair, config.bootstrap, options.verbose);
+
+peerServer.connectNode(node);
