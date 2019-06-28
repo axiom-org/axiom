@@ -71,7 +71,12 @@ export default class Node {
 
   log(...args) {
     if (this.verbose) {
-      console.log(`${this.keyPair.getPublicKey().slice(0, 6)}:`, ...args);
+      console.log(
+        `${new Date().toISOString()} ${this.keyPair
+          .getPublicKey()
+          .slice(0, 6)}:`,
+        ...args
+      );
     }
   }
 
@@ -157,10 +162,10 @@ export default class Node {
     }
 
     this.log(
-      `attempting to connect to ${publicKey.slice(
-        0,
-        6
-      )} via ${intermediary.peerPublicKey.slice(0, 6)}`
+      initiator ? "connecting to" : "accepting connection from",
+      publicKey.slice(0, 6),
+      "via",
+      intermediary.peerPublicKey.slice(0, 6)
     );
 
     let peer = new Peer({
@@ -172,7 +177,22 @@ export default class Node {
       nonce: nonce
     });
     this.pendingByPublicKey[publicKey] = peer;
-    this.pipeSignals(peer, intermediary);
+
+    peer.onConnect(() => {
+      this.addPeer(peer);
+    });
+
+    let initiate = initiator;
+    peer.signals.forEach(signal => {
+      let message = new Message("Signal", {
+        signal: signal,
+        destination: peer.peerPublicKey,
+        nonce: peer.nonce,
+        initiate: initiate
+      });
+      initiate = false;
+      intermediary.sendMessage(message);
+    });
   }
 
   // Returns immediately rather than waiting for the connection
@@ -232,30 +252,10 @@ export default class Node {
     let forward = new Message("Forward", {
       message: sm.serialize()
     });
-    this.log(
-      `forwarding from ${sm.signer.slice(
-        0,
-        6
-      )} to ${destination.peerPublicKey.slice(0, 6)}`
-    );
     destination.sendMessage(forward);
   }
 
-  // Pass signals used to connect to peer through the intermediary
-  pipeSignals(peer: Peer, intermediary: Peer) {
-    peer.signals.forEach(signal => {
-      let message = new Message("Signal", {
-        signal: signal,
-        destination: peer.peerPublicKey,
-        nonce: peer.nonce
-      });
-      this.log(`sending signal to ${peer.peerPublicKey.slice(0, 6)}`);
-      intermediary.sendMessage(message);
-    });
-  }
-
   handleForward(intermediary: Peer, sm: SignedMessage) {
-    this.log("handleForward");
     let nested;
     try {
       nested = SignedMessage.fromSerialized(sm.message.message);
@@ -272,29 +272,35 @@ export default class Node {
     if (this.peers[nested.signer]) {
       return;
     }
-    this.log(
-      `got signal from ${nested.signer.slice(0, 6)} via ${sm.signer.slice(
-        0,
-        6
-      )}`
-    );
     let peer = this.pendingByPublicKey[nested.signer];
     if (!peer) {
-      if (!nested.initiate) {
+      if (!nested.message.initiate) {
         // We don't have a pending connection so we can't use this signal
         return;
       }
 
-      this.connectToPeer(nested.signer, intermediary, false, nested.nonce);
-    } else {
-      if (nested.nonce !== peer.nonce) {
-        // This must be a message intended for a different connection
-        return;
-      }
-
-      // Pass this signal to the existing peer
-      peer.signal(nested.signal);
+      // A new peer is attempting to connect to us. Let's connect
+      this.connectToPeer(
+        nested.signer,
+        intermediary,
+        false,
+        nested.message.nonce
+      );
+      peer = this.pendingByPublicKey[nested.signer];
     }
+
+    if (!peer) {
+      // New connection failed for some reason
+      return;
+    }
+
+    if (nested.message.nonce !== peer.nonce) {
+      // This must be a message intended for a different connection
+      return;
+    }
+
+    // Pass this signal to the peer
+    peer.signal(nested.message.signal);
   }
 
   handleSignedMessage(peer: Peer, sm: SignedMessage) {
