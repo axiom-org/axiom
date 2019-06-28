@@ -39,8 +39,8 @@ test("PeerServer bootstrapping", async () => {
   node3.onEveryMessage(check);
 
   await node1.waitUntil(() => node1.numPeers() === 2);
-  await node2.waitUntil(() => node1.numPeers() === 2);
-  await node3.waitUntil(() => node1.numPeers() === 2);
+  await node2.waitUntil(() => node2.numPeers() === 2);
+  await node3.waitUntil(() => node3.numPeers() === 2);
 
   node1.destroy();
   node2.destroy();
