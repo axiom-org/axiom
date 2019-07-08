@@ -88,6 +88,12 @@ export default class Node {
   }
 
   handleTick() {
+    for (let peer of this.getPeers()) {
+      peer.handleTick();
+    }
+    for (let peer of this.getPendingPeers()) {
+      peer.handleTick();
+    }
     if (this.numPeers() === 0) {
       this.bootstrap();
     }
@@ -431,6 +437,20 @@ export default class Node {
     let answer = [];
     for (let key in this.peers) {
       answer.push(this.peers[key]);
+    }
+    return answer;
+  }
+
+  getPendingPeers(): Peer[] {
+    let answer = [];
+    for (let url in this.pendingByURL) {
+      let peer = this.pendingByURL[url];
+      if (peer) {
+        answer.push(peer);
+      }
+    }
+    for (let pk in this.pendingByPublicKey) {
+      answer.push(this.pendingByPublicKey[pk]);
     }
     return answer;
   }

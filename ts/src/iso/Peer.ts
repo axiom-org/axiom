@@ -182,6 +182,25 @@ export default class Peer {
     this.sendMessage(new Message("Ping"));
   }
 
+  // Returns the milliseconds of time this has been inactive
+  inactive(): number {
+    return (
+      new Date().getTime() - (this.lastReceived || this.createdAt).getTime()
+    );
+  }
+
+  handleTick() {
+    let ms = this.inactive();
+    if (ms > 10000) {
+      this.destroy();
+      return;
+    }
+    if (ms > 5000) {
+      this.ping();
+      return;
+    }
+  }
+
   findNode(publicKey: string) {
     if (!KeyPair.isValidHexString(publicKey)) {
       return;
