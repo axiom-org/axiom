@@ -29,6 +29,16 @@ export default class PeerServer {
       if (parsed.pathname === "/healthz") {
         res.write("OK\n");
         res.end();
+        return;
+      }
+
+      if (parsed.pathname === "/statusz") {
+        let status = this.status();
+        for (let line of status) {
+          res.write(line + "\n");
+          res.end();
+          return;
+        }
       }
     });
 
@@ -63,6 +73,10 @@ export default class PeerServer {
     if (this.verbose) {
       console.log(...args);
     }
+  }
+
+  status(): string[] {
+    return ["XXX", "foo", "bar"];
   }
 
   onPeer(callback: (Peer) => void) {
