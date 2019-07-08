@@ -51,7 +51,7 @@
     "text-encoding-shim": "^1.0.3",
     "tweetnacl": "^1.0.1",
     "typeface-roboto": "0.0.54",
-    "webtorrent-hybrid": ">=2.1.1",
+    "webtorrent-hybrid": ">=3.0.1",
     "wrtc": "^0.4.1",
     "ws": "^7.0.0",
     "yargs": "^13.2.4"
