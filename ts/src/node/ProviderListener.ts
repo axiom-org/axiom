@@ -46,7 +46,7 @@ export default class ProviderListener {
       let bucketList = await this.client.getBuckets({ provider: id });
       await this.handleBuckets(bucketList);
       await sleep(1000);
-      if (ticks % 100 == 0) {
+      if (ticks % 1000 == 0) {
         this.log(`processed ${ticks} ticks in ProviderListener`);
       }
     }

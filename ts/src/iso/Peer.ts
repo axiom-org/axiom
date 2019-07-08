@@ -53,6 +53,9 @@ export default class Peer {
 
   _peer: SimplePeer;
 
+  // Each Peer can only have a single close handler
+  closeHandler: () => void;
+
   // Creates a Peer by connecting to a PeerServer.
   // Returns immediately rather than waiting for the connection.
   static connectToServer(
@@ -115,6 +118,7 @@ export default class Peer {
     this.lastReceived = null;
     this.intermediary = options.intermediary;
     this.nonce = options.nonce;
+    this.closeHandler = null;
 
     this.keyPair = options.keyPair;
     if (!this.keyPair) {
@@ -131,10 +135,28 @@ export default class Peer {
       this.signals.push(obj);
     });
     this._peer.on("error", err => {
-      this.log(
-        `error in connection to ${this.peerPublicKey || "peer"}: ${err.message}`
-      );
+      this.log(`error in connection to ${this.humanID}: ${err.message}`);
     });
+    this._peer.on("close", () => {
+      if (this.closeHandler) {
+        this.closeHandler();
+      }
+    });
+  }
+
+  humanID(): string {
+    if (this.url) {
+      if (this.peerPublicKey) {
+        return `${this.peerPublicKey.slice(0, 6)} (${this.url})`;
+      }
+      return this.url;
+    }
+
+    if (this.peerPublicKey) {
+      return this.peerPublicKey.slice(0, 6);
+    }
+
+    return "unknown peer";
   }
 
   connect(signals: Sequence<object>) {
@@ -166,7 +188,7 @@ export default class Peer {
   }
 
   onClose(callback: () => void) {
-    this._peer.on("close", callback);
+    this.closeHandler = callback;
   }
 
   sendData(data: any) {
@@ -179,7 +201,9 @@ export default class Peer {
   }
 
   ping() {
-    this.sendMessage(new Message("Ping"));
+    if (this.isConnected()) {
+      this.sendMessage(new Message("Ping"));
+    }
   }
 
   // Returns the milliseconds of time this has been inactive
@@ -192,6 +216,7 @@ export default class Peer {
   handleTick() {
     let ms = this.inactive();
     if (ms > 10000) {
+      this.log(`destroying inactive connection to ${this.humanID()}`);
       this.destroy();
       return;
     }

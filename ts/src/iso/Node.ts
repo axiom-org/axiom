@@ -88,13 +88,16 @@ export default class Node {
   }
 
   handleTick() {
+    let subticks = 0;
     for (let peer of this.getPeers()) {
       peer.handleTick();
+      subticks++;
     }
     for (let peer of this.getPendingPeers()) {
       peer.handleTick();
+      subticks++;
     }
-    if (this.numPeers() === 0) {
+    if (subticks === 0) {
       this.bootstrap();
     }
   }
@@ -198,6 +201,9 @@ export default class Node {
     peer.onConnect(() => {
       this.addPeer(peer);
     });
+    peer.onClose(() => {
+      this.handlePeerClose(peer);
+    });
 
     let initiate = initiator;
     peer.signals.forEach(signal => {
@@ -227,6 +233,9 @@ export default class Node {
     let peer = Peer.connectToServer(this.keyPair, url, this.verbose);
     peer.onConnect(() => {
       this.addPeer(peer);
+    });
+    peer.onClose(() => {
+      this.handlePeerClose(peer);
     });
     this.pendingByURL[url] = peer;
   }
@@ -372,6 +381,29 @@ export default class Node {
     }
   }
 
+  // Should be called whenever a peer closes.
+  // Could be an already-connected Peer, or one that is still pending.
+  handlePeerClose(peer: Peer) {
+    if (this.destroyed) {
+      return;
+    }
+
+    if (this.peers[peer.peerPublicKey] === peer) {
+      delete this.peers[peer.peerPublicKey];
+      this.log(`disconnected from ${peer.peerPublicKey.slice(0, 6)}`);
+    }
+
+    if (this.pendingByPublicKey[peer.peerPublicKey] === peer) {
+      delete this.pendingByPublicKey[peer.peerPublicKey];
+      this.log(`failed to connect to ${peer.peerPublicKey.slice(0, 6)}`);
+    }
+
+    if (this.pendingByURL[peer.url] === peer) {
+      this.pendingByURL[peer.url] = null;
+      this.log(`failed to connect to ${peer.url}`);
+    }
+  }
+
   // Ownership of the peer passes to this Node.
   addPeer(peer: Peer) {
     if (this.destroyed) {
@@ -412,19 +444,7 @@ export default class Node {
       }
     }
 
-    peer.onClose(() => {
-      let alreadyEmpty = isEmpty(this.peers);
-
-      if (this.peers[peer.peerPublicKey] === peer) {
-        delete this.peers[peer.peerPublicKey];
-        this.log(`disconnected from ${peer.peerPublicKey.slice(0, 6)}`);
-      }
-
-      if (!alreadyEmpty && isEmpty(this.peers) && !this.destroyed) {
-        this.log("lost connection to every node. rebootstrapping...");
-        this.bootstrap();
-      }
-    });
+    peer.onClose(() => this.handlePeerClose(peer));
 
     peer.onSignedMessage(sm => {
       this.handleSignedMessage(peer, sm);
