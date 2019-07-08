@@ -711,7 +711,7 @@ async function main() {
     let node = new Node(null, [url], ARGV.verbose);
     while (true) {
       await sleep(1000);
-      node.statusLine();
+      console.log(node.statusLine());
     }
     throw new Error("programmer error: control should not get here");
     return;

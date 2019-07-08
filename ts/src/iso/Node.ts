@@ -75,7 +75,7 @@ export default class Node {
     }
   }
 
-  // Prints one line of status
+  // Returns one line of printable status
   statusLine() {
     let keys = this.peerKeys();
     let line = `connected to ${keys.length} peer${
@@ -84,7 +84,7 @@ export default class Node {
     if (keys.length > 0) {
       line += ": " + keys.map(x => x.slice(0, 6)).join(", ");
     }
-    console.log(line);
+    return line;
   }
 
   handleTick() {

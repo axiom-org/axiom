@@ -26,6 +26,9 @@ export default class Peer {
   verbose: boolean;
   createdAt: Date;
 
+  // When the last message was received
+  lastReceived: Date;
+
   // Our keypair
   keyPair: KeyPair;
 
@@ -109,6 +112,7 @@ export default class Peer {
     this.verbose = !!options.verbose;
     this.url = options.url;
     this.createdAt = new Date();
+    this.lastReceived = null;
     this.intermediary = options.intermediary;
     this.nonce = options.nonce;
 
@@ -209,6 +213,7 @@ export default class Peer {
         );
         return;
       }
+      this.lastReceived = new Date();
       callback(sm);
     });
   }
