@@ -78,7 +78,7 @@ export default class PeerServer {
   }
 
   status(): string[] {
-    let answer = [];
+    let answer = [`public key: ${this.keyPair.getPublicKey()}`];
     if (this.node) {
       answer.push(this.node.statusLine());
     } else {
