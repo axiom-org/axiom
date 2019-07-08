@@ -213,6 +213,13 @@ export default class Peer {
     );
   }
 
+  statusLines(): string[] {
+    return [
+      `created at ${this.createdAt.toString()}`,
+      `last received a message at ${this.lastReceived.toString()}`
+    ];
+  }
+
   handleTick() {
     let ms = this.inactive();
     if (ms > 10000) {

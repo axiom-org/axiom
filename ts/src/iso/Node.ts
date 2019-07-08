@@ -87,6 +87,22 @@ export default class Node {
     return line;
   }
 
+  // Returns many lines of printable status
+  statusLines() {
+    let lines = [
+      `public key: ${this.keyPair.getPublicKey()}`,
+      this.statusLine()
+    ];
+    for (let peer of this.getPeers()) {
+      lines.push(`Peer ${peer.humanID()}:`);
+      lines = lines.concat(peer.statusLines());
+    }
+    for (let peer of this.getPendingPeers()) {
+      lines.push(`Pending Peer ${peer.humanID()}:`);
+      lines = lines.concat(peer.statusLines());
+    }
+  }
+
   handleTick() {
     let subticks = 0;
     for (let peer of this.getPeers()) {

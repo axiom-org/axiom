@@ -78,13 +78,11 @@ export default class PeerServer {
   }
 
   status(): string[] {
-    let answer = [`public key: ${this.keyPair.getPublicKey()}`];
     if (this.node) {
-      answer.push(this.node.statusLine());
-    } else {
-      answer.push("this.node == null");
+      return this.node.statusLines();
     }
-    return answer;
+
+    return ["this.node == null"];
   }
 
   onPeer(callback: (Peer) => void) {
