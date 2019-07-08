@@ -38,9 +38,9 @@ export default class PeerServer {
         let status = this.status();
         for (let line of status) {
           res.write(line + "\n");
-          res.end();
-          return;
         }
+        res.end();
+        return;
       }
     });
 
