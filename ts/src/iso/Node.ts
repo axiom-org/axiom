@@ -88,7 +88,7 @@ export default class Node {
   }
 
   // Returns many lines of printable status
-  statusLines() {
+  statusLines(): string[] {
     let lines = [
       `public key: ${this.keyPair.getPublicKey()}`,
       this.statusLine()
@@ -101,6 +101,7 @@ export default class Node {
       lines.push(`Pending Peer ${peer.humanID()}:`);
       lines = lines.concat(peer.statusLines());
     }
+    return lines;
   }
 
   handleTick() {
