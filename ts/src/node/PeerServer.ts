@@ -14,6 +14,7 @@ export default class PeerServer {
   peerHandler: (Peer) => void;
   keyPair: KeyPair;
   port: number;
+  node: Node;
 
   constructor(keyPair: KeyPair, port: number, verbose: boolean) {
     this.keyPair = keyPair;
@@ -23,6 +24,7 @@ export default class PeerServer {
     this.port = port;
     this.verbose = verbose;
     this.peerHandler = null;
+    this.node = null;
 
     let server = http.createServer((req, res) => {
       let parsed = url.parse(req.url, true);
@@ -76,7 +78,13 @@ export default class PeerServer {
   }
 
   status(): string[] {
-    return ["XXX", "foo", "bar"];
+    let answer = [];
+    if (this.node) {
+      answer.push(this.node.statusLine());
+    } else {
+      answer.push("this.node == null");
+    }
+    return answer;
   }
 
   onPeer(callback: (Peer) => void) {
@@ -88,12 +96,16 @@ export default class PeerServer {
 
   // Let peers connect to the provided node through this PeerServer.
   connectNode(node: Node) {
-    if (this.keyPair.getPublicKey() !== node.keyPair.getPublicKey()) {
+    if (this.node) {
+      throw new Error("can only connectNode once");
+    }
+    this.node = node;
+    if (this.keyPair.getPublicKey() !== this.node.keyPair.getPublicKey()) {
       throw new Error("keys from PeerServer and Node must match");
     }
     this.onPeer(async peer => {
       await peer.waitUntilConnected();
-      node.addPeer(peer);
+      this.node.addPeer(peer);
     });
   }
 }
