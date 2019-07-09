@@ -9,7 +9,13 @@ import { sleep } from "../iso/Util";
 
 const NETWORK = "alpha";
 
-const URL = "ws://0.alphatest.network:3500";
+function reversed(arr) {
+  let answer = [];
+  for (let i = arr.length - 1; i >= 0; i--) {
+    answer.push(arr[i]);
+  }
+  return answer;
+}
 
 export default class App extends React.Component<any, any> {
   axiom: AxiomAPI;
@@ -18,7 +24,7 @@ export default class App extends React.Component<any, any> {
     super(props);
 
     this.state = {
-      lines: [`connecting to ${URL}`]
+      lines: [`connecting to ${NETWORK} network`]
     };
 
     this.axiom = new AxiomAPI({ network: NETWORK, verbose: true });
@@ -32,7 +38,7 @@ export default class App extends React.Component<any, any> {
 
   async pipeLines(node: Node) {
     while (true) {
-      await sleep(1000);
+      await sleep(2000);
       this.addLine(node.statusLine());
     }
   }
@@ -40,8 +46,8 @@ export default class App extends React.Component<any, any> {
   render() {
     return (
       <div>
-        <h1>this is the sample app</h1>
-        {this.state.lines.map((line, index) => (
+        <h1>p2p network scanner</h1>
+        {reversed(this.state.lines).map((line, index) => (
           <p key={index}>{line}</p>
         ))}
       </div>
