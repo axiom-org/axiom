@@ -7,6 +7,8 @@ import KeyPair from "../iso/KeyPair";
 
 const NETWORK = "alpha";
 
+const URL = "ws://0.alphatest.network:3500";
+
 export default class App extends React.Component<any, any> {
   axiom: AxiomAPI;
 
@@ -14,10 +16,26 @@ export default class App extends React.Component<any, any> {
     super(props);
 
     this.state = {
-      lines: ["foo", "bar"]
+      lines: [`connecting to ${URL}`]
     };
 
     this.axiom = new AxiomAPI({ network: NETWORK, verbose: true });
+    let node = new Node(null, [URL], true);
+    this.pipeLines(node);
+  }
+
+  addLine(line: string) {
+    this.setState({ lines: this.state.lines.concat(line) });
+  }
+
+  async pipeLines(node: Node) {
+    while (true) {
+      if (!this.isMounted()) {
+        return;
+      }
+      await sleep(1000);
+      this.addLine(node.statusLine());
+    }
   }
 
   render() {
