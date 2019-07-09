@@ -136,7 +136,7 @@ export default class Peer {
       this.signals.push(obj);
     });
     this._peer.on("error", err => {
-      this.log(`error in connection to ${this.humanID}: ${err.message}`);
+      this.log(`error in connection to ${this.humanID()}: ${err.message}`);
     });
     this._peer.on("close", () => {
       if (this.closeHandler) {
