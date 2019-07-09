@@ -4,6 +4,7 @@ import * as React from "react";
 
 import AxiomAPI from "./AxiomAPI";
 import KeyPair from "../iso/KeyPair";
+import Node from "../iso/Node";
 
 const NETWORK = "alpha";
 
@@ -19,7 +20,7 @@ export default class App extends React.Component<any, any> {
       lines: [`connecting to ${URL}`]
     };
 
-    this.axiom = new AxiomAPI({ network: NETWORK, verbose: true });
+    // this.axiom = new AxiomAPI({ network: NETWORK, verbose: true });
     let node = new Node(null, [URL], true);
     this.pipeLines(node);
   }
