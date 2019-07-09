@@ -6,7 +6,10 @@
       "jsx": "react",
       "target": "es5",
       "lib": [ "es2017", "dom" ],
-      "types": [ "chrome", "jest" ]
+      "types": [
+	"chrome",
+	"jest",
+      ]
     },
     "include": [
       "./src/browser/",

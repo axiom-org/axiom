@@ -5,7 +5,10 @@
       "allowJs": true,
       "target": "es2017",
       "lib": [ "es2017" ],
-      "types": [ "jest", "node" ],
+      "types": [
+	"node",
+	"jest",
+      ],
       "module": "commonjs"
     },
     "include": [

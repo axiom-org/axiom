@@ -5,6 +5,7 @@ import * as React from "react";
 import AxiomAPI from "./AxiomAPI";
 import KeyPair from "../iso/KeyPair";
 import Node from "../iso/Node";
+import { sleep } from "../iso/Util";
 
 const NETWORK = "alpha";
 
@@ -31,9 +32,6 @@ export default class App extends React.Component<any, any> {
 
   async pipeLines(node: Node) {
     while (true) {
-      if (!this.isMounted()) {
-        return;
-      }
       await sleep(1000);
       this.addLine(node.statusLine());
     }
