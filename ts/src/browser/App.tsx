@@ -21,8 +21,8 @@ export default class App extends React.Component<any, any> {
       lines: [`connecting to ${URL}`]
     };
 
-    // this.axiom = new AxiomAPI({ network: NETWORK, verbose: true });
-    let node = new Node(null, [URL], true);
+    this.axiom = new AxiomAPI({ network: NETWORK, verbose: true });
+    let node = this.axiom.createNode();
     this.pipeLines(node);
   }
 
