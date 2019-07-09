@@ -1,4 +1,4 @@
-import * as SimplePeer from "simple-peer";
+import SimplePeer = require("simple-peer");
 import WebSocket = require("isomorphic-ws");
 
 import KeyPair from "./KeyPair";
@@ -125,6 +125,7 @@ export default class Peer {
       this.keyPair = KeyPair.fromRandom();
     }
     this.peerPublicKey = options.peerPublicKey;
+
     this._peer = new SimplePeer({
       initiator: !!options.initiator,
       wrtc: OPTIONAL.wrtc
