@@ -74,7 +74,7 @@ export default class AxiomAPI {
   }
 
   createNode(): Node {
-    let config = new NetworkConfig(this.config);
+    let config = new NetworkConfig(this.network);
     return new Node(null, config.bootstrap, this.verbose);
   }
 }
