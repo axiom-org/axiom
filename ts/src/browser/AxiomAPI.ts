@@ -3,6 +3,8 @@
 
 import Bucket from "./Bucket";
 import ChainClient from "../iso/ChainClient";
+import NetworkConfig from "../iso/NetworkConfig";
+import Node from "../iso/Node";
 import TorrentClient from "../iso/TorrentClient";
 import UntrustedClient from "./UntrustedClient";
 
@@ -69,5 +71,10 @@ export default class AxiomAPI {
     }
     await this.untrustedClient.createBucket(application, name, size);
     return await this.getBucket(application, name);
+  }
+
+  createNode(): Node {
+    let config = new NetworkConfig(this.config);
+    return new Node(null, config.bootstrap, this.verbose);
   }
 }
