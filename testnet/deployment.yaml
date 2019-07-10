@@ -72,6 +72,7 @@ spec:
             cpu: "0.2"
         ports:
         - containerPort: 3000
+        - containerPort: 3500
         - containerPort: 4000
         volumeMounts:
           - name: keypairX
@@ -82,6 +83,10 @@ spec:
         env:
         - name: FORCE_REDEPLOY
           value: 'DEPLOY_TIME'
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 3500
             
       volumes:
         - name: cloudsql-instance-credentials

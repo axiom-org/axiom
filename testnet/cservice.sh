@@ -1,12 +1,12 @@
 #!/bin/bash
 
 if [ ! -f ./deployment.yaml ]; then
-    echo "please run expose.sh from the testnet directory"
+    echo "please run cservice.sh from the testnet directory"
     exit 1
 fi
 
 if [[ ! "$1" =~ [0-3] ]]; then
-    echo "usage: ./expose.sh n where n is in 0..3"
+    echo "usage: ./cservice.sh n where n is in 0..3"
     exit 1
 fi
 

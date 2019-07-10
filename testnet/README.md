@@ -205,9 +205,9 @@ For the proxy user, create a secret named `cloudsql-db0-credentials` with:
 kubectl create secret generic cloudsql-db0-credentials --from-literal=username=proxyuser0 --from-literal=password=[PASSWORD]
 ```
 
-### 3. Deploy a cserver to your cluster
+### 3. Deploy a miner to your cluster
 
-To deploy a `cserver` to your cluster, run:
+There are two servers that make up a miner. The `cserver` is the chain server, which keeps track of the blockchain. The `hserver` is the hosting server, which stores application data. They are designed to work nicely as a pair, because it is convenient for a hosting server to have low-latency access to a chain server. You can deploy one of each with:
 
 ```
 ./deploy.sh 0
@@ -223,17 +223,20 @@ command line with:
 kubectl describe pod cserver0-deployment
 ```
 
-To get the application logs, go to `https://console.cloud.google.com/logs/viewer` and select "GKE container" from the first dropdown, "cserver0" from the second.
+To get the application logs, go to `https://console.cloud.google.com/logs/viewer` and select "GKE container" from the first dropdown, and either "cserver0" or "hserver0" from the second.
 
-To expose the `cserver` to public internet ports, you need to create a load balancer, which you can do with the `expose.sh` script:
+To expose these servers to public internet ports, you need to create a load balancer, which you can do with these scripts:
 
 ```
-./expose.sh 0
+./cservice.sh 0
+./hservice.sh 0
 ```
 
-You only need to expose it once; you don't need to run that on every deploy. However, if
+There are separate load balancers because the cserver needs TCP sockets on custom ports, but the hserver wants HTTPS and is okay with ports 80/443, and GKE handles those differently.
+
+You only need to create the load balancers once; you don't need to run that on every deploy. However, if
 you change the firewall rules later, you may also need to change the firewall rules in
-the Google Cloud config (as opposed to Kubernetes). See: https://console.cloud.google.com/networking/firewalls/list
+the Google Cloud config (as opposed to Kubernetes). See: https://console.cloud.google.com/networking/firewalls/list . This process is likely to break confusingly so be sure to emotionally steel yourself.
 
 To find the external ip, run:
 
@@ -262,13 +265,15 @@ When you've updated the code, just rebuild a container image and redeploy.
 ./deploy.sh 0
 ```
 
+If you've only changed one of the servers, you only need to run one of the build commands.
+
 ### 5. Running more miners
 
 To run another miner, you'll have to add more nodes to your cluster. One node per miner. Then just use a different number in `{0, 1, 2, 3}` when running these steps.
 
 # Cleaning up
 
-If you don't want to keep things running, you can shut down the deployment, the service,
+If you don't want to keep things running, you can shut down the deployment, the services,
 and the cluster itself:
 
 ```
