@@ -1,3 +1,11 @@
+apiVersion: networking.gke.io/v1beta1
+kind: ManagedCertificate
+metadata:
+  name: certX
+spec:
+  domains:
+    - domainX
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -15,6 +23,9 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: hingressX
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: ipX
+    networking.gke.io/managed-certificates: certX
 spec:
   backend:
     serviceName: hserviceX

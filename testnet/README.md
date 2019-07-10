@@ -225,12 +225,20 @@ kubectl describe pod cserver0-deployment
 
 To get the application logs, go to `https://console.cloud.google.com/logs/viewer` and select "GKE container" from the first dropdown, and either "cserver0" or "hserver0" from the second.
 
-To expose these servers to public internet ports, you need to create a load balancer, which you can do with these scripts:
+To expose these servers to public internet ports, first reserve a static IP for the hserver.
+
+```
+gcloud compute addresses create hingress0-ip --global
+```
+
+you need to create a load balancer, which you can do with these scripts:
 
 ```
 ./cservice.sh 0
 ./hservice.sh 0
 ```
+
+TODO: see if the certs cause a problem
 
 There are separate load balancers because the cserver needs TCP sockets on custom ports, but the hserver wants HTTPS and is okay with ports 80/443, and GKE handles those differently.
 
@@ -238,7 +246,7 @@ You only need to create the load balancers once; you don't need to run that on e
 you change the firewall rules later, you may also need to change the firewall rules in
 the Google Cloud config (as opposed to Kubernetes). See: https://console.cloud.google.com/networking/firewalls/list . This process is likely to break confusingly so be sure to emotionally steel yourself.
 
-To find the external ip, run:
+Making the cserver ip static is a bit more annoying. To find the external ip for the cserver, run:
 
 ```
 kubectl get services
@@ -251,9 +259,9 @@ Port `8000` is where the http interface is, port `9000` runs the peer-to-peer pr
 You should also be able to access the black hole proxy at `your.external.ip:3000`, and your
 WebTorrent tracker at `your.external.ip:4000/stats`.
 
-You're going to want this IP to be static. Go to https://console.cloud.google.com/networking/addresses/list and use the dropdown to make this static. Name it something like `cservice0-ip`, because the IP is attached to the service. As long as you don't delete the load balancing service, it'll keep the same IP.
+You're going to make this IP static from the UI. Go to https://console.cloud.google.com/networking/addresses/list and use the dropdown to make this static. Name it something like `cservice0-ip`, because the IP is attached to the service. As long as you don't delete the load balancing service, it'll keep the same IP.
 
-Once you have a static ip, it's a good time to set an A record for some domain to point to it. That will give you a host name (like `0.alphatest.network`) that you can share with other nodes.
+You can see all your static IPs from this page. Now is a good time to set an A record for some domain to point to it. That will give you a host name (like `0.alphatest.network`) that you can share with other nodes.
 
 ### 4. Updating the server
 
