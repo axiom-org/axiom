@@ -192,9 +192,16 @@ export default class Peer {
     this.closeHandler = callback;
   }
 
+  // We want this to be a no-op if the Peer is invalid.
+  // It isn't well-documented how to check if a Peer is valid.
+  // See https://github.com/feross/simple-peer/issues/480 for example.
+  // So we check some weird internal variables of this._peer
   sendData(data: any) {
-    // Work around https://github.com/feross/simple-peer/issues/480
-    if (this._peer._channel && this._peer._channel.readyState !== "open") {
+    if (!this._peer._channel) {
+      return;
+    }
+
+    if (this._peer._channel.readyState !== "open") {
       return;
     }
 
