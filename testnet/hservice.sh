@@ -10,14 +10,12 @@ if [[ ! "$1" =~ [0-3] ]]; then
     exit 1
 fi
 
-SERVICE=hservice$1
+HSERVICE=hservice$1
 CSERVER=cserver$1
-HSERVER=hserver$1
-INGRESS=hingress$1
+HINGRESS=hingress$1
 
-cat ./service.yaml \
-    | sed "s/hserviceX/$SERVICE/g" \
+cat ./hservice.yaml \
+    | sed "s/hserviceX/$HSERVICE/g" \
     | sed "s/cserverX/$CSERVER/g" \
-    | sed "s/hserverX/$HSERVER/g" \
     | sed "s/hingressX/$HINGRESS/g" \
     | kubectl apply -f -
