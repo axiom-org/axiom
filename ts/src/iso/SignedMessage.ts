@@ -42,34 +42,21 @@ export default class SignedMessage {
   // Throws an error if it receives an invalid message
   // Returns null if the serialization is just an "ok"
   static fromSerialized(serialized) {
-    if (!serialized.constructor) {
-      throw new Error("failed to stringify constructorless: " + serialized);
-    }
+    let s = typeof serialized === "string" ? serialized : serialized.toString();
 
-    if (serialized.constructor.name === "Buffer") {
-      // Check for "e:"
-      if (serialized[0] !== 101 || serialized[1] !== 58) {
-        throw new Error("invalid Buffer: " + serialized);
-      }
-      serialized = serialized.toString();
-    }
-
-    if (serialized.constructor.name !== "String") {
-      throw new Error(
-        "cannot deserialize " + serialized.constructor.name + ": " + serialized
-      );
-    }
-
-    if (serialized == "ok") {
+    if (s == "ok") {
       return null;
     }
-    let parts = serialized.split(":");
+
+    let parts = s.split(":");
     if (parts.length < 4) {
+      console.error("serialized:", serialized);
       throw new Error("could not find 4 parts");
     }
     let [version, signer, signature] = parts.slice(0, 3);
     let messageString = parts.slice(3).join(":");
     if (version != "e") {
+      console.error("serialized:", serialized);
       throw new Error("unrecognized version");
     }
     if (!KeyPair.verifySignature(signer, messageString, signature)) {
