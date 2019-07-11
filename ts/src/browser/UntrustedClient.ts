@@ -70,7 +70,7 @@ export default class UntrustedClient {
     });
 
     // Initialize the permissions by asking the extension for what we have
-    this.log("initializing permissions...");
+    // this.log("initializing permissions...");
 
     // Don't await this, because it's in the constructor.
     // Since we need to wait for user input to run a popup anyway, it
@@ -116,7 +116,7 @@ export default class UntrustedClient {
     };
     return new Promise((resolve, reject) => {
       this.callbacks[id] = resolve;
-      this.log("UntrustedClient window.postMessage", data);
+      // this.log("UntrustedClient window.postMessage", data);
       window.postMessage(data, "*");
     });
   }
