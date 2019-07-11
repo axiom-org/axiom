@@ -46,10 +46,10 @@ export default class NetworkConfig {
         "3.alphatest.network:3000"
       ];
       this.bootstrap = [
-        "ws://0.alphatest.network:3500",
-        "ws://1.alphatest.network:3500",
-        "ws://2.alphatest.network:3500",
-        "ws://3.alphatest.network:3500"
+        "wss://h0.alphatest.network",
+        "wss://h1.alphatest.network",
+        "wss://h2.alphatest.network",
+        "wss://h3.alphatest.network"
       ];
       this.retries = -1;
     } else {
