@@ -13,7 +13,7 @@ fi
 HSERVICE=hservice$1
 CSERVER=cserver$1
 HINGRESS=hingress$1
-DOMAIN=h$1.alphatest.network
+DOMAIN=$1.axiombootstrap.com
 CERT=$HINGRESS-cert
 IP=$HINGRESS-ip
 
