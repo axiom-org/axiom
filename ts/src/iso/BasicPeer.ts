@@ -17,11 +17,23 @@ if (typeof global === "object") {
   OPTIONAL.wrtc = require("wrtc");
 }
 
-export function createBasicPeer(initiator: boolean) {
-  return new BasicPeer(initiator);
+export default interface BasicPeer {
+  onClose(callback: () => void): void;
+  onConnect(callback: () => void): void;
+  onData(callback: (any) => void): void;
+  onError(callback: (Error) => void): void;
+  onSignal(callback: (any) => void): void;
+  signal(sig: any): void;
+  send(data: any): void;
+  destroy(): void;
+  isConnected(): boolean;
 }
 
-export default class BasicPeer {
+export function createBasicPeer(initiator: boolean): BasicPeer {
+  return new WebRTCBasicPeer(initiator);
+}
+
+class WebRTCBasicPeer implements BasicPeer {
   _peer: SimplePeer;
 
   constructor(initiator: boolean) {
@@ -31,28 +43,28 @@ export default class BasicPeer {
     });
   }
 
-  onSignal(callback: (any) => void) {
-    this._peer.on("signal", callback);
-  }
-
-  onError(callback: (Error) => void) {
-    this._peer.on("error", callback);
-  }
-
   onClose(callback: () => void) {
     this._peer.on("close", callback);
-  }
-
-  signal(sig: any) {
-    this._peer.signal(sig);
   }
 
   onConnect(callback: () => void) {
     this._peer.on("connect", callback);
   }
 
-  onData(callback: (data: any) => void) {
+  onData(callback: (any) => void) {
     this._peer.on("data", callback);
+  }
+
+  onError(callback: (Error) => void) {
+    this._peer.on("error", callback);
+  }
+
+  onSignal(callback: (any) => void) {
+    this._peer.on("signal", callback);
+  }
+
+  signal(sig: any) {
+    this._peer.signal(sig);
   }
 
   // We want this to be a no-op if the underlying webrtc channel is invalid.
@@ -75,7 +87,7 @@ export default class BasicPeer {
     this._peer.destroy();
   }
 
-  isConnected() {
+  isConnected(): boolean {
     return this._peer.connected;
   }
 }
