@@ -145,12 +145,12 @@ export default class Peer {
 
   connect(signals: Sequence<object>) {
     signals.forEach(obj => {
-      this._peer._peer.signal(obj);
+      this.signal(obj);
     });
   }
 
   signal(s: object) {
-    this._peer._peer.signal(s);
+    this._peer.signal(s);
   }
 
   log(...args) {
