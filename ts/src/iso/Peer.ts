@@ -160,15 +160,15 @@ export default class Peer {
   }
 
   onConnect(callback: () => void) {
-    this._peer._peer.on("connect", callback);
+    this._peer.onConnect(callback);
   }
 
   onData(callback: (data: any) => void) {
-    this._peer._peer.on("data", callback);
+    this._peer.onData(callback);
   }
 
   onError(callback: (Error) => void) {
-    this._peer._peer.on("error", callback);
+    this._peer.onError(callback);
   }
 
   onClose(callback: () => void) {
