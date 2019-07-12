@@ -1,6 +1,6 @@
-import SimplePeer = require("simple-peer");
 import WebSocket = require("isomorphic-ws");
 
+import BasicPeer from "./BasicPeer";
 import KeyPair from "./KeyPair";
 import Message from "./Message";
 import Sequence from "./Sequence";
@@ -51,7 +51,7 @@ export default class Peer {
   // The signals emitted by this peer
   signals: Sequence<object>;
 
-  _peer: SimplePeer;
+  _peer: BasicPeer;
 
   // Each Peer can only have a single close handler
   closeHandler: () => void;
@@ -126,19 +126,16 @@ export default class Peer {
     }
     this.peerPublicKey = options.peerPublicKey;
 
-    this._peer = new SimplePeer({
-      initiator: !!options.initiator,
-      wrtc: OPTIONAL.wrtc
-    });
+    this._peer = new BasicPeer(!!options.initiator);
 
     this.signals = new Sequence<object>();
-    this._peer.on("signal", obj => {
+    this._peer._peer.on("signal", obj => {
       this.signals.push(obj);
     });
-    this._peer.on("error", err => {
+    this._peer._peer.on("error", err => {
       this.log(`error in connection to ${this.humanID()}: ${err.message}`);
     });
-    this._peer.on("close", () => {
+    this._peer._peer.on("close", () => {
       if (this.closeHandler) {
         this.closeHandler();
       }
@@ -162,12 +159,12 @@ export default class Peer {
 
   connect(signals: Sequence<object>) {
     signals.forEach(obj => {
-      this._peer.signal(obj);
+      this._peer._peer.signal(obj);
     });
   }
 
   signal(s: object) {
-    this._peer.signal(s);
+    this._peer._peer.signal(s);
   }
 
   log(...args) {
@@ -177,15 +174,15 @@ export default class Peer {
   }
 
   onConnect(callback: () => void) {
-    this._peer.on("connect", callback);
+    this._peer._peer.on("connect", callback);
   }
 
   onData(callback: (data: any) => void) {
-    this._peer.on("data", callback);
+    this._peer._peer.on("data", callback);
   }
 
   onError(callback: (Error) => void) {
-    this._peer.on("error", callback);
+    this._peer._peer.on("error", callback);
   }
 
   onClose(callback: () => void) {
@@ -195,17 +192,17 @@ export default class Peer {
   // We want this to be a no-op if the Peer is invalid.
   // It isn't well-documented how to check if a Peer is valid.
   // See https://github.com/feross/simple-peer/issues/480 for example.
-  // So we check some weird internal variables of this._peer
+  // So we check some weird internal variables of this._peer._peer
   sendData(data: any) {
-    if (!this._peer._channel) {
+    if (!this._peer._peer._channel) {
       return;
     }
 
-    if (this._peer._channel.readyState !== "open") {
+    if (this._peer._peer._channel.readyState !== "open") {
       return;
     }
 
-    this._peer.send(data);
+    this._peer._peer.send(data);
   }
 
   ping() {
@@ -282,12 +279,12 @@ export default class Peer {
   }
 
   destroy() {
-    this._peer.destroy();
+    this._peer._peer.destroy();
     this.signals.finish();
   }
 
   isConnected() {
-    return this._peer.connected;
+    return this._peer._peer.connected;
   }
 
   async waitUntilConnected() {

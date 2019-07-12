@@ -51,7 +51,10 @@ export default class BasicPeer {
     this._peer.on("data", callback);
   }
 
-  // No-op if the underlying webrtc channel isn't open
+  // We want this to be a no-op if the underlying webrtc channel is invalid.
+  // It isn't well-documented how to check if a simple-peer is valid.
+  // See https://github.com/feross/simple-peer/issues/480 for example.
+  // So we check some weird internal variables of this._peer._peer
   send(data: any) {
     if (!this._peer._channel) {
       return;
