@@ -175,20 +175,8 @@ export default class Peer {
     this.closeHandler = callback;
   }
 
-  // We want this to be a no-op if the Peer is invalid.
-  // It isn't well-documented how to check if a Peer is valid.
-  // See https://github.com/feross/simple-peer/issues/480 for example.
-  // So we check some weird internal variables of this._peer._peer
   sendData(data: any) {
-    if (!this._peer._peer._channel) {
-      return;
-    }
-
-    if (this._peer._peer._channel.readyState !== "open") {
-      return;
-    }
-
-    this._peer._peer.send(data);
+    this._peer.send(data);
   }
 
   ping() {
@@ -265,12 +253,12 @@ export default class Peer {
   }
 
   destroy() {
-    this._peer._peer.destroy();
+    this._peer.destroy();
     this.signals.finish();
   }
 
   isConnected() {
-    return this._peer._peer.connected;
+    return this._peer.isConnected();
   }
 
   async waitUntilConnected() {
