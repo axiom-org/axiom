@@ -51,6 +51,7 @@ export default class BasicPeer {
     this._peer.on("data", callback);
   }
 
+  // No-op if the underlying webrtc channel isn't open
   send(data: any) {
     if (!this._peer._channel) {
       return;
