@@ -6,20 +6,6 @@ import Message from "./Message";
 import Sequence from "./Sequence";
 import SignedMessage from "./SignedMessage";
 
-// Optional dependencies.
-// TODO: solve this at compile-time rather than at runtime
-let OPTIONAL = {
-  wrtc: null
-};
-declare var global: any;
-declare var require: any;
-if (typeof global === "object") {
-  // Looks like a node environment.
-  // TODO: could it be the jest pretending-to-be-a-browser-but-really-node environment?
-  // That will be required to make any jest-browser tests use this file.
-  OPTIONAL.wrtc = require("wrtc");
-}
-
 // A Peer represents a connection to a single other node in the Axiom peer-to-peer
 // network.
 export default class Peer {
@@ -129,13 +115,13 @@ export default class Peer {
     this._peer = new BasicPeer(!!options.initiator);
 
     this.signals = new Sequence<object>();
-    this._peer._peer.on("signal", obj => {
+    this._peer.onSignal(obj => {
       this.signals.push(obj);
     });
-    this._peer._peer.on("error", err => {
+    this._peer.onError(err => {
       this.log(`error in connection to ${this.humanID()}: ${err.message}`);
     });
-    this._peer._peer.on("close", () => {
+    this._peer.onClose(() => {
       if (this.closeHandler) {
         this.closeHandler();
       }
