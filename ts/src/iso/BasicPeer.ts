@@ -17,6 +17,10 @@ if (typeof global === "object") {
   OPTIONAL.wrtc = require("wrtc");
 }
 
+export function createBasicPeer(initiator: boolean) {
+  return new BasicPeer(initiator);
+}
+
 export default class BasicPeer {
   _peer: SimplePeer;
 

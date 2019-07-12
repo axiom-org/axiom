@@ -1,6 +1,6 @@
 import WebSocket = require("isomorphic-ws");
 
-import BasicPeer from "./BasicPeer";
+import BasicPeer, { createBasicPeer } from "./BasicPeer";
 import KeyPair from "./KeyPair";
 import Message from "./Message";
 import Sequence from "./Sequence";
@@ -112,7 +112,7 @@ export default class Peer {
     }
     this.peerPublicKey = options.peerPublicKey;
 
-    this._peer = new BasicPeer(!!options.initiator);
+    this._peer = createBasicPeer(!!options.initiator);
 
     this.signals = new Sequence<object>();
     this._peer.onSignal(obj => {
