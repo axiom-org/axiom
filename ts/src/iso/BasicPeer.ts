@@ -91,3 +91,115 @@ class WebRTCBasicPeer implements BasicPeer {
     return this._peer.connected;
   }
 }
+
+class MockBasicPeer implements BasicPeer {
+  partner: MockBasicPeer;
+  id: number;
+  static allPeers: MockBasicPeer[];
+  connected: boolean;
+  destroyed: boolean;
+  initiator: boolean;
+  closeCallback: () => void;
+  connectCallback: () => void;
+  dataCallback: (any) => void;
+
+  static clear() {
+    MockBasicPeer.allPeers = [];
+  }
+
+  constructor(initiator: boolean) {
+    this.initiator = initiator;
+    this.connected = false;
+    this.destroyed = false;
+    MockBasicPeer.allPeers.push(this);
+    this.id = MockBasicPeer.allPeers.length;
+  }
+
+  onClose(callback: () => void) {
+    if (this.closeCallback) {
+      throw new Error("multiple closeCallback");
+    }
+    this.closeCallback = callback;
+  }
+
+  onConnect(callback: () => void) {
+    if (this.connectCallback) {
+      throw new Error("multiple connectCallback");
+    }
+    this.connectCallback = callback;
+  }
+
+  onData(callback: (any) => void) {
+    if (this.dataCallback) {
+      throw new Error("multiple dataCallback");
+    }
+    this.dataCallback = callback;
+  }
+
+  onError(callback: (Error) => void) {}
+
+  onSignal(callback: (any) => void) {
+    callback(this.id);
+  }
+
+  signal(sig: any) {
+    if (this.destroyed) {
+      return;
+    }
+    if (this.connected) {
+      throw new Error("should not get signal when already connected");
+    }
+    let possiblePartnerID = sig as number;
+    if (this.partner) {
+      if (this.partner.id === possiblePartnerID) {
+        // Resignaling is ok
+        return;
+      }
+      throw new Error("already have a partner");
+    }
+    let partner = MockBasicPeer.allPeers[possiblePartnerID];
+    if (!partner) {
+      throw new Error("got signal from bad partner");
+    }
+    if (partner.partner && partner.partner !== this) {
+      throw new Error("bad partner.partner");
+    }
+    if (partner.id === this.id) {
+      throw new Error("cannot self-connect");
+    }
+    if (partner.connected) {
+      throw new Error("cannot connect to already-connected partner");
+    }
+
+    // Connect
+    this.connected = true;
+    this.partner = partner;
+    partner.connected = true;
+    partner.partner = this;
+    this.connectCallback && this.connectCallback();
+    partner.connectCallback && partner.connectCallback();
+  }
+
+  send(data: any) {
+    if (this.destroyed || !this.connected || !this.partner) {
+      return;
+    }
+    this.partner.dataCallback && this.partner.dataCallback(data);
+  }
+
+  destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    this.connected = false;
+    this.destroyed = true;
+    this.closeCallback && this.closeCallback();
+    if (this.partner) {
+      this.partner.destroy();
+    }
+  }
+
+  isConnected(): boolean {
+    return this.connected;
+  }
+}
