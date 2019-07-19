@@ -719,7 +719,7 @@ async function main() {
       console.log(node.statusLine());
       if (channel) {
 	console.log(channel, "members:",
-		    node.getChannelMembers(channel).map(x => x.slice(0, 6)));
+		    node.getChannelMembers(channel).map(x => x.slice(0, 6))).join(",");
       }
     }
     throw new Error("programmer error: control should not get here");
