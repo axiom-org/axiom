@@ -40,6 +40,9 @@ export default class Node {
   // Storage is according to Kademlia
   channelMembers: { [channel: string]: MemberSet };
 
+  // The channels we have joined, along with their last time of announcement
+  joined: { [channel: string]: Date };
+
   keyPair: KeyPair;
 
   // An interval timer that gets called repeatedly while this node is alive
@@ -124,6 +127,15 @@ export default class Node {
     }
     if (subticks === 0) {
       this.bootstrap();
+    }
+
+    // Rejoin every 25 seconds
+    let now = new Date();
+    let channels = Object.keys(this.joined);
+    for (let channel of channels) {
+      if (now.getTime() - this.joined[channel].getTime() > 25000) {
+        this.join(channel);
+      }
     }
   }
 
@@ -375,12 +387,23 @@ export default class Node {
     peer.signal(nested.message.signal);
   }
 
-  handleJoin(peer: Peer, sm: SignedMessage) {
+  handleJoin(sm: SignedMessage) {
     let channel = sm.message.channel;
     if (!this.channelMembers[channel]) {
       this.channelMembers[channel] = new MemberSet();
     }
     this.channelMembers[channel].handleJoin(sm);
+  }
+
+  join(channel: string) {
+    this.joined[channel] = new Date();
+    let message = new Message("Join", { channel: channel });
+    let signed = SignedMessage.fromSigning(message, this.keyPair);
+    this.handleJoin(signed);
+    let peers = this.getPeers();
+    for (let peer of peers) {
+      peer.sendMessage(message);
+    }
   }
 
   handleSignedMessage(peer: Peer, sm: SignedMessage) {
@@ -421,7 +444,7 @@ export default class Node {
         this.handleForward(peer, sm);
         break;
       case "Join":
-        this.handleJoin(peer, sm);
+        this.handleJoin(sm);
         break;
       default:
         this.log("unexpected message type:", sm.message.type);
