@@ -1,5 +1,6 @@
 import { isEmpty } from "./Util";
 import KeyPair from "./KeyPair";
+import MemberSet from "./MemberSet";
 import Message from "./Message";
 import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
@@ -34,6 +35,10 @@ export default class Node {
 
   // Whether this Node has been destroyed
   destroyed: boolean;
+
+  // Maps each channel to a MemberSet describing the members of that channel
+  // Storage is according to Kademlia
+  channelMembers: { [channel: string]: MemberSet };
 
   keyPair: KeyPair;
 
@@ -264,6 +269,18 @@ export default class Node {
   handlePong(peer: Peer, sm: SignedMessage) {}
 
   handleFindNode(peer: Peer, sm: SignedMessage) {
+    if (sm.message.channel) {
+      let members = this.channelMembers[sm.message.channel];
+      if (members) {
+        let response = new Message("Neighbors", {
+          channel: sm.message.channel,
+          neighbors: members.getMembers()
+        });
+        peer.sendMessage(response);
+        return;
+      }
+    }
+
     // Find all the neighbors besides the one talking to us
     // TODO: use Kademlia heuristics on sm.message.publicKey
     let neighbors = [];
