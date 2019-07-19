@@ -119,6 +119,9 @@ export default class Node {
       peer.handleTick();
       subticks++;
     }
+    for (let channel in this.channelMembers) {
+      this.channelMembers[channel].handleTick();
+    }
     if (subticks === 0) {
       this.bootstrap();
     }
@@ -169,6 +172,15 @@ export default class Node {
     while (!f()) {
       await this.waitForMessage();
     }
+  }
+
+  // Returns the channel members we know about locally
+  getChannelMembers(channel: string): string[] {
+    let mset = this.channelMembers[channel];
+    if (!mset) {
+      return [];
+    }
+    return mset.getMembers();
   }
 
   // Destroys the peer if it is redundant
@@ -363,6 +375,14 @@ export default class Node {
     peer.signal(nested.message.signal);
   }
 
+  handleJoin(peer: Peer, sm: SignedMessage) {
+    let channel = sm.message.channel;
+    if (!this.channelMembers[channel]) {
+      this.channelMembers[channel] = new MemberSet();
+    }
+    this.channelMembers[channel].handleJoin(sm);
+  }
+
   handleSignedMessage(peer: Peer, sm: SignedMessage) {
     if (peer.peerPublicKey && this.peers[peer.peerPublicKey] !== peer) {
       // We received a message from a peer that we previously removed
@@ -399,6 +419,9 @@ export default class Node {
         break;
       case "Forward":
         this.handleForward(peer, sm);
+        break;
+      case "Join":
+        this.handleJoin(peer, sm);
         break;
       default:
         this.log("unexpected message type:", sm.message.type);
