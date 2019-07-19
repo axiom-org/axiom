@@ -704,7 +704,7 @@ async function main() {
   }
 
   if (op === "scan") {
-    if (rest.length != 1) {
+    if (rest.length != 1 && rest.length != 2) {
       fatal("Usage: axiom scan <url> <channel>");
     }
     let url = rest[0];
