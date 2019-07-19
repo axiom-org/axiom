@@ -67,6 +67,7 @@ export default class Node {
     this.peers = {};
     this.nextMessageCallbacks = [];
     this.everyMessageCallbacks = [];
+    this.channelMembers = {};
     this.joined = {};
 
     this.ticker = setInterval(() => {
