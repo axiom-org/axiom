@@ -705,13 +705,22 @@ async function main() {
 
   if (op === "scan") {
     if (rest.length != 1) {
-      fatal("Usage: axiom scan <url>");
+      fatal("Usage: axiom scan <url> <channel>");
     }
-    let [url] = rest;
+    let url = rest[0];
+    let channel = rest[1];
     let node = new Node(null, [url], ARGV.verbose);
+    if (channel) {
+      console.log("joining", channel);
+      node.join(channel);
+    }
     while (true) {
       await sleep(1000);
       console.log(node.statusLine());
+      if (channel) {
+	console.log(channel, "members:",
+		    node.getChannelMembers(channel).map(x => x.slice(0, 6)));
+      }
     }
     throw new Error("programmer error: control should not get here");
     return;
