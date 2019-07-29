@@ -42,6 +42,9 @@ export default class Peer {
   // Each Peer can only have a single close handler
   closeHandler: () => void;
 
+  // Server URLs to intercept with a handler function
+  static intercept: { [url: string]: (Peer) => void } = {};
+
   // Creates a Peer by connecting to a PeerServer.
   // Returns immediately rather than waiting for the connection.
   static connectToServer(

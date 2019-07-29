@@ -212,10 +212,10 @@ export function createBasicPeer(initiator: boolean): BasicPeer {
   return new GLOBALS.peerConstructor(initiator);
 }
 
-export function useMockNetworking() {
+export function useMockBasicPeer() {
   GLOBALS.peerConstructor = MockBasicPeer;
 }
 
-export function useRealNetworking() {
+export function useWebRTCBasicPeer() {
   GLOBALS.peerConstructor = WebRTCBasicPeer;
 }
