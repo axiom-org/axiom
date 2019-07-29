@@ -29,10 +29,6 @@ export default interface BasicPeer {
   isConnected(): boolean;
 }
 
-export function createBasicPeer(initiator: boolean): BasicPeer {
-  return new WebRTCBasicPeer(initiator);
-}
-
 class WebRTCBasicPeer implements BasicPeer {
   _peer: SimplePeer;
 
@@ -202,4 +198,24 @@ class MockBasicPeer implements BasicPeer {
   isConnected(): boolean {
     return this.connected;
   }
+}
+
+interface BasicPeerConstructor {
+  new (initiator: boolean): BasicPeer;
+}
+
+let GLOBALS: { peerConstructor: BasicPeerConstructor } = {
+  peerConstructor: WebRTCBasicPeer
+};
+
+export function createBasicPeer(initiator: boolean): BasicPeer {
+  return new GLOBALS.peerConstructor(initiator);
+}
+
+export function useMockNetworking() {
+  GLOBALS.peerConstructor = MockBasicPeer;
+}
+
+export function useRealNetworking() {
+  GLOBALS.peerConstructor = WebRTCBasicPeer;
 }
