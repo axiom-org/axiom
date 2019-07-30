@@ -53,6 +53,12 @@ export default class Peer {
     verbose: boolean
   ): Peer {
     let peer = new Peer({ initiator: true, keyPair, verbose, url });
+
+    if (Peer.intercept[url]) {
+      Peer.intercept[url](peer);
+      return;
+    }
+
     let ws = new WebSocket(url);
 
     ws.onopen = () => {

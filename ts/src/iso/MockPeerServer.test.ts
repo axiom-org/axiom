@@ -1,3 +1,6 @@
+import KeyPair from "./KeyPair";
+import MockPeerServer from "./MockPeerServer";
+import Node from "./Node";
 import { useMockNetworking, useRealNetworking } from "./TestUtil";
 
 beforeEach(() => {
@@ -8,9 +11,9 @@ afterEach(() => {
   useRealNetworking();
 });
 
-test("MockPeerServer network", async () => {
-  let numSeeds = 4;
-  let numNodes = 10;
+test("MockPeerServer basics", async () => {
+  let node1 = new Node(KeyPair.fromRandom(), [], false);
+  let server1 = new MockPeerServer(node1);
 
-  // TODO: real network stuff here
+  // TODO: spin up a whole network
 });
