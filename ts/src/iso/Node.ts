@@ -279,13 +279,14 @@ export default class Node {
       return;
     }
     let peer = Peer.connectToServer(this.keyPair, url, this.verbose);
+    this.pendingByURL[url] = peer;
+
     peer.onConnect(() => {
       this.addPeer(peer);
     });
     peer.onClose(() => {
       this.handlePeerClose(peer);
     });
-    this.pendingByURL[url] = peer;
   }
 
   handlePing(peer: Peer, sm: SignedMessage) {
@@ -488,6 +489,8 @@ export default class Node {
 
   // Ownership of the peer passes to this Node.
   addPeer(peer: Peer) {
+    console.log("XXX addPeer");
+
     if (this.destroyed) {
       peer.destroy();
       return;

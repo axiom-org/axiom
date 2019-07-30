@@ -123,6 +123,9 @@ class MockBasicPeer implements BasicPeer {
       throw new Error("multiple connectCallback");
     }
     this.connectCallback = callback;
+    if (this.connected) {
+      callback();
+    }
   }
 
   onData(callback: (any) => void) {
@@ -168,6 +171,7 @@ class MockBasicPeer implements BasicPeer {
     }
 
     // Connect
+    console.log("XXX MBP connecting", this.id, partner.id);
     this.connected = true;
     this.partner = partner;
     partner.connected = true;
