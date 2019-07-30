@@ -171,7 +171,6 @@ class MockBasicPeer implements BasicPeer {
     }
 
     // Connect
-    console.log("XXX MBP connecting", this.id, partner.id);
     this.connected = true;
     this.partner = partner;
     partner.connected = true;

@@ -207,10 +207,11 @@ export default class Peer {
   }
 
   statusLines(): string[] {
-    return [
-      `created at ${this.createdAt.toString()}`,
-      `last received a message at ${this.lastReceived.toString()}`
-    ];
+    let answer = [`created at ${this.createdAt.toString()}`];
+    if (this.lastReceived) {
+      answer.push(`last received a message at ${this.lastReceived.toString()}`);
+    }
+    return answer;
   }
 
   handleTick() {

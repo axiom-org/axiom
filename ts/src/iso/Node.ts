@@ -114,6 +114,12 @@ export default class Node {
     return lines;
   }
 
+  show() {
+    for (let line of this.statusLines()) {
+      console.log(line);
+    }
+  }
+
   handleTick() {
     let subticks = 0;
     for (let peer of this.getPeers()) {
@@ -489,8 +495,6 @@ export default class Node {
 
   // Ownership of the peer passes to this Node.
   addPeer(peer: Peer) {
-    console.log("XXX addPeer");
-
     if (this.destroyed) {
       peer.destroy();
       return;
