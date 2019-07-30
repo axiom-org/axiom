@@ -91,7 +91,7 @@ class WebRTCBasicPeer implements BasicPeer {
 class MockBasicPeer implements BasicPeer {
   partner: MockBasicPeer;
   id: number;
-  static allPeers: MockBasicPeer[];
+  static allPeers: MockBasicPeer[] = [];
   connected: boolean;
   destroyed: boolean;
   initiator: boolean;
