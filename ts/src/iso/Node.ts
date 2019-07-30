@@ -48,7 +48,6 @@ export default class Node {
   // An interval timer that gets called repeatedly while this node is alive
   ticker: any;
 
-  // A Node doesn't start connecting to the network until you call bootstrap()
   constructor(keyPair: KeyPair, urls: string[], verbose: boolean) {
     this.keyPair = keyPair;
     if (!this.keyPair) {
@@ -539,6 +538,8 @@ export default class Node {
       this.handleSignedMessage(peer, sm);
     });
 
+    // If we haven't figured out the public key of this peer, this findNode call will
+    // find it as a side effect
     peer.findNode(this.keyPair.getPublicKey());
   }
 

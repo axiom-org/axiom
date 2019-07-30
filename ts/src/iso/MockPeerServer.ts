@@ -41,5 +41,6 @@ export default class MockPeerServer {
     let newPeer = new Peer({ keyPair: this.node.keyPair });
     newPeer.connect(existingPeer.signals);
     existingPeer.connect(newPeer.signals);
+    this.node.addPeer(newPeer);
   }
 }

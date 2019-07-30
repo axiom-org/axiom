@@ -12,12 +12,11 @@ afterEach(() => {
 });
 
 test("MockPeerServer basics", async () => {
-  let bootstrap = MockPeerServer.makeBootstrap(4);
+  let bootstrap = MockPeerServer.makeBootstrap(2);
   let servers = MockPeerServer.makeServers(bootstrap);
 
-  // TODO: investigate what is going wrong here
-  for (let i = 0; i < 4; i++) {
-    console.log(`Node ${i}:`);
-    servers[i].node.show();
+  // Check the graph is complete
+  for (let i = 0; i < 2; i++) {
+    expect(servers[i].node.getPeers().length).toBe(1);
   }
 });
