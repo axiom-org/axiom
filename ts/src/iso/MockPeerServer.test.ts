@@ -12,8 +12,9 @@ afterEach(() => {
 });
 
 test("MockPeerServer basics", async () => {
-  let node1 = new Node(KeyPair.fromRandom(), [], false);
-  let server1 = new MockPeerServer(node1);
+  let bootstrap = MockPeerServer.makeBootstrap(4);
+  let servers = MockPeerServer.makeServers(bootstrap);
 
+  // TODO: test the servers make a complete graph
   // TODO: spin up a whole network
 });

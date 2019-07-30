@@ -7,10 +7,31 @@ export default class MockPeerServer {
   node: Node;
   url: string;
 
+  static makeURL(index: number): string {
+    return `mock://${index}`;
+  }
+
+  static makeBootstrap(n: number): string[] {
+    let answer = [];
+    for (let i = 0; i < n; i++) {
+      answer.push(MockPeerServer.makeURL(i));
+    }
+    return answer;
+  }
+
+  static makeServers(bootstrap: string[]): MockPeerServer[] {
+    let answer = [];
+    for (let i = 0; i < bootstrap.length; i++) {
+      let node = new Node(KeyPair.fromRandom(), bootstrap, false);
+      answer.push(new MockPeerServer(node));
+    }
+    return answer;
+  }
+
   constructor(node: Node) {
     this.node = node;
 
-    this.url = "mock://" + Object.keys(Peer.intercept).length + 1;
+    this.url = MockPeerServer.makeURL(Object.keys(Peer.intercept).length);
     Peer.intercept[this.url] = peer => {
       this.connectToPeer(peer);
     };
