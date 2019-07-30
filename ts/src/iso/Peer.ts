@@ -56,11 +56,12 @@ export default class Peer {
 
     if (Peer.intercept[url]) {
       Peer.intercept[url](peer);
-      return;
+      return peer;
     }
+
     if (url.startsWith("mock:")) {
       peer.destroy();
-      return;
+      return peer;
     }
 
     let ws = new WebSocket(url);
