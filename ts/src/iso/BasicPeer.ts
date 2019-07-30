@@ -107,8 +107,8 @@ class MockBasicPeer implements BasicPeer {
     this.initiator = initiator;
     this.connected = false;
     this.destroyed = false;
-    MockBasicPeer.allPeers.push(this);
     this.id = MockBasicPeer.allPeers.length;
+    MockBasicPeer.allPeers.push(this);
   }
 
   onClose(callback: () => void) {
@@ -143,7 +143,7 @@ class MockBasicPeer implements BasicPeer {
       return;
     }
     if (this.connected) {
-      throw new Error("should not get signal when already connected");
+      return;
     }
     let possiblePartnerID = sig as number;
     if (this.partner) {
@@ -161,7 +161,7 @@ class MockBasicPeer implements BasicPeer {
       throw new Error("bad partner.partner");
     }
     if (partner.id === this.id) {
-      throw new Error("cannot self-connect");
+      throw new Error(`cannot self-connect. id = ${this.id}`);
     }
     if (partner.connected) {
       throw new Error("cannot connect to already-connected partner");
