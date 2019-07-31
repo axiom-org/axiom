@@ -43,6 +43,10 @@ export default class Node {
   // The channels we have joined, along with their last time of announcement
   joined: { [channel: string]: Date };
 
+  // The channels we have subscribed to.
+  // Callbacks will be called on Publish messages
+  subscriptions: { [channel: string]: (SignedMessage) => void };
+
   keyPair: KeyPair;
 
   // An interval timer that gets called repeatedly while this node is alive
@@ -68,6 +72,7 @@ export default class Node {
     this.everyMessageCallbacks = [];
     this.channelMembers = {};
     this.joined = {};
+    this.subscriptions = {};
 
     this.ticker = setInterval(() => {
       this.handleTick();
@@ -563,6 +568,11 @@ export default class Node {
       answer.push(this.pendingByPublicKey[pk]);
     }
     return answer;
+  }
+
+  subscribe(channel: string, callback: (SignedMessage) => void) {
+    this.join(channel);
+    this.subscriptions[channel] = callback;
   }
 
   destroy() {

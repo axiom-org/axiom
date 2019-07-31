@@ -55,3 +55,7 @@ Used to forward Signal messages to the intended recipient.
 Used to join a channel.
 
 `channel` is a string that is the name of the channel.
+
+## Publish
+
+Used to publish a message to a pub/sub channel.
