@@ -46,9 +46,11 @@ Used to exchange information to create a new peer connection.
 
 ## Forward
 
-Used to forward Signal messages to the intended recipient.
+Used to forward Signal or Publish messages.
 
 `message` is the encoded signed message we are forwarding
+
+`channel` is the channel of the forwarded message, if any
 
 ## Join
 
@@ -59,3 +61,8 @@ Used to join a channel.
 ## Publish
 
 Used to publish a message to a pub/sub channel.
+
+`channel` is the channel it is published to.
+
+`data` is any JSON-encodable data, as defined by the application
+

@@ -4,6 +4,7 @@ import MemberSet from "./MemberSet";
 import Message from "./Message";
 import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
+import Subscription from "./Subscription";
 
 // A Node represents a member of the Axiom peer-to-peer network.
 // See the README in this directory for a description of message formats.
@@ -44,8 +45,7 @@ export default class Node {
   joined: { [channel: string]: Date };
 
   // The channels we have subscribed to.
-  // Callbacks will be called on Publish messages
-  subscriptions: { [channel: string]: (SignedMessage) => void };
+  subscriptions: { [channel: string]: Subscription };
 
   keyPair: KeyPair;
 
@@ -572,7 +572,7 @@ export default class Node {
 
   subscribe(channel: string, callback: (SignedMessage) => void) {
     this.join(channel);
-    this.subscriptions[channel] = callback;
+    this.subscriptions[channel] = new Subscription(channel, callback);
   }
 
   destroy() {
