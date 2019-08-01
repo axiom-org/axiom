@@ -368,6 +368,10 @@ export default class Node {
       this.log("bad forward:", e);
       return;
     }
+    if (nested.message.type === "Publish") {
+      this.handlePublish(nested);
+      return;
+    }
     if (nested.message.type !== "Signal") {
       return;
     }
