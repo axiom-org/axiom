@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import AxiomAPI from "./AxiomAPI";
+import Node from "../iso/Node";
 
 export default function App() {
   let axiom = new AxiomAPI({ network: "alpha", verbose: true });
@@ -15,8 +16,10 @@ export default function App() {
   );
 }
 
-class Chat extends React.Component {
-  constructor(props) {
+class Chat extends React.Component<{ node: Node }, { clicks: number }> {
+  node: Node;
+
+  constructor(props: { node: Node }) {
     super(props);
 
     this.node = props.node;
