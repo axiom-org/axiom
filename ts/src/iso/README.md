@@ -64,3 +64,4 @@ Used to publish a message to a pub/sub channel.
 
 `data` is any JSON-encodable data, as defined by the application
 
+`nonce` is a random string

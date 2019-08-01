@@ -576,9 +576,13 @@ export default class Node {
       this.handleSignedMessage(peer, sm);
     });
 
-    // If we haven't figured out the public key of this peer, this findNode call will
-    // find it as a side effect
+    // We are basically just starting to connect to this node.
+    // We need to tell it the information we have that it needs, and
+    // also get it to respond to us as a side effect.
     peer.findNode(this.keyPair.getPublicKey());
+    for (let channel in this.joined) {
+      peer.sendMessage(new Message("Join", { channel: channel }));
+    }
   }
 
   getPeers(): Peer[] {
@@ -603,10 +607,19 @@ export default class Node {
     return answer;
   }
 
-  // TODO: make publish work when we have just joined a channel but haven't
-  // found any channel members yet.
+  // Note: if we have subscribed to the channel, this will cause our
+  // own callback to fire.
   publish(channel: string, data: any) {
-    let message = new Message("Publish", { channel, data });
+    let sub = this.subscriptions[channel];
+    if (!sub) {
+      throw new Error("cannot publish without joining a channel");
+    }
+    let nonce = "nonce" + Math.random();
+    let message = new Message("Publish", { channel, data, nonce });
+    let sm = SignedMessage.fromSigning(message, this.keyPair);
+    if (!sub.handlePublish(sm)) {
+      throw new Error("bad nonce production??");
+    }
     this.sendToChannel(channel, message);
   }
 

@@ -4,8 +4,6 @@ import * as React from "react";
 
 import AxiomAPI from "./AxiomAPI";
 
-const NETWORK = "local";
-
 export default function App() {
   let axiom = new AxiomAPI({ network: "local", verbose: true });
   let node = axiom.createNode();
@@ -21,19 +19,14 @@ class Chat extends React.Component {
   constructor(props) {
     super(props);
 
-    let { node } = props;
+    this.node = props.node;
     this.state = {
       clicks: 0
     };
 
-    node.subscribe("clicks", (sender, data) => {
-      console.log(sender, data);
+    this.node.subscribe("clicks", (sender, data) => {
+      this.setState({ clicks: this.state.clicks + 1 });
     });
-    node.publish("clicks", "hello");
-  }
-
-  handleClick() {
-    this.setState({ clicks: this.state.clicks + 1 });
   }
 
   render() {
@@ -44,7 +37,13 @@ class Chat extends React.Component {
           The count is {this.state.clicks}{" "}
           {this.state.clicks === 1 ? "click" : "clicks"}.
         </p>
-        <button onClick={() => this.handleClick()}>Click me</button>
+        <button
+          onClick={() => {
+            this.node.publish("clicks", "no data");
+          }}
+        >
+          Click me
+        </button>
       </div>
     );
   }
