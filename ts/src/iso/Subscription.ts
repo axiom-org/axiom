@@ -3,15 +3,22 @@ import SignedMessage from "./SignedMessage";
 export default class Subscription {
   channel: string;
   callback: (SignedMessage) => void;
+  oldMessages: { [signature: string]: boolean };
 
   constructor(channel: string, callback: (SignedMessage) => void) {
     this.channel = channel;
     this.callback = callback;
+    this.oldMessages = {};
   }
 
   // Returns whether this is a new message
   handlePublish(sm: SignedMessage): boolean {
-    // TODO: return the right thing
-    return false;
+    if (this.oldMessages[sm.signature]) {
+      return false;
+    }
+
+    this.oldMessages[sm.signature] = true;
+    this.callback(sm);
+    return true;
   }
 }

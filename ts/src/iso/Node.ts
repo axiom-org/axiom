@@ -207,6 +207,10 @@ export default class Node {
     return mset.getMembers();
   }
 
+  sendToChannel(channel: string, message: Message) {
+    // XXX
+  }
+
   // Destroys the peer if it is redundant
   // Returns whether the peer was indexed
   indexPeer(peer: Peer): boolean {
