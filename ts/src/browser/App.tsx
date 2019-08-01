@@ -5,7 +5,7 @@ import * as React from "react";
 import AxiomAPI from "./AxiomAPI";
 
 export default function App() {
-  let axiom = new AxiomAPI({ network: "local", verbose: true });
+  let axiom = new AxiomAPI({ network: "alpha", verbose: true });
   let node = axiom.createNode();
 
   return (
