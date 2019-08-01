@@ -211,6 +211,9 @@ export default class Node {
     let members = this.getChannelMembers(channel);
     for (let pk of members) {
       let peer = this.peers[pk];
+      if (!peer) {
+        continue;
+      }
       peer.sendMessage(message);
     }
   }
