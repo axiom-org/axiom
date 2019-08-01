@@ -3,53 +3,48 @@
 import * as React from "react";
 
 import AxiomAPI from "./AxiomAPI";
-import KeyPair from "../iso/KeyPair";
-import Node from "../iso/Node";
-import { sleep } from "../iso/Util";
 
-const NETWORK = "alpha";
+const NETWORK = "local";
 
-function reversed(arr) {
-  let answer = [];
-  for (let i = arr.length - 1; i >= 0; i--) {
-    answer.push(arr[i]);
-  }
-  return answer;
+export default function App() {
+  let axiom = new AxiomAPI({ network: "local", verbose: true });
+  let node = axiom.createNode();
+
+  return (
+    <div className="App">
+      <Chat node={node} />
+    </div>
+  );
 }
 
-export default class App extends React.Component<any, any> {
-  axiom: AxiomAPI;
-
+class Chat extends React.Component {
   constructor(props) {
     super(props);
 
+    let { node } = props;
     this.state = {
-      lines: [`connecting to ${NETWORK} network`]
+      clicks: 0
     };
 
-    this.axiom = new AxiomAPI({ network: NETWORK, verbose: true });
-    let node = this.axiom.createNode();
-    this.pipeLines(node);
+    node.subscribe("clicks", (sender, data) => {
+      console.log(sender, data);
+    });
+    node.publish("clicks", "hello");
   }
 
-  addLine(line: string) {
-    this.setState({ lines: this.state.lines.concat(line) });
-  }
-
-  async pipeLines(node: Node) {
-    while (true) {
-      await sleep(2000);
-      this.addLine(node.statusLine());
-    }
+  handleClick() {
+    this.setState({ clicks: this.state.clicks + 1 });
   }
 
   render() {
     return (
       <div>
-        <h1>p2p network scanner</h1>
-        {reversed(this.state.lines).map((line, index) => (
-          <p key={index}>{line}</p>
-        ))}
+        <h1>P2P Click Counting</h1>
+        <p>
+          The count is {this.state.clicks}{" "}
+          {this.state.clicks === 1 ? "click" : "clicks"}.
+        </p>
+        <button onClick={() => this.handleClick()}>Click me</button>
       </div>
     );
   }
