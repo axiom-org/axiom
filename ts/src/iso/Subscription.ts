@@ -5,7 +5,7 @@ export default class Subscription {
   callback: (sender: string, data: any) => void;
   oldMessages: { [signature: string]: boolean };
 
-  constructor(channel: string, callback: (SignedMessage) => void) {
+  constructor(channel: string, callback: (sender: string, data: any) => void) {
     this.channel = channel;
     this.callback = callback;
     this.oldMessages = {};
