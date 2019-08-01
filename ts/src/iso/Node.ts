@@ -198,7 +198,7 @@ export default class Node {
     }
   }
 
-  // Returns the channel members we know about locally
+  // Returns the channel members we know about locally, as a list of public keys.
   getChannelMembers(channel: string): string[] {
     let mset = this.channelMembers[channel];
     if (!mset) {
@@ -208,7 +208,11 @@ export default class Node {
   }
 
   sendToChannel(channel: string, message: Message) {
-    // XXX
+    let members = this.getChannelMembers(channel);
+    for (let pk of members) {
+      let peer = this.peers[pk];
+      peer.sendMessage(message);
+    }
   }
 
   // Destroys the peer if it is redundant
