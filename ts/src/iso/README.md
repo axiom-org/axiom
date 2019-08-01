@@ -50,8 +50,6 @@ Used to forward Signal or Publish messages.
 
 `message` is the encoded signed message we are forwarding
 
-`channel` is the channel of the forwarded message, if any
-
 ## Join
 
 Used to join a channel.

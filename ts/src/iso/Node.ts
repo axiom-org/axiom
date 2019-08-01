@@ -416,6 +416,21 @@ export default class Node {
     this.channelMembers[channel].handleJoin(sm);
   }
 
+  handlePublish(sm: SignedMessage) {
+    let channel = sm.message.channel;
+    let sub = this.subscriptions[channel];
+    if (!sub) {
+      return;
+    }
+    if (!sub.handlePublish(sm)) {
+      return;
+    }
+    let forward = new Message("Forward", {
+      message: sm.serialize()
+    });
+    this.sendToChannel(channel, forward);
+  }
+
   join(channel: string) {
     this.joined[channel] = new Date();
     let message = new Message("Join", { channel: channel });
@@ -466,6 +481,9 @@ export default class Node {
         break;
       case "Join":
         this.handleJoin(sm);
+        break;
+      case "Publish":
+        this.handlePublish(sm);
         break;
       default:
         this.log("unexpected message type:", sm.message.type);
