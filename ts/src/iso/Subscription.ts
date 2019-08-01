@@ -2,7 +2,7 @@ import SignedMessage from "./SignedMessage";
 
 export default class Subscription {
   channel: string;
-  callback: (SignedMessage) => void;
+  callback: (sender: string, data: any) => void;
   oldMessages: { [signature: string]: boolean };
 
   constructor(channel: string, callback: (SignedMessage) => void) {
@@ -18,7 +18,7 @@ export default class Subscription {
     }
 
     this.oldMessages[sm.signature] = true;
-    this.callback(sm);
+    this.callback(sm.signer, sm.message.data);
     return true;
   }
 }

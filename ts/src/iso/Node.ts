@@ -600,7 +600,14 @@ export default class Node {
     return answer;
   }
 
-  subscribe(channel: string, callback: (SignedMessage) => void) {
+  // TODO: make publish work when we have just joined a channel but haven't
+  // found any channel members yet.
+  publish(channel: string, data: any) {
+    let message = new Message("Publish", { channel, data });
+    this.sendToChannel(channel, message);
+  }
+
+  subscribe(channel: string, callback: (sender: string, data: any) => void) {
     this.join(channel);
     this.subscriptions[channel] = new Subscription(channel, callback);
   }
