@@ -25,5 +25,10 @@ test("MockPeerServer scaling", async () => {
   let bootstrap = MockPeerServer.makeBootstrap(4);
   let servers = MockPeerServer.makeServers(bootstrap);
 
+  // Check the graph is complete
+  for (let i = 0; i < 4; i++) {
+    expect(servers[i].node.getPeers().length).toBe(3);
+  }
+
   // TODO: add n more servers
 });
