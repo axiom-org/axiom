@@ -43,4 +43,8 @@ export default class MockPeerServer {
     existingPeer.connect(newPeer.signals);
     this.node.addPeer(newPeer);
   }
+
+  destroy() {
+    this.node.destroy();
+  }
 }
