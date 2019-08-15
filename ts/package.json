@@ -12,6 +12,7 @@
   "main": "build/browser/browser/AxiomAPI.js",
   "scripts": {
     "app": "parcel app/index.html",
+    "benchmark": "TS_NODE_PROJECT=tsconfig.node.json node -r ts-node/register src/node/benchmark-main.ts",
     "build-api": "tsc --project tsconfig.browser.json",
     "build-cli": "tsc --project tsconfig.node.json",
     "cli": "ts-node --project tsconfig.node.json src/node/cli-main.ts",
