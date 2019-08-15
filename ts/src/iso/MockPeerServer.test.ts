@@ -18,4 +18,9 @@ test("MockPeerServer basics", async () => {
   for (let i = 0; i < 2; i++) {
     expect(servers[i].node.getPeers().length).toBe(1);
   }
+
+  // Clean up
+  for (let server of servers) {
+    server.destroy();
+  }
 });
