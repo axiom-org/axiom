@@ -1,3 +1,4 @@
+import { mockTick, useMockIntervalTimer } from "../iso/IntervalTimer";
 import MockPeerServer from "../iso/MockPeerServer";
 import Node from "../iso/Node";
 import { useMockNetworking, useRealNetworking } from "../iso/TestUtil";
@@ -11,6 +12,8 @@ function checkEqual(x, y, message) {
 
 async function benchmark() {
   useMockNetworking();
+  useMockIntervalTimer();
+
   let start = new Date();
   let bootstrap = MockPeerServer.makeBootstrap(4);
   let servers = MockPeerServer.makeServers(bootstrap);
@@ -21,7 +24,7 @@ async function benchmark() {
   }
 
   // Add n more servers
-  let n = 40;
+  let n = 10;
   let nodes = [];
   for (let i = 0; i < n; i++) {
     let node = new Node(null, bootstrap, false);
@@ -32,13 +35,6 @@ async function benchmark() {
   let elapsed = end.getTime() - start.getTime();
 
   console.log(`${elapsed / 1000}s elapsed in network creation`);
-
-  for (let server of servers) {
-    server.destroy();
-  }
-  for (let node of nodes) {
-    node.destroy();
-  }
 }
 
 benchmark().then(() => {
