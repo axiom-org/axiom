@@ -77,7 +77,7 @@ export default class SignedMessage {
     }
     let message = Message.fromSerialized(messageString);
     let sm = new SignedMessage({ message, messageString, signer, signature });
-    TimeTracker.end(`decoding: ${message.type}`);
+    TimeTracker.end(`decoding ${message.type}`);
     return sm;
   }
 }
