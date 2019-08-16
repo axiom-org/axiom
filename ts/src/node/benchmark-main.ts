@@ -30,7 +30,9 @@ async function benchmark() {
 
   let end = new Date();
   let elapsed = end.getTime() - start.getTime();
-  console.log(`${elapsed / 1000}s elapsed`);
+
+  console.log(`${elapsed / 1000}s elapsed in network creation`);
+
   for (let server of servers) {
     server.destroy();
   }
