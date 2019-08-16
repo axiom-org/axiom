@@ -5,6 +5,7 @@ let tracking = process.hrtime && process.hrtime.bigint ? true : false;
 
 export default class TimeTracker {
   static nanoseconds: { [name: string]: bigint } = {};
+  static calls: { [name: string]: number } = {};
   static startTime: bigint;
 
   static start() {
@@ -26,8 +27,10 @@ export default class TimeTracker {
     let elapsed = process.hrtime.bigint() - TimeTracker.startTime;
     if (!TimeTracker.nanoseconds[name]) {
       TimeTracker.nanoseconds[name] = elapsed;
+      TimeTracker.calls[name] = 1;
     } else {
       TimeTracker.nanoseconds[name] += elapsed;
+      TimeTracker.calls[name] += 1;
     }
     TimeTracker.startTime = null;
   }
@@ -35,11 +38,17 @@ export default class TimeTracker {
   static show() {
     let items = [];
     for (let name in TimeTracker.nanoseconds) {
-      items.push([name, TimeTracker.nanoseconds[name]]);
+      items.push([
+        name,
+        TimeTracker.nanoseconds[name],
+        TimeTracker.calls[name]
+      ]);
     }
-    items.sort(([n1, t1], [n2, t2]) => t2 - t1);
-    for (let [name, total] of items) {
-      console.log(`${total / BigInt(1000000000)}s: ${name}`);
+    items.sort(([n1, t1, c1], [n2, t2, c2]) => t2 - t1);
+    for (let [name, total, calls] of items) {
+      console.log(
+        `${total / BigInt(1000000000)}s over ${calls} calls: ${name}`
+      );
     }
   }
 }
