@@ -1,5 +1,6 @@
 import KeyPair from "./KeyPair";
 import Message from "./Message";
+import TimeTracker from "./TimeTracker";
 
 export default class SignedMessage {
   message: any;
@@ -25,13 +26,16 @@ export default class SignedMessage {
     if (!(message instanceof Message)) {
       throw new Error("can only sign a Message");
     }
+    TimeTracker.start();
     let messageString = message.serialize();
-    return new SignedMessage({
+    let sm = new SignedMessage({
       message,
       messageString,
       signer: keyPair.getPublicKey(),
       signature: keyPair.sign(messageString)
     });
+    TimeTracker.end(`signing ${message.type}`);
+    return sm;
   }
 
   serialize() {
@@ -42,6 +46,8 @@ export default class SignedMessage {
   // Throws an error if it receives an invalid message
   // Returns null if the serialization is just an "ok"
   static fromSerialized(serialized) {
+    TimeTracker.start();
+
     let s = typeof serialized === "string" ? serialized : serialized.toString();
 
     if (s == "ok") {
@@ -70,6 +76,8 @@ export default class SignedMessage {
       );
     }
     let message = Message.fromSerialized(messageString);
-    return new SignedMessage({ message, messageString, signer, signature });
+    let sm = new SignedMessage({ message, messageString, signer, signature });
+    TimeTracker.end(`decoding: ${message.type}`);
+    return sm;
   }
 }
