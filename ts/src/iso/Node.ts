@@ -1,10 +1,11 @@
-import { isEmpty } from "./Util";
+import IntervalTimer, { createIntervalTimer } from "./IntervalTimer";
 import KeyPair from "./KeyPair";
 import MemberSet from "./MemberSet";
 import Message from "./Message";
 import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
 import Subscription from "./Subscription";
+import { isEmpty } from "./Util";
 
 // A Node represents a member of the Axiom peer-to-peer network.
 // See the README in this directory for a description of message formats.
@@ -50,7 +51,7 @@ export default class Node {
   keyPair: KeyPair;
 
   // An interval timer that gets called repeatedly while this node is alive
-  ticker: any;
+  timer: IntervalTimer;
 
   constructor(keyPair: KeyPair, urls: string[], verbose: boolean) {
     this.keyPair = keyPair;
@@ -74,7 +75,7 @@ export default class Node {
     this.joined = {};
     this.subscriptions = {};
 
-    this.ticker = setInterval(() => {
+    this.timer = createIntervalTimer(() => {
       this.handleTick();
     }, 2000);
 
@@ -629,9 +630,7 @@ export default class Node {
   }
 
   destroy() {
-    if (this.ticker) {
-      clearInterval(this.ticker);
-    }
+    this.timer.clear();
     this.destroyed = true;
     for (let peer of this.getPeers()) {
       peer.destroy();

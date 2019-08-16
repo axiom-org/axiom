@@ -19,14 +19,6 @@ class MockIntervalTimer implements IntervalTimer {
 
   static allTimers: MockIntervalTimer[] = [];
 
-  static tick() {
-    for (let timer of MockIntervalTimer.allTimers) {
-      if (timer.callback) {
-        timer.callback();
-      }
-    }
-  }
-
   constructor(callback: () => void, interval: number) {
     this.callback = callback;
     MockIntervalTimer.allTimers.push(this);
@@ -52,4 +44,17 @@ export function createIntervalTimer(callback: () => void, interval: number) {
 export function useMockIntervalTimer() {
   GLOBALS.intervalTimerConstructor = MockIntervalTimer;
   MockIntervalTimer.allTimers = [];
+}
+
+export function useRealIntervalTimer() {
+  GLOBALS.intervalTimerConstructor = RealIntervalTimer;
+  MockIntervalTimer.allTimers = [];
+}
+
+export function mockTick() {
+  for (let timer of MockIntervalTimer.allTimers) {
+    if (timer.callback) {
+      timer.callback();
+    }
+  }
 }
