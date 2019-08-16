@@ -629,7 +629,9 @@ export default class Node {
   }
 
   destroy() {
-    clearInterval(this.ticker);
+    if (this.ticker) {
+      clearInterval(this.ticker);
+    }
     this.destroyed = true;
     for (let peer of this.getPeers()) {
       peer.destroy();
