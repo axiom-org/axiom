@@ -45,7 +45,7 @@ export default class SignedMessage {
   // Construct a SignedMessage from a serialized form
   // Throws an error if it receives an invalid message
   // Returns null if the serialization is just an "ok"
-  static fromSerialized(serialized) {
+  static fromSerialized(serialized, skipVerify: boolean) {
     TimeTracker.start();
 
     let s = typeof serialized === "string" ? serialized : serialized.toString();
@@ -65,7 +65,10 @@ export default class SignedMessage {
       console.error("serialized:", serialized);
       throw new Error("unrecognized version");
     }
-    if (!KeyPair.verifySignature(signer, messageString, signature)) {
+    if (
+      !skipVerify &&
+      !KeyPair.verifySignature(signer, messageString, signature)
+    ) {
       throw new Error(
         "signature failed verification. msg " +
           messageString +

@@ -15,6 +15,13 @@ async function benchmark() {
   useMockIntervalTimer();
 
   let start = new Date();
+  let logTime = (name: string) => {
+    let end = new Date();
+    let elapsed = end.getTime() - start.getTime();
+    console.log(`${elapsed / 1000}s elapsed in ${name}`);
+    start = end;
+  };
+
   let bootstrap = MockPeerServer.makeBootstrap(4);
   let servers = MockPeerServer.makeServers(bootstrap);
 
@@ -24,17 +31,22 @@ async function benchmark() {
   }
 
   // Add n more servers
-  let n = 10;
+  let n = 20;
+  console.log(`creating a network of ${n} nodes`);
   let nodes = [];
   for (let i = 0; i < n; i++) {
     let node = new Node(null, bootstrap, false);
     nodes.push(node);
   }
 
-  let end = new Date();
-  let elapsed = end.getTime() - start.getTime();
+  logTime("network creation");
 
-  console.log(`${elapsed / 1000}s elapsed in network creation`);
+  for (let node of nodes) {
+    node.subscribe("test", null);
+    node.publish("test", "hello");
+  }
+
+  logTime("publishing");
 }
 
 benchmark().then(() => {

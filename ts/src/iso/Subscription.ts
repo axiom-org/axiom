@@ -18,7 +18,9 @@ export default class Subscription {
     }
 
     this.oldMessages[sm.signature] = true;
-    this.callback(sm.signer, sm.message.data);
+    if (this.callback) {
+      this.callback(sm.signer, sm.message.data);
+    }
     return true;
   }
 }
