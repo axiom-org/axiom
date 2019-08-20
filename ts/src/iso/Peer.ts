@@ -256,7 +256,7 @@ export default class Peer {
     this.onData(data => {
       let sm;
       try {
-        sm = SignedMessage.fromSerialized(data, this.skipVerify);
+        sm = SignedMessage.fromSerialized(data, true);
       } catch (e) {
         this.log("error in decoding signed message:", e);
         return;
@@ -270,7 +270,16 @@ export default class Peer {
         );
         return;
       }
-      if (sm.message.nonce === this.authNonce) {
+
+      if (!this.skipVerify && sm.message.type !== "Forward") {
+        try {
+          sm.verify();
+        } catch (e) {
+          this.log("verification error:", e);
+          return;
+        }
+      }
+      if (sm.verified && sm.message.nonce === this.authNonce) {
         this.skipVerify = true;
       }
       this.lastReceived = new Date();

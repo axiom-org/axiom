@@ -7,6 +7,7 @@ export default class SignedMessage {
   messageString: string;
   signer: string;
   signature: string;
+  verified: boolean;
 
   // Creates a signed message.
   // Users should generally not use this directly; use fromSigning or fromSerialized.
@@ -16,6 +17,7 @@ export default class SignedMessage {
     this.messageString = messageString;
     this.signer = signer;
     this.signature = signature;
+    this.verified = false;
   }
 
   // Construct a SignedMessage by signing a Message.
@@ -42,12 +44,28 @@ export default class SignedMessage {
     return "e:" + this.signer + ":" + this.signature + ":" + this.messageString;
   }
 
+  verify() {
+    TimeTracker.start();
+    if (
+      !KeyPair.verifySignature(this.signer, this.messageString, this.signature)
+    ) {
+      throw new Error(
+        "signature failed verification. msg " +
+          this.messageString +
+          " sig " +
+          this.signature +
+          " signer " +
+          this.signer
+      );
+    }
+    this.verified = true;
+    TimeTracker.end(`verifying ${this.message.type}`);
+  }
+
   // Construct a SignedMessage from a serialized form
   // Throws an error if it receives an invalid message
   // Returns null if the serialization is just an "ok"
   static fromSerialized(serialized, skipVerify: boolean) {
-    TimeTracker.start();
-
     let s = typeof serialized === "string" ? serialized : serialized.toString();
 
     if (s == "ok") {
@@ -65,22 +83,12 @@ export default class SignedMessage {
       console.error("serialized:", serialized);
       throw new Error("unrecognized version");
     }
-    if (
-      !skipVerify &&
-      !KeyPair.verifySignature(signer, messageString, signature)
-    ) {
-      throw new Error(
-        "signature failed verification. msg " +
-          messageString +
-          " sig " +
-          signature +
-          " signer " +
-          signer
-      );
-    }
     let message = Message.fromSerialized(messageString);
     let sm = new SignedMessage({ message, messageString, signer, signature });
-    TimeTracker.end(`decoding ${message.type}`);
+
+    if (!skipVerify) {
+      sm.verify();
+    }
     return sm;
   }
 }
