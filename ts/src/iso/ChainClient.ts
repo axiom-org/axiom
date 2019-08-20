@@ -99,7 +99,7 @@ export default class ChainClient {
     let serialized = text.replace(/\n$/, "");
 
     // When there is an empty keepalive message from the server, we just return null
-    let signed = SignedMessage.fromSerialized(serialized);
+    let signed = SignedMessage.fromSerialized(serialized, false);
     if (signed == null) {
       return null;
     }

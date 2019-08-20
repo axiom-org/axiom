@@ -367,7 +367,7 @@ export default class Node {
   handleForward(intermediary: Peer, sm: SignedMessage) {
     let nested;
     try {
-      nested = SignedMessage.fromSerialized(sm.message.message);
+      nested = SignedMessage.fromSerialized(sm.message.message, false);
     } catch (e) {
       this.log("bad forward:", e);
       return;

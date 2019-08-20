@@ -7,11 +7,11 @@ test("SignedMessage basic behavior", () => {
   let kp = KeyPair.fromSecretPhrase("foo");
   let sm = SignedMessage.fromSigning(m, kp);
   let serialized = sm.serialize();
-  let sm2 = SignedMessage.fromSerialized(serialized);
+  let sm2 = SignedMessage.fromSerialized(serialized, false);
   expect(sm2).toEqual(sm);
 });
 
 test("SignedMessage from ok", () => {
-  let sm = SignedMessage.fromSerialized("ok");
+  let sm = SignedMessage.fromSerialized("ok", false);
   expect(sm).toEqual(null);
 });

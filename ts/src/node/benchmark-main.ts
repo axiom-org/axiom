@@ -31,7 +31,7 @@ async function benchmark() {
   }
 
   // Add n more servers
-  let n = 20;
+  let n = 30;
   console.log(`creating a network of ${n} nodes`);
   let nodes = [];
   for (let i = 0; i < n; i++) {

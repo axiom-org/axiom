@@ -244,7 +244,7 @@ export default class Peer {
     this.onData(data => {
       let sm;
       try {
-        sm = SignedMessage.fromSerialized(data);
+        sm = SignedMessage.fromSerialized(data, false);
       } catch (e) {
         this.log("error in decoding signed message:", e);
         return;
