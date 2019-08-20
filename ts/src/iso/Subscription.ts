@@ -11,9 +11,13 @@ export default class Subscription {
     this.oldMessages = {};
   }
 
+  isNew(sm: SignedMessage): boolean {
+    return !this.oldMessages[sm.signature];
+  }
+
   // Returns whether this is a new message
   handlePublish(sm: SignedMessage): boolean {
-    if (this.oldMessages[sm.signature]) {
+    if (!this.isNew(sm)) {
       return false;
     }
 

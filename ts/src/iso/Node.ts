@@ -368,7 +368,7 @@ export default class Node {
   handleForward(intermediary: Peer, sm: SignedMessage) {
     let nested;
     try {
-      nested = SignedMessage.fromSerialized(sm.message.message, false);
+      nested = SignedMessage.fromSerialized(sm.message.message, true);
     } catch (e) {
       this.log("bad forward:", e);
       return;
@@ -431,6 +431,10 @@ export default class Node {
     if (!sub) {
       return;
     }
+    if (!sub.isNew(sm)) {
+      return;
+    }
+    sm.verify();
     if (!sub.handlePublish(sm)) {
       return;
     }

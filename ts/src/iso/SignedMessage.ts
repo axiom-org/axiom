@@ -21,7 +21,7 @@ export default class SignedMessage {
   }
 
   // Construct a SignedMessage by signing a Message.
-  static fromSigning(message, keyPair) {
+  static fromSigning(message, keyPair, signature?: string) {
     if (!message) {
       throw new Error("cannot sign a falsy message");
     }
@@ -30,11 +30,14 @@ export default class SignedMessage {
     }
     TimeTracker.start();
     let messageString = message.serialize();
+    if (!signature) {
+      signature = keyPair.sign(messageString);
+    }
     let sm = new SignedMessage({
       message,
       messageString,
       signer: keyPair.getPublicKey(),
-      signature: keyPair.sign(messageString)
+      signature: signature
     });
     TimeTracker.end(`signing ${message.type}`);
     return sm;
@@ -45,6 +48,9 @@ export default class SignedMessage {
   }
 
   verify() {
+    if (this.verified) {
+      return;
+    }
     TimeTracker.start();
     if (
       !KeyPair.verifySignature(this.signer, this.messageString, this.signature)

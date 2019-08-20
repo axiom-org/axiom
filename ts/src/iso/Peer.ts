@@ -248,7 +248,11 @@ export default class Peer {
   }
 
   sendMessage(message: Message) {
-    let signed = SignedMessage.fromSigning(message, this.keyPair);
+    let signature = null;
+    if (message.type === "Forward") {
+      signature = "x";
+    }
+    let signed = SignedMessage.fromSigning(message, this.keyPair, signature);
     this.sendData(signed.serialize());
   }
 
