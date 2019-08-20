@@ -9,11 +9,15 @@ Messages are listed by their type.
 
 ## Ping
 
-Used to request a `Pong` message in response. No fields besides the type.
+Used to request a `Pong` message in response.
+
+`nonce` is the authNonce
 
 ## Pong
 
-Used to respond to a `Ping` message. No fields besides the type.
+Used to respond to a `Ping` message.
+
+`nonce` is the nonce that was in the ping.
 
 ## FindNode
 
@@ -23,6 +27,8 @@ Used to search for a node matching some condition. Must contain one of the follo
 
 `channel` contains the string channel that we seek members of.
 
+`nonce` is the authNonce
+
 ## Neighbors
 
 Used to respond to a FindNode request.
@@ -31,6 +37,8 @@ Used to respond to a FindNode request.
 Kademlia algorithm.
 
 `channel` contains the channel these nodes belong to, if that was a condition of the find.
+
+`nonce` is the nonce that was in the FindNode request
 
 ## Signal
 

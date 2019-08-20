@@ -31,13 +31,21 @@ export default class Peer {
   intermediary: string;
 
   // A random string that specifies this particular peer connection.
+  // Used for establishing the connection
   // If it's null, don't use nonce checks.
   nonce: string;
+
+  // A random string generated for the purpose of authenticating the other side.
+  // Once the other side has signed a message containing this authNonce, we know it's legit.
+  authNonce: string;
 
   // The signals emitted by this peer
   signals: Sequence<object>;
 
   _peer: BasicPeer;
+
+  // Whether we can trust the peer is peerPublicKey without verifying
+  skipVerify: boolean;
 
   // Each Peer can only have a single close handler
   closeHandler: () => void;
@@ -118,7 +126,9 @@ export default class Peer {
     this.lastReceived = null;
     this.intermediary = options.intermediary;
     this.nonce = options.nonce;
+    this.authNonce = "nonce" + Math.random();
     this.closeHandler = null;
+    this.skipVerify = false;
 
     this.keyPair = options.keyPair;
     if (!this.keyPair) {
@@ -195,7 +205,7 @@ export default class Peer {
 
   ping() {
     if (this.isConnected()) {
-      this.sendMessage(new Message("Ping"));
+      this.sendMessage(new Message("Ping", { nonce: this.authNonce }));
     }
   }
 
@@ -232,7 +242,9 @@ export default class Peer {
       return;
     }
 
-    this.sendMessage(new Message("FindNode", { publicKey }));
+    this.sendMessage(
+      new Message("FindNode", { publicKey, nonce: this.authNonce })
+    );
   }
 
   sendMessage(message: Message) {
@@ -244,7 +256,7 @@ export default class Peer {
     this.onData(data => {
       let sm;
       try {
-        sm = SignedMessage.fromSerialized(data, false);
+        sm = SignedMessage.fromSerialized(data, this.skipVerify);
       } catch (e) {
         this.log("error in decoding signed message:", e);
         return;
@@ -257,6 +269,9 @@ export default class Peer {
           sm.signer
         );
         return;
+      }
+      if (sm.message.nonce === this.authNonce) {
+        this.skipVerify = true;
       }
       this.lastReceived = new Date();
       callback(sm);

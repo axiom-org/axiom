@@ -312,7 +312,7 @@ export default class Node {
   }
 
   handlePing(peer: Peer, sm: SignedMessage) {
-    peer.sendMessage(new Message("Pong"));
+    peer.sendMessage(new Message("Pong", { nonce: sm.message.nonce }));
   }
 
   handlePong(peer: Peer, sm: SignedMessage) {}
@@ -339,7 +339,8 @@ export default class Node {
       }
     }
     let response = new Message("Neighbors", {
-      neighbors: neighbors
+      neighbors: neighbors,
+      nonce: sm.message.nonce
     });
     peer.sendMessage(response);
   }
