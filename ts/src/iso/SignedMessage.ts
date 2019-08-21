@@ -12,12 +12,12 @@ export default class SignedMessage {
   // Creates a signed message.
   // Users should generally not use this directly; use fromSigning or fromSerialized.
   // signer and signature are base64-encoded.
-  constructor({ message, messageString, signer, signature }) {
+  constructor({ message, messageString, signer, signature, verified }) {
     this.message = message;
     this.messageString = messageString;
     this.signer = signer;
     this.signature = signature;
-    this.verified = false;
+    this.verified = verified;
   }
 
   // Construct a SignedMessage by signing a Message.
@@ -37,7 +37,8 @@ export default class SignedMessage {
       message,
       messageString,
       signer: keyPair.getPublicKey(),
-      signature: signature
+      signature: signature,
+      verified: true
     });
     TimeTracker.end(`signing ${message.type}`);
     return sm;
@@ -90,7 +91,13 @@ export default class SignedMessage {
       throw new Error("unrecognized version");
     }
     let message = Message.fromSerialized(messageString);
-    let sm = new SignedMessage({ message, messageString, signer, signature });
+    let sm = new SignedMessage({
+      message,
+      messageString,
+      signer,
+      signature,
+      verified: false
+    });
 
     if (!skipVerify) {
       sm.verify();
