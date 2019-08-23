@@ -1,3 +1,4 @@
+import Database from "./Database";
 import IntervalTimer, { createIntervalTimer } from "./IntervalTimer";
 import KeyPair from "./KeyPair";
 import MemberSet from "./MemberSet";
@@ -48,6 +49,9 @@ export default class Node {
   // The channels we have subscribed to.
   subscriptions: { [channel: string]: Subscription };
 
+  // The databases we are syncing data for.
+  databases: { [channel: string]: Database };
+
   keyPair: KeyPair;
 
   // An interval timer that gets called repeatedly while this node is alive
@@ -63,6 +67,8 @@ export default class Node {
     for (let url of urls) {
       this.pendingByURL[url] = null;
     }
+
+    let foo = { class: 1 };
 
     this.pendingByPublicKey = {};
 

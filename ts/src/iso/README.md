@@ -54,7 +54,7 @@ Used to exchange information to create a new peer connection.
 
 ## Forward
 
-Used to forward Signal or Publish messages.
+Used to forward other messages. Could be Signal, Publish, Create, Update, Delete.
 
 `message` is the encoded signed message we are forwarding
 
@@ -73,3 +73,21 @@ Used to publish a message to a pub/sub channel.
 `data` is any JSON-encodable data, as defined by the application
 
 `nonce` is a random string
+
+## Create
+## Update
+## Delete
+
+Used to create, update, or delete an object in a database channel. They share a lot
+of their format:
+
+`channel` is the channel it is published to.
+
+`timestamp` is a toISOString() formatted timestamp of the operation.
+
+`id` is a string identifier for the object. The id only has to be unique per-user;
+different users can use the same id.
+
+`data` is the new data for the object. (Not present for Delete.)
+
+
