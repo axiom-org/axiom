@@ -444,6 +444,10 @@ export default class Node {
     if (!sub.handlePublish(sm)) {
       return;
     }
+    this.forwardToChannel(channel, sm);
+  }
+
+  forwardToChannel(channel: string, sm: SignedMessage) {
     let forward = new Message("Forward", {
       message: sm.serialize()
     });
@@ -533,7 +537,11 @@ export default class Node {
     if (!database) {
       return;
     }
-    throw new Error("TODO: implement");
+
+    let handled = database.handleSignedMessage(sm);
+    if (handled) {
+      this.forwardToChannel(channel, sm);
+    }
   }
 
   // Should be called whenever a peer closes.
