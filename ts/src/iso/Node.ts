@@ -451,6 +451,9 @@ export default class Node {
   }
 
   join(channel: string) {
+    if (this.joined[channel]) {
+      return;
+    }
     this.joined[channel] = new Date();
     let message = new Message("Join", { channel: channel });
     let signed = SignedMessage.fromSigning(message, this.keyPair);
@@ -638,6 +641,14 @@ export default class Node {
   subscribe(channel: string, callback: (sender: string, data: any) => void) {
     this.join(channel);
     this.subscriptions[channel] = new Subscription(channel, callback);
+  }
+
+  database(channel: string): Database {
+    this.join(channel);
+    if (!this.databases[channel]) {
+      this.databases[channel] = new Database(this);
+    }
+    return this.databases[channel];
   }
 
   destroy() {
