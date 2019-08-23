@@ -507,6 +507,11 @@ export default class Node {
       case "Publish":
         this.handlePublish(sm);
         break;
+      case "Create":
+      case "Update":
+      case "Delete":
+        this.handleWithDatabase(peer, sm);
+        break;
       default:
         this.log("unexpected message type:", sm.message.type);
     }
@@ -520,6 +525,15 @@ export default class Node {
     for (let callback of everyCallbacks) {
       callback(sm);
     }
+  }
+
+  handleWithDatabase(peer: Peer, sm: SignedMessage) {
+    let channel = sm.message.channel;
+    let database = this.databases[channel];
+    if (!database) {
+      return;
+    }
+    throw new Error("TODO: implement");
   }
 
   // Should be called whenever a peer closes.
