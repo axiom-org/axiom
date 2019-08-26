@@ -65,6 +65,7 @@ function CommentForm(props) {
   let handleSubmit = e => {
     e.preventDefault();
     alert(`submitting ${comment}`);
+    setComment("");
   };
 
   return (
