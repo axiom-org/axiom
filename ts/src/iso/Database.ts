@@ -77,6 +77,6 @@ export default class Database {
     });
     let sm = SignedMessage.fromSigning(message, node.keyPair);
     this.handleSignedMessage(sm);
-    node.forwardToChannel(this.channel, sm);
+    node.sendToChannel(this.channel, sm);
   }
 }
