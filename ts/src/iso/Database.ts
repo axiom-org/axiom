@@ -95,14 +95,13 @@ export default class Database {
     });
     let sm = SignedMessage.fromSigning(message, this.node.keyPair);
     this.handleSignedMessage(sm);
-    this.node.sendToChannel(this.channel, sm);
+    this.node.sendToChannel(this.channel, message);
   }
 
   load() {
     let message = new Message("Query", {
       channel: this.channel
     });
-    let sm = SignedMessage.fromSigning(message, this.node.keyPair);
-    this.node.sendToChannel(this.channel, sm);
+    this.node.sendToChannel(this.channel, message);
   }
 }
