@@ -371,21 +371,7 @@ export default class Node {
     destination.sendMessage(forward);
   }
 
-  handleForward(intermediary: Peer, sm: SignedMessage) {
-    let nested;
-    try {
-      nested = SignedMessage.fromSerialized(sm.message.message, true);
-    } catch (e) {
-      this.log("bad forward:", e);
-      return;
-    }
-    if (nested.message.type === "Publish") {
-      this.handlePublish(nested);
-      return;
-    }
-    if (nested.message.type !== "Signal") {
-      return;
-    }
+  handleForwardedSignal(intermediary: Peer, nested: SignedMessage) {
     if (nested.message.destination !== this.keyPair.getPublicKey()) {
       return;
     }
@@ -421,6 +407,25 @@ export default class Node {
 
     // Pass this signal to the peer
     peer.signal(nested.message.signal);
+  }
+
+  handleForward(intermediary: Peer, sm: SignedMessage) {
+    let nested;
+    try {
+      nested = SignedMessage.fromSerialized(sm.message.message, true);
+    } catch (e) {
+      this.log("bad forward:", e);
+      return;
+    }
+    if (nested.message.type === "Publish") {
+      this.handlePublish(nested);
+      return;
+    }
+    if (nested.message.type === "Signal") {
+      this.handleForwardedSignal(intermediary, nested);
+      return;
+    }
+    return;
   }
 
   handleJoin(sm: SignedMessage) {
