@@ -63,8 +63,8 @@ class Chat extends React.Component<
       <div>
         <h1>P2P Chat Proof Of Concept</h1>
         <CommentForm database={this.database} />
-        {this.sortedComments().map((comment, index) => (
-          <p key={index}>{comment}</p>
+        {this.sortedComments().map((sm, index) => (
+          <p key={index}>{sm.message.comment}</p>
         ))}
       </div>
     );
