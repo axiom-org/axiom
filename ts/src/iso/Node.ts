@@ -409,14 +409,15 @@ export default class Node {
     peer.signal(nested.message.signal);
   }
 
-  handleForward(intermediary: Peer, sm: SignedMessage) {
+  handleForward(intermediary: Peer, serialized: string) {
     let nested;
     try {
-      nested = SignedMessage.fromSerialized(sm.message.message, true);
+      nested = SignedMessage.fromSerialized(serialized, true);
     } catch (e) {
       this.log("bad forward:", e);
       return;
     }
+
     if (nested.message.type === "Publish") {
       this.handlePublish(nested);
       return;
@@ -508,7 +509,7 @@ export default class Node {
         this.handleSignal(peer, sm);
         break;
       case "Forward":
-        this.handleForward(peer, sm);
+        this.handleForward(peer, sm.message.message);
         break;
       case "Join":
         this.handleJoin(sm);
