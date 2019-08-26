@@ -1,6 +1,7 @@
 // The root to display in the sample app.
 
 import * as React from "react";
+let useState = React.useState;
 
 import AxiomAPI from "./AxiomAPI";
 import Database from "../iso/Database";
@@ -61,7 +62,7 @@ class Chat extends React.Component<
     return (
       <div>
         <h1>P2P Chat Proof Of Concept</h1>
-        <CommentForm />
+        <CommentForm database={this.database} />
         {this.sortedComments().map((comment, index) => (
           <p key={index}>{comment}</p>
         ))}
@@ -70,19 +71,24 @@ class Chat extends React.Component<
   }
 }
 
-function CommentForm(props) {
+function CommentForm(props: { database: Database }) {
   let [comment, setComment] = useState("");
 
   let handleSubmit = e => {
     e.preventDefault();
-    alert(`submitting ${comment}`);
+    console.log(`submitting ${comment}`);
     setComment("");
+    let data = {
+      comment: e.target.value
+    };
+    props.database.create(data);
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <label>
         Comment:
+        <br />
         <input
           type="text"
           value={comment}
