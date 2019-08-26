@@ -62,7 +62,7 @@ export default class Database {
 
     let objectKey = `${sm.signer}:${sm.message.id}`;
     let oldMessage = this.objects[objectKey];
-    if (sm.message.timestamp <= oldMessage.message.timestamp) {
+    if (oldMessage && sm.message.timestamp <= oldMessage.message.timestamp) {
       return false;
     }
 
