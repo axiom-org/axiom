@@ -689,7 +689,7 @@ export default class Node {
   database(channel: string): Database {
     this.join(channel);
     if (!this.databases[channel]) {
-      this.databases[channel] = new Database(this);
+      this.databases[channel] = new Database(channel, this);
     }
     return this.databases[channel];
   }
