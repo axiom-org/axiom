@@ -41,7 +41,7 @@ class Chat extends React.Component<
         return;
       }
       let key = sm.signer + ":" + sm.message.id;
-      let newComments = { ...comments };
+      let newComments = { ...this.state.comments };
       newComments[key] = sm;
       this.setState({ comments: newComments });
     });
