@@ -11,6 +11,8 @@ function randomID(): string {
   return id;
 }
 
+type DatabaseCallback = (sm: SignedMessage) => void;
+
 // A Database represents a set of data that is being synced by a node in the Axiom
 // peer-to-peer network.
 export default class Database {
@@ -20,10 +22,22 @@ export default class Database {
   // The key is <signer>:<id>
   objects: { [key: string]: SignedMessage };
 
+  callbacks: DatabaseCallback[];
+
   constructor(channel: string, node: Node) {
     this.channel = channel;
     this.node = node;
     this.objects = {};
+    this.callbacks = [];
+  }
+
+  // TODO: make this use queries or something smarter
+  onMessage(callback: DatabaseCallback) {
+    for (let key in this.objects) {
+      let sm = this.objects[key];
+      callback(sm);
+    }
+    this.callbacks.push(callback);
   }
 
   // Returns true if this message updated our database, and the message should be
@@ -53,6 +67,10 @@ export default class Database {
     }
 
     this.objects[objectKey] = sm;
+    for (let callback of this.callbacks) {
+      callback(sm);
+    }
+
     return true;
   }
 
