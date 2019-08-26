@@ -519,7 +519,7 @@ export default class Node {
       case "Create":
       case "Update":
       case "Delete":
-        this.handleWithDatabase(peer, sm);
+        this.handleWithDatabase(sm);
         break;
       default:
         this.log("unexpected message type:", sm.message.type);
@@ -536,7 +536,7 @@ export default class Node {
     }
   }
 
-  handleWithDatabase(peer: Peer, sm: SignedMessage) {
+  handleWithDatabase(sm: SignedMessage) {
     let channel = sm.message.channel;
     let database = this.databases[channel];
     if (!database) {
