@@ -75,16 +75,16 @@ export default class Database {
       id: randomID(),
       data
     });
-    let sm = SignedMessage.fromSigning(message, node.keyPair);
+    let sm = SignedMessage.fromSigning(message, this.node.keyPair);
     this.handleSignedMessage(sm);
-    node.sendToChannel(this.channel, sm);
+    this.node.sendToChannel(this.channel, sm);
   }
 
   load() {
     let message = new Message("Query", {
       channel: this.channel
     });
-    let sm = SignedMessage.fromSigning(message, node.keyPair);
-    node.sendToChannel(this.channel, sm);
+    let sm = SignedMessage.fromSigning(message, this.node.keyPair);
+    this.node.sendToChannel(this.channel, sm);
   }
 }
