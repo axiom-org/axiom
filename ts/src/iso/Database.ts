@@ -1,3 +1,4 @@
+import Message from "./Message";
 import Node from "./Node";
 import SignedMessage from "./SignedMessage";
 
