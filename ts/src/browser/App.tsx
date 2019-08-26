@@ -46,12 +46,23 @@ class Chat extends React.Component<
     });
   }
 
+  sortedComments() {
+    let comments = [];
+    for (let key in this.state.comments) {
+      comments.push(this.state.comments[key]);
+    }
+    comments.sort((a, b) =>
+      a.message.timestamp.localeCompare(b.message.timestamp)
+    );
+    return comments;
+  }
+
   render() {
     return (
       <div>
         <h1>P2P Chat Proof Of Concept</h1>
         <CommentForm />
-        {this.state.comments.map((comment, index) => (
+        {this.sortedComments().map((comment, index) => (
           <p key={index}>{comment}</p>
         ))}
       </div>
