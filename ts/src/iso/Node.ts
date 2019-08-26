@@ -409,7 +409,22 @@ export default class Node {
     peer.signal(nested.message.signal);
   }
 
-  handleForward(intermediary: Peer, serialized: string) {
+  handleForward(intermediary: Peer, sm: SignedMessage) {
+    if (sm.message.message) {
+      this.handleSerializedForward(intermediary, sm.message.message);
+      return;
+    }
+    if (sm.message.messages) {
+      for (let serialized of sm.message.messages) {
+        this.handleSerializedForward(intermediary, serialized);
+      }
+      return;
+    }
+    this.log("forward has no forward");
+    return;
+  }
+
+  handleSerializedForward(intermediary: Peer, serialized: string) {
     let nested;
     try {
       nested = SignedMessage.fromSerialized(serialized, true);
@@ -509,7 +524,7 @@ export default class Node {
         this.handleSignal(peer, sm);
         break;
       case "Forward":
-        this.handleForward(peer, sm.message.message);
+        this.handleForward(peer, sm);
         break;
       case "Join":
         this.handleJoin(sm);
