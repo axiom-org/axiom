@@ -2,15 +2,26 @@ import Message from "./Message";
 import Node from "./Node";
 import SignedMessage from "./SignedMessage";
 
+let CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
+function randomID(): string {
+  let id = "";
+  for (let i = 0; i < 10; i++) {
+    id += CHARS[Math.floor(Math.random() * CHARS.length)];
+  }
+  return id;
+}
+
 // A Database represents a set of data that is being synced by a node in the Axiom
 // peer-to-peer network.
 export default class Database {
+  channel: string;
   node: Node;
 
   // The key is <signer>:<id>
   objects: { [key: string]: SignedMessage };
 
-  constructor(node: Node) {
+  constructor(channel: string, node: Node) {
+    this.channel = channel;
     this.node = node;
     this.objects = {};
   }
@@ -54,5 +65,18 @@ export default class Database {
     return new Message("Forward", {
       messages
     });
+  }
+
+  // Assigns a random id to the object
+  create(data: any) {
+    let message = new Message("Create", {
+      channel: this.channel,
+      timestamp: new Date().toISOString(),
+      id: randomID(),
+      data
+    });
+    let sm = SignedMessage.fromSigning(message, node.keyPair);
+    this.handleSignedMessage(sm);
+    node.forwardToChannel(this.channel, sm);
   }
 }
