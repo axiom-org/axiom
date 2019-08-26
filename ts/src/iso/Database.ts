@@ -79,4 +79,12 @@ export default class Database {
     this.handleSignedMessage(sm);
     node.sendToChannel(this.channel, sm);
   }
+
+  load() {
+    let message = new Message("Query", {
+      channel: this.channel
+    });
+    let sm = SignedMessage.fromSigning(message, node.keyPair);
+    node.sendToChannel(this.channel, sm);
+  }
 }
