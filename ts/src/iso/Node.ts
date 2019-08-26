@@ -80,6 +80,7 @@ export default class Node {
     this.channelMembers = {};
     this.joined = {};
     this.subscriptions = {};
+    this.databases = {};
 
     this.timer = createIntervalTimer(() => {
       this.handleTick();
