@@ -58,6 +58,8 @@ Used to forward other messages. Could be Signal, Publish, Create, Update, Delete
 
 `message` is the encoded signed message we are forwarding
 
+`messages` is a list of multiple messages, when we're forwarding a batch.
+
 ## Join
 
 Used to join a channel.
@@ -91,4 +93,10 @@ different users can use the same id.
 
 `data` is the new data for the object. (Not present for Delete.)
 
+## Query
 
+Used to query for objects in a database channel.
+
+`channel` is the channel it is published to.
+
+We'll have to extend this later.

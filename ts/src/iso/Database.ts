@@ -43,4 +43,15 @@ export default class Database {
     this.objects[objectKey] = sm;
     return true;
   }
+
+  // Responds to a Query with a Forward containing a lot of other messages
+  handleQuery(m: Message): Message {
+    let messages = [];
+    for (let key in this.objects) {
+      messages.push(this.objects[key].serialize());
+    }
+    return new Message("Forward", {
+      messages
+    });
+  }
 }
