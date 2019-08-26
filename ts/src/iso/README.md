@@ -83,7 +83,8 @@ of their format:
 
 `channel` is the channel it is published to.
 
-`timestamp` is a toISOString() formatted timestamp of the operation.
+`timestamp` is a toISOString() formatted timestamp of the operation. Timestamps only
+have meaning per-user; the latest operation for a particular id is the one that counts.
 
 `id` is a string identifier for the object. The id only has to be unique per-user;
 different users can use the same id.
