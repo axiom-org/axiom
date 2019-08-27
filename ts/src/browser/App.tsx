@@ -39,7 +39,6 @@ class Chat extends React.Component<
     }, 1000);
 
     this.database.onMessage((sm: SignedMessage) => {
-      console.log("XXX onMessage data:", sm.message.data);
       if (sm.message.type === "Delete") {
         return;
       }

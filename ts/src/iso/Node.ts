@@ -416,7 +416,6 @@ export default class Node {
       return;
     }
     if (sm.message.messages) {
-      console.log("XXX got multiforward len", sm.message.messages.length);
       for (let serialized of sm.message.messages) {
         this.handleSerializedForward(intermediary, serialized);
       }
@@ -545,6 +544,7 @@ export default class Node {
         break;
       case "Query":
         this.handleQuery(peer, sm);
+        break;
       default:
         this.log("unexpected message type:", sm.message.type);
     }

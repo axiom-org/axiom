@@ -103,7 +103,6 @@ export default class Database {
   }
 
   load() {
-    console.log("XXX loading");
     let message = new Message("Query", {
       channel: this.channel
     });
