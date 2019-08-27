@@ -37,6 +37,7 @@ class Chat extends React.Component<
     this.database.load();
 
     this.database.onMessage((sm: SignedMessage) => {
+      console.log("XXX onMessage data:", sm.message.data);
       if (sm.message.type === "Delete") {
         return;
       }
@@ -64,7 +65,7 @@ class Chat extends React.Component<
         <h1>P2P Chat Proof Of Concept</h1>
         <CommentForm database={this.database} />
         {this.sortedComments().map((sm, index) => (
-          <p key={index}>{sm.message.comment}</p>
+          <p key={index}>{sm.message.data.comment}</p>
         ))}
       </div>
     );
@@ -77,10 +78,10 @@ function CommentForm(props: { database: Database }) {
   let handleSubmit = e => {
     e.preventDefault();
     console.log(`submitting ${comment}`);
-    setComment("");
     let data = {
-      comment: e.target.value
+      comment: comment
     };
+    setComment("");
     props.database.create(data);
   };
 
