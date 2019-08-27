@@ -75,10 +75,14 @@ export default class Database {
   }
 
   // Responds to a Query with a Forward containing a lot of other messages
+  // Returns null if there's nothing to say
   handleQuery(m: Message): Message {
     let messages = [];
     for (let key in this.objects) {
       messages.push(this.objects[key].serialize());
+    }
+    if (messages.length === 0) {
+      return null;
     }
     return new Message("Forward", {
       messages
@@ -99,6 +103,7 @@ export default class Database {
   }
 
   load() {
+    console.log("XXX loading");
     let message = new Message("Query", {
       channel: this.channel
     });

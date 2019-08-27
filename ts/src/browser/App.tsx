@@ -34,7 +34,9 @@ class Chat extends React.Component<
       comments: {}
     };
 
-    this.database.load();
+    setInterval(() => {
+      this.database.load();
+    }, 1000);
 
     this.database.onMessage((sm: SignedMessage) => {
       console.log("XXX onMessage data:", sm.message.data);
