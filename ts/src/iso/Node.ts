@@ -416,6 +416,7 @@ export default class Node {
       return;
     }
     if (sm.message.messages) {
+      console.log("XXX got multiforward len", sm.message.messages.length);
       for (let serialized of sm.message.messages) {
         this.handleSerializedForward(intermediary, serialized);
       }
@@ -434,15 +435,19 @@ export default class Node {
       return;
     }
 
-    if (nested.message.type === "Publish") {
-      this.handlePublish(nested);
-      return;
+    switch (nested.message.type) {
+      case "Publish":
+        this.handlePublish(nested);
+        break;
+      case "Signal":
+        this.handleForwardedSignal(intermediary, nested);
+        break;
+      case "Create":
+      case "Update":
+      case "Delete":
+        this.handleDatabaseWrite(nested);
+        break;
     }
-    if (nested.message.type === "Signal") {
-      this.handleForwardedSignal(intermediary, nested);
-      return;
-    }
-    return;
   }
 
   handleJoin(sm: SignedMessage) {
@@ -536,9 +541,10 @@ export default class Node {
       case "Create":
       case "Update":
       case "Delete":
-      case "Query":
-        this.handleWithDatabase(peer, sm);
+        this.handleDatabaseWrite(sm);
         break;
+      case "Query":
+        this.handleQuery(peer, sm);
       default:
         this.log("unexpected message type:", sm.message.type);
     }
@@ -554,18 +560,24 @@ export default class Node {
     }
   }
 
-  handleWithDatabase(peer: Peer, sm: SignedMessage) {
+  handleQuery(peer: Peer, sm: SignedMessage) {
     let channel = sm.message.channel;
     let database = this.databases[channel];
     if (!database) {
       return;
     }
 
-    if (sm.message.type === "Query") {
-      let response = database.handleQuery(sm.message);
-      if (response) {
-        peer.sendMessage(response);
-      }
+    let response = database.handleQuery(sm.message);
+    if (response) {
+      peer.sendMessage(response);
+    }
+  }
+
+  // Create/Update/Delete ops
+  handleDatabaseWrite(sm: SignedMessage) {
+    let channel = sm.message.channel;
+    let database = this.databases[channel];
+    if (!database) {
       return;
     }
 
