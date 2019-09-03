@@ -1,3 +1,4 @@
+import KeyPair from "./KeyPair";
 import Message from "./Message";
 import Node from "./Node";
 import SignedMessage from "./SignedMessage";
@@ -18,15 +19,21 @@ type DatabaseCallback = (sm: SignedMessage) => void;
 export default class Database {
   channel: string;
   node: Node;
+  keyPair: KeyPair;
 
   // The key is <signer>:<id>
   objects: { [key: string]: SignedMessage };
 
   callbacks: DatabaseCallback[];
 
-  constructor(channel: string, node: Node) {
+  constructor(channel: string, node?: Node) {
     this.channel = channel;
-    this.node = node;
+    if (node) {
+      this.node = node;
+      this.keyPair = node.keyPair;
+    } else {
+      this.keyPair = KeyPair.fromRandom();
+    }
     this.objects = {};
     this.callbacks = [];
   }
