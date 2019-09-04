@@ -140,7 +140,12 @@ export default class Database {
       id
     };
     if (obj.metadata.type !== "Delete") {
-      messageContent.data = { ...obj };
+      messageContent.data = {};
+      for (let key in obj) {
+        if (!key.startsWith("_")) {
+          messageContent.data[key] = obj[key];
+        }
+      }
       delete messageContent.data._id;
       delete messageContent.data.metadata;
     }
