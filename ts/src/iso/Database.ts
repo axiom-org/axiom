@@ -22,6 +22,7 @@ export default class Database {
   keyPair: KeyPair;
 
   // The key is <signer>:<id>
+  // TODO: replace with a pouch
   objects: { [key: string]: SignedMessage };
 
   callbacks: DatabaseCallback[];
@@ -108,22 +109,27 @@ export default class Database {
     if (parts.length != 2) {
       throw new Error(`bad pouch _id: ${obj._id}`);
     }
-    let data = {};
-    for (let key in obj) {
-      if (!key.startsWith("_")) {
-        data[key] = obj[key];
-      }
-    }
-    let message = new Message(obj._type, {
+    let [signer, id] = parts;
+
+    let messageContent: any = {
       channel: obj._channel,
       timestamp: obj._timestamp,
-      id: parts[1],
-      data
-    });
+      id
+    };
+    if (obj._type !== "Delete") {
+      messageContent.data = {};
+      for (let key in obj) {
+        if (!key.startsWith("_")) {
+          messageContent.data[key] = obj[key];
+        }
+      }
+    }
+    let message = new Message(obj._type, messageContent);
+
     let sm = new SignedMessage({
       message,
       messageString: message.serialize(),
-      signer: parts[0],
+      signer,
       signature: obj._signature,
       verified: false
     });
