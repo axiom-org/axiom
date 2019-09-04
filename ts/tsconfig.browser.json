@@ -3,6 +3,7 @@
       "outDir": "./build/browser/",
       "sourceMap": true,
       "allowJs": true,
+      "esModuleInterop": true,      
       "jsx": "react",
       "target": "es5",
       "lib": [ "es2017", "dom" ],

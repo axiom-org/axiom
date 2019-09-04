@@ -1,7 +1,8 @@
+import PouchDB from "pouchdb";
+
 import KeyPair from "./KeyPair";
 import Message from "./Message";
 import Node from "./Node";
-import * as PouchDB from "pouchdb";
 import SignedMessage from "./SignedMessage";
 
 let CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
