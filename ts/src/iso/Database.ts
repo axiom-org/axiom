@@ -27,7 +27,7 @@ export default class Database {
 
   constructor(channel: string, node?: Node) {
     this.channel = channel;
-    this.db = new PouchDB(channel);
+    this.db = new PouchDB(channel, { auto_compaction: true });
     if (node) {
       this.node = node;
       this.keyPair = node.keyPair;
