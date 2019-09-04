@@ -92,6 +92,7 @@ have meaning per-user; the latest operation for a particular id is the one that 
 different users can use the same id.
 
 `data` is the new data for the object. (Not present for Delete.)
+You can't have fields in "data" named "metadata" or "timestamp".
 
 ## Query
 

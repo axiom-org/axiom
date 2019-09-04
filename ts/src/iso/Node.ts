@@ -560,28 +560,28 @@ export default class Node {
     }
   }
 
-  handleQuery(peer: Peer, sm: SignedMessage) {
+  async handleQuery(peer: Peer, sm: SignedMessage) {
     let channel = sm.message.channel;
     let database = this.databases[channel];
     if (!database) {
       return;
     }
 
-    let response = database.handleQuery(sm.message);
+    let response = await database.handleQuery(sm.message);
     if (response) {
       peer.sendMessage(response);
     }
   }
 
   // Create/Update/Delete ops
-  handleDatabaseWrite(sm: SignedMessage) {
+  async handleDatabaseWrite(sm: SignedMessage) {
     let channel = sm.message.channel;
     let database = this.databases[channel];
     if (!database) {
       return;
     }
 
-    let handled = database.handleSignedMessage(sm);
+    let handled = await database.handleSignedMessage(sm);
     if (handled) {
       this.forwardToChannel(channel, sm);
     }
