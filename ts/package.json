@@ -1,6 +1,6 @@
 {
   "name": "axiom-api",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "API for interacting with the Axiom.org cryptocurrency platform",
   "repository": {
     "type": "git",
