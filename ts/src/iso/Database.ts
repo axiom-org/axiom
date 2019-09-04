@@ -81,6 +81,56 @@ export default class Database {
     return true;
   }
 
+  // Convert a SignedMessage to a form storable in PouchDB
+  // TODO: Throw an error if the message is invalid
+  signedMessageToPouchObject(sm: SignedMessage): any {
+    let obj = {
+      _id: `${sm.signer}:${sm.message.id}`,
+      _timestamp: sm.message.timestamp,
+      _type: sm.message.type,
+      _channel: sm.message.channel,
+      _signature: sm.signature
+    };
+    for (let key in sm.message.data) {
+      obj[key] = sm.message.data[key];
+    }
+
+    // Check the signature verifies, so we don't get bad data stuck in our database
+    this.pouchObjectToSignedMessage(obj);
+
+    return obj;
+  }
+
+  // Convert a PouchDB object to a SignedMessage
+  // Throws an error if the signature does not match
+  pouchObjectToSignedMessage(obj: any): SignedMessage {
+    let parts = obj._id.split(":");
+    if (parts.length != 2) {
+      throw new Error(`bad pouch _id: ${obj._id}`);
+    }
+    let data = {};
+    for (let key in obj) {
+      if (!key.startsWith("_")) {
+        data[key] = obj[key];
+      }
+    }
+    let message = new Message(obj._type, {
+      channel: obj._channel,
+      timestamp: obj._timestamp,
+      id: parts[1],
+      data
+    });
+    let sm = new SignedMessage({
+      message,
+      messageString: message.serialize(),
+      signer: parts[0],
+      signature: obj._signature,
+      verified: false
+    });
+    sm.verify();
+    return sm;
+  }
+
   // Responds to a Query with a Forward containing a lot of other messages
   // Returns null if there's nothing to say
   handleQuery(m: Message): Message {
