@@ -19,6 +19,9 @@ type DatabaseCallback = (sm: SignedMessage) => void;
 // A Database represents a set of data that is being synced by a node in the Axiom
 // peer-to-peer network.
 export default class Database {
+  // If this is set, new PouchDB databases will use this adapter.
+  static adapter: any = null;
+
   channel: string;
   node: Node;
   keyPair: KeyPair;
@@ -28,7 +31,10 @@ export default class Database {
 
   constructor(channel: string, node?: Node) {
     this.channel = channel;
-    this.db = new PouchDB(channel, { auto_compaction: true });
+    this.db = new PouchDB(channel, {
+      auto_compaction: true,
+      adapter: Database.adapter
+    });
     if (node) {
       this.node = node;
       this.keyPair = node.keyPair;
