@@ -1,8 +1,18 @@
 import Database from "./Database";
+import MemoryAdapter from "pouchdb-adapter-memory";
+import PouchDB from "pouchdb";
+
+PouchDB.plugin(MemoryAdapter);
 
 beforeEach(async () => {
+  Database.adapter = "memory";
+
   let db = new Database("testdatabase");
   await db.db.destroy();
+});
+
+afterEach(() => {
+  Database.adapter = null;
 });
 
 test("Database basics", async () => {
