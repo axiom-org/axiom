@@ -1,17 +1,10 @@
 import { useMockIntervalTimer, useRealIntervalTimer } from "./IntervalTimer";
 import MockPeerServer from "./MockPeerServer";
 import Node from "./Node";
-import { useMockNetworking, useRealNetworking } from "./TestUtil";
+import { useTestEnvironment, useNormalEnvironment } from "./TestUtil";
 
-beforeEach(() => {
-  useMockIntervalTimer();
-  useMockNetworking();
-});
-
-afterEach(() => {
-  useRealIntervalTimer();
-  useRealNetworking();
-});
+beforeEach(useTestEnvironment);
+afterEach(useNormalEnvironment);
 
 test("MockPeerServer basics", async () => {
   let bootstrap = MockPeerServer.makeBootstrap(2);
