@@ -34,6 +34,7 @@ export default class MemberSet {
     delete this.members[publicKey];
   }
 
+  // Returns whether it's a new member
   handleJoin(sm: SignedMessage) {
     let now = new Date();
     let existingInfo = this.members[sm.signer];
@@ -42,6 +43,7 @@ export default class MemberSet {
       firstSeen: existingInfo ? existingInfo.firstSeen : now,
       lastSeen: now
     };
+    return !existingInfo;
   }
 
   // Returns a list of Join messages for members in this group

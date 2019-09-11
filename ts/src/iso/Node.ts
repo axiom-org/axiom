@@ -52,6 +52,9 @@ export default class Node {
   // The databases we are syncing data for.
   databases: { [channel: string]: Database };
 
+  // Prefix all our databases with this string
+  prefix: string;
+
   keyPair: KeyPair;
 
   // An interval timer that gets called repeatedly while this node is alive
@@ -72,6 +75,7 @@ export default class Node {
 
     this.pendingByPublicKey = {};
 
+    this.prefix = "";
     this.destroyed = false;
     this.verbose = verbose;
     this.peers = {};
@@ -454,7 +458,12 @@ export default class Node {
     if (!this.channelMembers[channel]) {
       this.channelMembers[channel] = new MemberSet();
     }
-    this.channelMembers[channel].handleJoin(sm);
+    if (
+      this.channelMembers[channel].handleJoin(sm) &&
+      sm.signer !== this.keyPair.getPublicKey()
+    ) {
+      this.log(`saw ${sm.signer.slice(0, 6)} joined ${channel}`);
+    }
   }
 
   handlePublish(sm: SignedMessage) {
@@ -484,6 +493,7 @@ export default class Node {
     if (this.joined[channel]) {
       return;
     }
+    this.log(`joining channel ${channel}`);
     this.joined[channel] = new Date();
     let message = new Message("Join", { channel: channel });
     let signed = SignedMessage.fromSigning(message, this.keyPair);
@@ -494,7 +504,8 @@ export default class Node {
     }
   }
 
-  handleSignedMessage(peer: Peer, sm: SignedMessage) {
+  // This is async because some handling hits the database
+  async handleSignedMessage(peer: Peer, sm: SignedMessage) {
     if (peer.peerPublicKey && this.peers[peer.peerPublicKey] !== peer) {
       // We received a message from a peer that we previously removed
       return;
@@ -543,7 +554,7 @@ export default class Node {
         this.handleDatabaseWrite(sm);
         break;
       case "Query":
-        this.handleQuery(peer, sm);
+        await this.handleQuery(peer, sm);
         break;
       default:
         this.log("unexpected message type:", sm.message.type);
@@ -566,6 +577,9 @@ export default class Node {
     if (!database) {
       return;
     }
+    this.log(
+      `handling query on ${sm.message.channel} from ${sm.signer.slice(0, 6)}`
+    );
 
     let response = await database.handleQuery(sm.message);
     if (response) {
@@ -583,6 +597,9 @@ export default class Node {
 
     let handled = await database.handleSignedMessage(sm);
     if (handled) {
+      this.log(
+        `got ${sm.message.type} on ${channel} from ${sm.signer.slice(0, 6)}`
+      );
       this.forwardToChannel(channel, sm);
     }
   }
@@ -711,7 +728,7 @@ export default class Node {
   database(channel: string): Database {
     this.join(channel);
     if (!this.databases[channel]) {
-      this.databases[channel] = new Database(channel, this);
+      this.databases[channel] = new Database(channel, this, this.prefix);
     }
     return this.databases[channel];
   }

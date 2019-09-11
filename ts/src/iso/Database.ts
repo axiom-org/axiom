@@ -29,9 +29,10 @@ export default class Database {
 
   callbacks: DatabaseCallback[];
 
-  constructor(channel: string, node?: Node) {
+  constructor(channel: string, node?: Node, prefix?: string) {
     this.channel = channel;
-    this.db = new PouchDB(channel, {
+    prefix = prefix || "";
+    this.db = new PouchDB(prefix + channel, {
       auto_compaction: true,
       adapter: Database.adapter
     });
