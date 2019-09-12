@@ -1,4 +1,4 @@
-import Database from "./Database";
+import Channel from "./Channel";
 import IntervalTimer, { createIntervalTimer } from "./IntervalTimer";
 import KeyPair from "./KeyPair";
 import MemberSet from "./MemberSet";
@@ -47,13 +47,11 @@ export default class Node {
   joined: { [channel: string]: Date };
 
   // The channels we have subscribed to.
+  // TODO: consider removing subscriptions
   subscriptions: { [channel: string]: Subscription };
 
-  // The databases we are syncing data for.
-  databases: { [channel: string]: Database };
-
-  // Prefix all our databases with this string
-  prefix: string;
+  // The channels we are syncing databases for.
+  channels: { [name: string]: Channel };
 
   keyPair: KeyPair;
 
@@ -75,7 +73,6 @@ export default class Node {
 
     this.pendingByPublicKey = {};
 
-    this.prefix = "";
     this.destroyed = false;
     this.verbose = verbose;
     this.peers = {};
@@ -84,7 +81,7 @@ export default class Node {
     this.channelMembers = {};
     this.joined = {};
     this.subscriptions = {};
-    this.databases = {};
+    this.channels = {};
 
     this.timer = createIntervalTimer(() => {
       this.handleTick();
@@ -414,14 +411,14 @@ export default class Node {
     peer.signal(nested.message.signal);
   }
 
-  handleForward(intermediary: Peer, sm: SignedMessage) {
+  async handleForward(intermediary: Peer, sm: SignedMessage) {
     if (sm.message.message) {
-      this.handleSerializedForward(intermediary, sm.message.message);
+      await this.handleSerializedForward(intermediary, sm.message.message);
       return;
     }
     if (sm.message.messages) {
       for (let serialized of sm.message.messages) {
-        this.handleSerializedForward(intermediary, serialized);
+        await this.handleSerializedForward(intermediary, serialized);
       }
       return;
     }
@@ -429,7 +426,7 @@ export default class Node {
     return;
   }
 
-  handleSerializedForward(intermediary: Peer, serialized: string) {
+  async handleSerializedForward(intermediary: Peer, serialized: string) {
     let nested;
     try {
       nested = SignedMessage.fromSerialized(serialized, true);
@@ -448,8 +445,13 @@ export default class Node {
       case "Create":
       case "Update":
       case "Delete":
-        this.handleDatabaseWrite(nested);
+        let channel = this.channels[nested.message.channel];
+        if (channel) {
+          await channel.handleSignedMessage(intermediary, nested);
+        }
         break;
+      default:
+        this.log(`ignoring unusual forward of type ${nested.message.type}`);
     }
   }
 
@@ -540,7 +542,7 @@ export default class Node {
         this.handleSignal(peer, sm);
         break;
       case "Forward":
-        this.handleForward(peer, sm);
+        await this.handleForward(peer, sm);
         break;
       case "Join":
         this.handleJoin(sm);
@@ -551,10 +553,11 @@ export default class Node {
       case "Create":
       case "Update":
       case "Delete":
-        this.handleDatabaseWrite(sm);
-        break;
       case "Query":
-        await this.handleQuery(peer, sm);
+        let channel = this.channels[sm.message.channel];
+        if (channel) {
+          await channel.handleSignedMessage(peer, sm);
+        }
         break;
       default:
         this.log("unexpected message type:", sm.message.type);
@@ -568,39 +571,6 @@ export default class Node {
     }
     for (let callback of everyCallbacks) {
       callback(sm);
-    }
-  }
-
-  async handleQuery(peer: Peer, sm: SignedMessage) {
-    let channel = sm.message.channel;
-    let database = this.databases[channel];
-    if (!database) {
-      return;
-    }
-    this.log(
-      `handling query on ${sm.message.channel} from ${sm.signer.slice(0, 6)}`
-    );
-
-    let response = await database.handleQuery(sm.message);
-    if (response) {
-      peer.sendMessage(response);
-    }
-  }
-
-  // Create/Update/Delete ops
-  async handleDatabaseWrite(sm: SignedMessage) {
-    let channel = sm.message.channel;
-    let database = this.databases[channel];
-    if (!database) {
-      return;
-    }
-
-    let handled = await database.handleSignedMessage(sm);
-    if (handled) {
-      this.log(
-        `got ${sm.message.type} on ${channel} from ${sm.signer.slice(0, 6)}`
-      );
-      this.forwardToChannel(channel, sm);
     }
   }
 
@@ -725,12 +695,12 @@ export default class Node {
     this.subscriptions[channel] = new Subscription(channel, callback);
   }
 
-  database(channel: string): Database {
-    this.join(channel);
-    if (!this.databases[channel]) {
-      this.databases[channel] = new Database(channel, this, this.prefix);
+  channel(name: string, prefix?: string): Channel {
+    this.join(name);
+    if (!this.channels[name]) {
+      this.channels[name] = new Channel(name, this, prefix);
     }
-    return this.databases[channel];
+    return this.channels[name];
   }
 
   destroy() {

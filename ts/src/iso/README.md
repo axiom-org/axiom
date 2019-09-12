@@ -85,6 +85,8 @@ of their format:
 
 `channel` is the channel it is published to.
 
+`database` is which database it applies to.
+
 `timestamp` is a toISOString() formatted timestamp of the operation. Timestamps only
 have meaning per-user; the latest operation for a particular id is the one that counts.
 
@@ -99,5 +101,7 @@ You can't have fields in "data" named "metadata" or "timestamp".
 Used to query for objects in a database channel.
 
 `channel` is the channel it is published to.
+
+`database` is which database it applies to.
 
 We'll have to extend this later.

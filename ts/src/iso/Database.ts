@@ -3,6 +3,7 @@ import PouchDB from "pouchdb";
 import KeyPair from "./KeyPair";
 import Message from "./Message";
 import Node from "./Node";
+import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
 
 let CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -23,16 +24,18 @@ export default class Database {
   static adapter: any = null;
 
   channel: string;
+  name: string;
   node: Node;
   keyPair: KeyPair;
   db: any;
 
   callbacks: DatabaseCallback[];
 
-  constructor(channel: string, node?: Node, prefix?: string) {
+  constructor(name: string, channel: string, node?: Node, prefix?: string) {
+    this.name = name;
     this.channel = channel;
     prefix = prefix || "";
-    this.db = new PouchDB(prefix + channel, {
+    this.db = new PouchDB(prefix + name, {
       auto_compaction: true,
       adapter: Database.adapter
     });
@@ -65,24 +68,11 @@ export default class Database {
     this.callbacks.push(callback);
   }
 
-  // Returns true if this message updated our database, and the message should be
-  // forwarded on.
-  // Returns false if this was an old or invalid message.
-  // TODO: handle malicious messages differently
-  async handleSignedMessage(sm: SignedMessage): Promise<boolean> {
-    switch (sm.message.type) {
-      case "Create":
-      case "Update":
-      case "Delete":
-        break;
-      default:
-        throw new Error(
-          `Database cannot handleSignedMessage of type ${sm.message.type}`
-        );
-    }
-
+  // Create/Update/Delete ops
+  // If this message updates our database, it is forwarded on.
+  async handleDatabaseWrite(sm: SignedMessage): Promise<void> {
     if (!sm.message.timestamp) {
-      return false;
+      return;
     }
 
     let newDocument = this.signedMessageToDocument(sm);
@@ -99,7 +89,7 @@ export default class Database {
     if (oldDocument) {
       let oldMessage = this.documentToSignedMessage(oldDocument);
       if (oldMessage && sm.message.timestamp <= oldMessage.message.timestamp) {
-        return false;
+        return;
       }
       newDocument._rev = oldDocument._rev;
     }
@@ -110,7 +100,25 @@ export default class Database {
       callback(sm);
     }
 
-    return true;
+    if (this.node) {
+      this.node.forwardToChannel(sm.message.channel, sm);
+    }
+  }
+
+  // TODO: handle malicious messages differently
+  async handleSignedMessage(peer: Peer, sm: SignedMessage): Promise<void> {
+    switch (sm.message.type) {
+      case "Create":
+      case "Update":
+      case "Delete":
+        return await this.handleDatabaseWrite(sm);
+      case "Query":
+        return await this.handleQuery(peer, sm.message);
+      default:
+        throw new Error(
+          `Database cannot handleSignedMessage of type ${sm.message.type}`
+        );
+    }
   }
 
   // Convert a SignedMessage to a form storable in PouchDB
@@ -123,6 +131,7 @@ export default class Database {
         timestamp: sm.message.timestamp,
         type: sm.message.type,
         channel: sm.message.channel,
+        database: sm.message.database,
         signature: sm.signature
       }
     };
@@ -144,6 +153,7 @@ export default class Database {
 
     let messageContent: any = {
       channel: obj.metadata.channel,
+      database: obj.metadata.database,
       timestamp: obj.metadata.timestamp,
       id
     };
@@ -170,20 +180,21 @@ export default class Database {
     return sm;
   }
 
-  // Responds to a Query with a Forward containing a lot of other messages
-  // Returns null if there's nothing to say
-  async handleQuery(m: Message): Promise<Message> {
+  // If we have data, send back a Forward containing a lot of other messages
+  async handleQuery(peer: Peer, m: Message) {
     let messages = [];
     let sms = await this.allSignedMessages();
     for (let sm of sms) {
       messages.push(sm.serialize());
     }
     if (messages.length === 0) {
-      return null;
+      return;
     }
-    return new Message("Forward", {
-      messages
-    });
+    peer.sendMessage(
+      new Message("Forward", {
+        messages
+      })
+    );
   }
 
   // Assigns a random id to the object
@@ -194,25 +205,22 @@ export default class Database {
     }
     let message = new Message("Create", {
       channel: this.channel,
+      database: this.name,
       timestamp: new Date().toISOString(),
       id: randomID(),
       data
     });
     let sm = SignedMessage.fromSigning(message, this.keyPair);
-    await this.handleSignedMessage(sm);
-    this.sendToChannel(message);
-  }
-
-  sendToChannel(message: Message) {
-    if (this.node) {
-      this.node.sendToChannel(this.channel, message);
-    }
+    await this.handleDatabaseWrite(sm);
   }
 
   load() {
     let message = new Message("Query", {
-      channel: this.channel
+      channel: this.channel,
+      database: this.name
     });
-    this.sendToChannel(message);
+    if (this.node) {
+      this.node.sendToChannel(this.channel, message);
+    }
   }
 }

@@ -1,4 +1,3 @@
-import { useMockIntervalTimer, useRealIntervalTimer } from "./IntervalTimer";
 import MockPeerServer from "./MockPeerServer";
 import Node from "./Node";
 import { useTestEnvironment, useNormalEnvironment } from "./TestUtil";
@@ -24,11 +23,12 @@ test("Mock db usage", async () => {
 
   // Connect a couple nodes to the network
   let node1 = new Node(null, bootstrap, false);
-  node1.prefix = "node1";
-  let db1 = node1.database("testdb");
+  let chan1 = node1.channel("testapp", "prefix1");
+  let db1 = chan1.database("docs");
+
   let node2 = new Node(null, bootstrap, false);
-  node2.prefix = "node2";
-  let db2 = node2.database("testdb");
+  let chan2 = node2.channel("testapp", "prefix2");
+  let db2 = chan2.database("docs");
 
   // Check that a write to db1 should end up in db2
   let callback = jest.fn();
@@ -40,7 +40,7 @@ test("Mock db usage", async () => {
   db2.load();
 
   // TODO: implement some "wait for all Node work to complete" to avoid sleeps
-  await sleep(1000);
+  await sleep(500);
 
   expect(callback.mock.calls.length).toBe(1);
 });

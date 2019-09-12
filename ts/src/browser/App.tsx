@@ -4,6 +4,7 @@ import * as React from "react";
 let useState = React.useState;
 
 import AxiomAPI from "./AxiomAPI";
+import Channel from "../iso/Channel";
 import Database from "../iso/Database";
 import Node from "../iso/Node";
 import SignedMessage from "../iso/SignedMessage";
@@ -11,48 +12,49 @@ import SignedMessage from "../iso/SignedMessage";
 export default function App() {
   let axiom = new AxiomAPI({ network: "alpha", verbose: true });
   let node = axiom.createNode();
-  let database = node.database("comments");
+  let channel = node.channel("Axboard");
+  let postdb = channel.database("Posts");
 
   return (
     <div className="App">
-      <Chat database={database} />
+      <PostList postdb={postdb} />
     </div>
   );
 }
 
-class Chat extends React.Component<
-  { database: Database },
-  { comments: { [key: string]: SignedMessage } }
+class PostList extends React.Component<
+  { postdb: Database },
+  { posts: { [key: string]: SignedMessage } }
 > {
-  database: Database;
+  postdb: Database;
 
-  constructor(props: { database: Database }) {
+  constructor(props: { postdb: Database }) {
     super(props);
 
-    this.database = props.database;
+    this.postdb = props.postdb;
     this.state = {
-      comments: {}
+      posts: {}
     };
 
     setInterval(() => {
-      this.database.load();
+      this.postdb.load();
     }, 1000);
 
-    this.database.onMessage((sm: SignedMessage) => {
+    this.posts.onMessage((sm: SignedMessage) => {
       if (sm.message.type === "Delete") {
         return;
       }
       let key = sm.signer + ":" + sm.message.id;
-      let newComments = { ...this.state.comments };
-      newComments[key] = sm;
-      this.setState({ comments: newComments });
+      let newPosts = { ...this.state.posts };
+      newPosts[key] = sm;
+      this.setState({ posts: newPosts });
     });
   }
 
-  sortedComments() {
-    let comments = [];
-    for (let key in this.state.comments) {
-      comments.push(this.state.comments[key]);
+  sortedPosts() {
+    let posts = [];
+    for (let key in this.state.posts) {
+      comments.push(this.state.posts[key]);
     }
     comments.sort((a, b) =>
       a.message.timestamp.localeCompare(b.message.timestamp)
@@ -63,38 +65,38 @@ class Chat extends React.Component<
   render() {
     return (
       <div>
-        <h1>P2P Chat Proof Of Concept</h1>
-        <CommentForm database={this.database} />
-        {this.sortedComments().map((sm, index) => (
-          <p key={index}>{sm.message.data.comment}</p>
+        <h1>P2P Message Board Proof Of Concept</h1>
+        <InputForm database={this.postdb} />
+        {this.sortedPosts().map((sm, index) => (
+          <p key={index}>{sm.message.data.content}</p>
         ))}
       </div>
     );
   }
 }
 
-function CommentForm(props: { database: Database }) {
-  let [comment, setComment] = useState("");
+function InputForm(props: { database: Database }) {
+  let [content, setContent] = useState("");
 
   let handleSubmit = e => {
     e.preventDefault();
-    console.log(`submitting ${comment}`);
+    console.log(`submitting ${post}`);
     let data = {
-      comment: comment
+      content: content
     };
-    setComment("");
+    setContent("");
     props.database.create(data);
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <label>
-        Comment:
+        Post:
         <br />
         <input
           type="text"
-          value={comment}
-          onChange={e => setComment(e.target.value)}
+          value={content}
+          onChange={e => setContent(e.target.value)}
         />
       </label>
       <input type="submit" value="Submit" />
