@@ -14,30 +14,41 @@ export default function App() {
   let node = axiom.createNode();
   let channel = node.channel("Axboard");
   let postdb = channel.database("Posts");
+  let commentdb = channel.database("Comments");
 
   return (
     <div className="App">
-      <PostList postdb={postdb} />
+      <PostList postdb={postdb} commentdb={commentdb} />
     </div>
   );
 }
 
 class PostList extends React.Component<
-  { postdb: Database },
-  { posts: { [key: string]: SignedMessage } }
+  {
+    postdb: Database;
+    commentdb: Database;
+  },
+  {
+    posts: { [key: string]: SignedMessage };
+    comments: { [parent: string]: { [key: string]: SignedMessage } };
+  }
 > {
   postdb: Database;
+  commentdb: Database;
 
-  constructor(props: { postdb: Database }) {
+  constructor(props: { postdb: Database; commentdb: Database }) {
     super(props);
 
     this.postdb = props.postdb;
+    this.commentdb = props.commentdb;
     this.state = {
-      posts: {}
+      posts: {},
+      comments: {}
     };
 
     setInterval(() => {
       this.postdb.load();
+      this.commentdb.load();
     }, 1000);
 
     this.postdb.onMessage((sm: SignedMessage) => {
@@ -49,17 +60,41 @@ class PostList extends React.Component<
       newPosts[key] = sm;
       this.setState({ posts: newPosts });
     });
+
+    this.commentdb.onMessage((sm: SignedMessage) => {
+      if (sm.message.type === "Delete") {
+        return;
+      }
+      let key = sm.signer + ":" + sm.message.id;
+      let parent = sm.message.data.parent;
+      let newThread = { ...this.state.comments[parent] };
+      newThread[key] = sm;
+      let newComments = { ...this.state.comments };
+      newComments[parent] = newThread;
+      this.setState({ comments: newComments });
+    });
   }
 
-  sortedPosts() {
+  sortedPosts(): SignedMessage[] {
     let posts = [];
     for (let key in this.state.posts) {
       posts.push(this.state.posts[key]);
     }
     posts.sort((a, b) =>
-      a.message.timestamp.localeCompare(b.message.timestamp)
+      b.message.timestamp.localeCompare(a.message.timestamp)
     );
     return posts;
+  }
+
+  sortedComments(parent: string): SignedMessage[] {
+    let comments = [];
+    for (let key in this.state.comments[parent]) {
+      comments.push(this.state.comments[parent][key]);
+    }
+    comments.sort((a, b) =>
+      a.message.timestamp.localeCompare(b.message.timestamp)
+    );
+    return comments;
   }
 
   render() {
@@ -67,26 +102,53 @@ class PostList extends React.Component<
       <div>
         <h1>P2P Message Board Proof Of Concept</h1>
         <InputForm
-          database={this.postdb}
-          name={"Post"}
+          name={"New post"}
           onSubmit={content => {
             let data = { content: content };
             this.postdb.create(data);
           }}
         />
         {this.sortedPosts().map((sm, index) => (
-          <p key={index}>{sm.message.data.content}</p>
+          <Post
+            key={index}
+            post={sm}
+            comments={this.sortedComments(sm.signer + ":" + sm.message.id)}
+            commentdb={this.commentdb}
+          />
         ))}
       </div>
     );
   }
 }
 
-function InputForm(props: {
-  database: Database;
-  onSubmit: (string) => void;
-  name: string;
+function Post(props: {
+  post: SignedMessage;
+  comments: SignedMessage[];
+  commentdb: Database;
 }) {
+  return (
+    <div>
+      <hr />
+      <p>Post: {props.post.message.data.content}</p>
+      {props.comments.map((sm, index) => (
+        <p key={index}>Comment: {sm.message.data.content}</p>
+      ))}
+      <InputForm
+        name={"Reply"}
+        onSubmit={content => {
+          let parent = props.post.signer + ":" + props.post.message.id;
+          let data = {
+            parent: parent,
+            content: content
+          };
+          props.commentdb.create(data);
+        }}
+      />
+    </div>
+  );
+}
+
+function InputForm(props: { onSubmit: (string) => void; name: string }) {
   let [content, setContent] = useState("");
 
   let handleSubmit = e => {
