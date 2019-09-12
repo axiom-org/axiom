@@ -1,7 +1,6 @@
-import { mockTick, useMockIntervalTimer } from "../iso/IntervalTimer";
 import MockPeerServer from "../iso/MockPeerServer";
 import Node from "../iso/Node";
-import { useMockNetworking, useRealNetworking } from "../iso/TestUtil";
+import { useTestEnvironment } from "../iso/TestUtil";
 import TimeTracker from "../iso/TimeTracker";
 
 function checkEqual(x, y, message) {
@@ -11,8 +10,7 @@ function checkEqual(x, y, message) {
 }
 
 async function benchmark() {
-  useMockNetworking();
-  useMockIntervalTimer();
+  useTestEnvironment();
 
   let start = new Date();
   let logTime = (name: string) => {
