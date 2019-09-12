@@ -40,7 +40,7 @@ class PostList extends React.Component<
       this.postdb.load();
     }, 1000);
 
-    this.posts.onMessage((sm: SignedMessage) => {
+    this.postdb.onMessage((sm: SignedMessage) => {
       if (sm.message.type === "Delete") {
         return;
       }
@@ -54,12 +54,12 @@ class PostList extends React.Component<
   sortedPosts() {
     let posts = [];
     for (let key in this.state.posts) {
-      comments.push(this.state.posts[key]);
+      posts.push(this.state.posts[key]);
     }
-    comments.sort((a, b) =>
+    posts.sort((a, b) =>
       a.message.timestamp.localeCompare(b.message.timestamp)
     );
-    return comments;
+    return posts;
   }
 
   render() {
@@ -80,7 +80,7 @@ function InputForm(props: { database: Database }) {
 
   let handleSubmit = e => {
     e.preventDefault();
-    console.log(`submitting ${post}`);
+    console.log(`submitting ${content}`);
     let data = {
       content: content
     };
