@@ -66,7 +66,14 @@ class PostList extends React.Component<
     return (
       <div>
         <h1>P2P Message Board Proof Of Concept</h1>
-        <InputForm database={this.postdb} />
+        <InputForm
+          database={this.postdb}
+          name={"Post"}
+          onSubmit={content => {
+            let data = { content: content };
+            this.postdb.create(data);
+          }}
+        />
         {this.sortedPosts().map((sm, index) => (
           <p key={index}>{sm.message.data.content}</p>
         ))}
@@ -75,24 +82,24 @@ class PostList extends React.Component<
   }
 }
 
-function InputForm(props: { database: Database }) {
+function InputForm(props: {
+  database: Database;
+  onSubmit: (string) => void;
+  name: string;
+}) {
   let [content, setContent] = useState("");
 
   let handleSubmit = e => {
     e.preventDefault();
     console.log(`submitting ${content}`);
-    let data = {
-      content: content
-    };
+    props.onSubmit(content);
     setContent("");
-    props.database.create(data);
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <label>
-        Post:
-        <br />
+        {props.name}:<br />
         <input
           type="text"
           value={content}
