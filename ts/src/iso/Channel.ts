@@ -1,4 +1,5 @@
 import Database from "./Database";
+import KeyPair from "./KeyPair";
 import Node from "./Node";
 import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
@@ -7,6 +8,11 @@ import SignedMessage from "./SignedMessage";
 export default class Channel {
   name: string;
   node: Node;
+
+  // This is the "data keypair".
+  // If we are not logged in, this keypair is not set.
+  // TODO: document the "networking keypair" more clearly
+  keyPair: KeyPair;
 
   databases: { [name: string]: Database };
 
@@ -30,6 +36,10 @@ export default class Channel {
       return;
     }
     return await db.handleSignedMessage(peer, sm);
+  }
+
+  setKeyPair(kp: KeyPair) {
+    this.keyPair = kp;
   }
 
   database(name: string): Database {
