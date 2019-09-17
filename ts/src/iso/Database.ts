@@ -1,5 +1,6 @@
 import PouchDB from "pouchdb";
 
+import Channel from "./Channel";
 import KeyPair from "./KeyPair";
 import Message from "./Message";
 import Node from "./Node";
@@ -23,7 +24,7 @@ export default class Database {
   // If this is set, new PouchDB databases will use this adapter.
   static adapter: any = null;
 
-  channel: string;
+  channel: Channel;
   name: string;
   node: Node;
   keyPair: KeyPair;
@@ -31,7 +32,7 @@ export default class Database {
 
   callbacks: DatabaseCallback[];
 
-  constructor(name: string, channel: string, node?: Node, prefix?: string) {
+  constructor(name: string, channel: Channel, node?: Node, prefix?: string) {
     this.name = name;
     this.channel = channel;
     prefix = prefix || "";
@@ -204,7 +205,7 @@ export default class Database {
       throw new Error("You can't have a field in data named metadata.");
     }
     let message = new Message("Create", {
-      channel: this.channel,
+      channel: this.channel.name,
       database: this.name,
       timestamp: new Date().toISOString(),
       id: randomID(),
@@ -216,11 +217,11 @@ export default class Database {
 
   load() {
     let message = new Message("Query", {
-      channel: this.channel,
+      channel: this.channel.name,
       database: this.name
     });
     if (this.node) {
-      this.node.sendToChannel(this.channel, message);
+      this.node.sendToChannel(this.channel.name, message);
     }
   }
 }

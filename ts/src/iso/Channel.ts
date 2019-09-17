@@ -28,6 +28,7 @@ export default class Channel {
       this.prefix = name + "_";
     }
     this.databases = {};
+    this.keyPair = null;
   }
 
   async handleSignedMessage(peer: Peer, sm: SignedMessage) {
@@ -38,18 +39,18 @@ export default class Channel {
     return await db.handleSignedMessage(peer, sm);
   }
 
+  // Returns null if we are not logged in
+  async getKeyPair(): Promise<KeyPair> {
+    return this.keyPair;
+  }
+
   setKeyPair(kp: KeyPair) {
     this.keyPair = kp;
   }
 
   database(name: string): Database {
     if (!this.databases[name]) {
-      this.databases[name] = new Database(
-        name,
-        this.name,
-        this.node,
-        this.prefix
-      );
+      this.databases[name] = new Database(name, this, this.node, this.prefix);
     }
     return this.databases[name];
   }

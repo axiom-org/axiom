@@ -5,13 +5,14 @@ beforeEach(useTestEnvironment);
 afterEach(useNormalEnvironment);
 
 test("Database basics", async () => {
-  let database = new Database("testchannel", "testdatabase");
+  let chan: any = { name: "testdatabase" };
+  let database = new Database("testchannel", chan);
   let callback = jest.fn();
   await database.onMessage(callback);
   await database.create({ foo: "bar" });
   expect(callback.mock.calls.length).toBe(1);
 
-  let database2 = new Database("testchannel", "testdatabase");
+  let database2 = new Database("testchannel", chan);
   let callback2 = jest.fn();
   await database2.onMessage(callback2);
   await database2.create({ baz: "qux" });

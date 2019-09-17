@@ -18,7 +18,7 @@ test("PeerServer single connection", async () => {
   await clientPeer.waitUntilConnected();
 });
 
-test("PeerServer bootstrapping", async () => {
+test.skip("PeerServer bootstrapping", async () => {
   let urls = ["ws://localhost:2223"];
   let verbose = false;
 
