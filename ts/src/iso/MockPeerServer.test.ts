@@ -1,3 +1,4 @@
+import KeyPair from "./KeyPair";
 import MockPeerServer from "./MockPeerServer";
 import Node from "./Node";
 import { useTestEnvironment, useNormalEnvironment } from "./TestUtil";
@@ -24,6 +25,7 @@ test("Mock db usage", async () => {
   // Connect a couple nodes to the network
   let node1 = new Node(null, bootstrap, false);
   let chan1 = node1.channel("testapp", "prefix1");
+  chan1.setKeyPair(KeyPair.fromRandom());
   let db1 = chan1.database("docs");
 
   let node2 = new Node(null, bootstrap, false);

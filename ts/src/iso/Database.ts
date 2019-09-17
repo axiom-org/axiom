@@ -204,6 +204,10 @@ export default class Database {
     if (data.metadata) {
       throw new Error("You can't have a field in data named metadata.");
     }
+    let kp = await this.channel.getKeyPair();
+    if (!kp) {
+      throw new Error("You must register a keypair to create an object.");
+    }
     let message = new Message("Create", {
       channel: this.channel.name,
       database: this.name,
@@ -211,7 +215,7 @@ export default class Database {
       id: randomID(),
       data
     });
-    let sm = SignedMessage.fromSigning(message, this.keyPair);
+    let sm = SignedMessage.fromSigning(message, kp);
     await this.handleDatabaseWrite(sm);
   }
 
