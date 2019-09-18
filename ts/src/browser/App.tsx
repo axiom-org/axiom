@@ -6,13 +6,14 @@ let useState = React.useState;
 import AxiomAPI from "./AxiomAPI";
 import Channel from "../iso/Channel";
 import Database from "../iso/Database";
-import Node from "../iso/Node";
+import KeyPair from "../iso/KeyPair";
 import SignedMessage from "../iso/SignedMessage";
 
 export default function App() {
   let axiom = new AxiomAPI({ network: "alpha", verbose: true });
   let node = axiom.createNode();
   let channel = node.channel("Axboard");
+  channel.setKeyPair(KeyPair.fromRandom());
   let postdb = channel.database("Posts");
   let commentdb = channel.database("Comments");
 
