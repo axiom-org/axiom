@@ -2,7 +2,6 @@
     "compilerOptions": {
       "outDir": "./build/browser/",
       "sourceMap": true,
-      "allowJs": true,
       "esModuleInterop": true,      
       "jsx": "react",
       "target": "es5",

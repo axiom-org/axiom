@@ -54,6 +54,7 @@ function main() {
       "API for interacting with the Axiom.org cryptocurrency platform";
     packageData.bin = {};
     packageData.main = "build/browser/browser/AxiomAPI.js";
+    packageData.types = "build/browser/browser/AxiomAPI.d.ts";
     packageData.scripts.prepublish = "npm run build-api";
     writePackage(packageData);
     return;
@@ -65,6 +66,7 @@ function main() {
       "CLI for interacting with the Axiom.org cryptocurrency platform";
     packageData.bin = { axiom: "./build/node/node/cli-main.js" };
     packageData.main = null;
+    packageData.types = null;
     packageData.scripts.prepublish = "npm run build-cli";
     writePackage(packageData);
     return;
