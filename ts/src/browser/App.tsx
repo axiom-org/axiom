@@ -28,10 +28,12 @@ class PostList extends React.Component<
   {
     postdb: Database;
     commentdb: Database;
+    channel: Channel;
   },
   {
     posts: { [key: string]: SignedMessage };
     comments: { [parent: string]: { [key: string]: SignedMessage } };
+    keyPair: KeyPair;
   }
 > {
   postdb: Database;
@@ -182,7 +184,7 @@ function Post(props: {
 function InputForm(props: {
   onSubmit: (string) => void;
   name: string;
-  password: boolean;
+  password?: boolean;
 }) {
   let [content, setContent] = useState("");
 
