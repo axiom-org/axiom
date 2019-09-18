@@ -12,39 +12,27 @@ function checkEqual(x, y, message) {
 async function benchmark() {
   useTestEnvironment();
 
-  let start = new Date();
-  let logTime = (name: string) => {
-    let end = new Date();
-    let elapsed = end.getTime() - start.getTime();
-    console.log(`${elapsed / 1000}s elapsed in ${name}`);
-    start = end;
-  };
-
-  let bootstrap = MockPeerServer.makeBootstrap(4);
+  let bootstrap = MockPeerServer.makeBootstrap(2);
   let servers = MockPeerServer.makeServers(bootstrap);
 
-  // Check the graph is complete
-  for (let i = 0; i < 4; i++) {
-    checkEqual(servers[i].node.getPeers().length, 3, `server ${i}`);
-  }
+  // Connect a couple nodes to the network
+  let node1 = new Node(null, bootstrap, false);
+  let chan1 = node1.channel("testapp", "prefix1");
+  chan1.setKeyPair(KeyPair.fromRandom());
+  let db1 = chan1.database("docs");
 
-  // Add n more servers
-  let n = 30;
-  console.log(`creating a network of ${n} nodes`);
-  let nodes = [];
-  for (let i = 0; i < n; i++) {
-    let node = new Node(null, bootstrap, false);
-    nodes.push(node);
-  }
+  let node2 = new Node(null, bootstrap, false);
+  let chan2 = node2.channel("testapp", "prefix2");
+  let db2 = chan2.database("docs");
 
-  logTime("network creation");
+  // Check that a write to db1 should end up in db2
+  let callback = jest.fn();
+  await db2.onMessage(callback);
+  checkEqual(callback.mock.calls.length, 0);
+  await db1.create({ name: "bob" });
+  db2.load();
 
-  for (let node of nodes) {
-    node.subscribe("test", null);
-    node.publish("test", "hello");
-  }
-
-  logTime("publishing");
+  // TODO: wait for db2 to get the create
 }
 
 benchmark().then(() => {

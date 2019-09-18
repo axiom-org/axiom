@@ -38,10 +38,8 @@ test("Mock db usage", async () => {
   expect(callback.mock.calls.length).toBe(0);
   await db1.create({ name: "bob" });
 
-  // TODO: implement autoloading so that userspace doesn't have to manually load
+  // TODO: fix this stuff after autoloading
   db2.load();
-
-  // TODO: implement some "wait for all Node work to complete" to avoid sleeps
   await sleep(500);
 
   expect(callback.mock.calls.length).toBe(1);
