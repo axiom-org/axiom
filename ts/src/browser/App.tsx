@@ -3,11 +3,12 @@
 import * as React from "react";
 let useState = React.useState;
 
-import AxiomAPI from "./AxiomAPI";
-import Channel from "../iso/Channel";
-import Database from "../iso/Database";
-import KeyPair from "../iso/KeyPair";
-import SignedMessage from "../iso/SignedMessage";
+import AxiomAPI, {
+  Channel,
+  Database,
+  KeyPair,
+  SignedMessage
+} from "./AxiomAPI";
 
 export default function App() {
   let axiom = new AxiomAPI({ network: "alpha", verbose: true });

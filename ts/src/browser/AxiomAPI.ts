@@ -3,12 +3,18 @@
 
 import Bucket from "./Bucket";
 import ChainClient from "../iso/ChainClient";
+import Channel from "../iso/Channel";
+import Database from "../iso/Database";
+import KeyPair from "../iso/KeyPair";
 import NetworkConfig from "../iso/NetworkConfig";
 import Node from "../iso/Node";
+import SignedMessage from "../iso/SignedMessage";
 import TorrentClient from "../iso/TorrentClient";
 import UntrustedClient from "./UntrustedClient";
 
 import { makeBucketName } from "../iso/Util";
+
+export { Channel, Database, KeyPair, SignedMessage };
 
 export default class AxiomAPI {
   network: string;
