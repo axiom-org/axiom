@@ -455,7 +455,8 @@ export default class Node {
     }
   }
 
-  handleJoin(sm: SignedMessage) {
+  // peer is null if we are handling our own join.
+  handleJoin(peer: Peer, sm: SignedMessage) {
     let channel = sm.message.channel;
     if (!this.channelMembers[channel]) {
       this.channelMembers[channel] = new MemberSet();
@@ -465,6 +466,11 @@ export default class Node {
       sm.signer !== this.keyPair.getPublicKey()
     ) {
       this.log(`saw ${sm.signer.slice(0, 6)} joined ${channel}`);
+
+      if (peer && this.channels[channel]) {
+        // Send "loading" queries to this peer
+        this.channels[channel].handleNewPeer(peer);
+      }
     }
   }
 
@@ -499,7 +505,7 @@ export default class Node {
     this.joined[channel] = new Date();
     let message = new Message("Join", { channel: channel });
     let signed = SignedMessage.fromSigning(message, this.keyPair);
-    this.handleJoin(signed);
+    this.handleJoin(null, signed);
     let peers = this.getPeers();
     for (let peer of peers) {
       peer.sendMessage(message);
@@ -545,7 +551,7 @@ export default class Node {
         await this.handleForward(peer, sm);
         break;
       case "Join":
-        this.handleJoin(sm);
+        this.handleJoin(peer, sm);
         break;
       case "Publish":
         this.handlePublish(sm);

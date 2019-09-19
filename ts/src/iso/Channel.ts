@@ -1,5 +1,6 @@
 import Database from "./Database";
 import KeyPair from "./KeyPair";
+import Message from "./Message";
 import Node from "./Node";
 import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
@@ -37,6 +38,17 @@ export default class Channel {
       return;
     }
     return await db.handleSignedMessage(peer, sm);
+  }
+
+  // This function is called when we see a new peer in our channel
+  async handleNewPeer(peer: Peer) {
+    for (let dbname in this.databases) {
+      let message = new Message("Query", {
+        channel: this.name,
+        database: dbname
+      });
+      peer.sendMessage(message);
+    }
   }
 
   // Returns null if we are not logged in

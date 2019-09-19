@@ -12,8 +12,8 @@ function checkEqual(x, y, message?: String) {
 }
 
 async function waitFor(f) {
-  let waits = 0;
-  while (waits < 1000) {
+  let start = new Date().getTime();
+  while (new Date().getTime() - start < 1000) {
     if (f()) {
       return;
     }
@@ -39,6 +39,7 @@ async function runIntegrationTest() {
   let chan1 = node1.channel("testapp", "prefix1");
   chan1.setKeyPair(KeyPair.fromRandom());
   let db1 = chan1.database("docs");
+  await db1.create({ name: "bob" });
 
   let node2 = new Node(null, bootstrap, false);
   let chan2 = node2.channel("testapp", "prefix2");
@@ -51,8 +52,6 @@ async function runIntegrationTest() {
   };
   await db2.onMessage(callback);
   checkEqual(counter, 0);
-  await db1.create({ name: "bob" });
-  db2.load();
   await waitFor(() => counter === 1);
   console.log(`time elapsed: ${new Date().getTime() - start} ms`);
 }
