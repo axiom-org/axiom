@@ -47,6 +47,8 @@ export default class Database {
       this.keyPair = KeyPair.fromRandom();
     }
     this.callbacks = [];
+
+    this.load();
   }
 
   async allSignedMessages(): Promise<SignedMessage[]> {
