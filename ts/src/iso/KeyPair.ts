@@ -162,6 +162,16 @@ export default class KeyPair {
     return new KeyPair(keys.publicKey, keys.secretKey);
   }
 
+  static test() {
+    let pk = new Uint8Array(32);
+    let sk = new Uint8Array(64);
+    var d = new Uint8Array(64);
+
+    (nacl as any).lowlevel.crypto_hash(d, sk, 32);
+
+    // (nacl as any).lowlevel.crypto_sign_keypair(pk, sk);
+  }
+
   // plain() returns a plain-object form, with 'public' and 'private' keys
   plain() {
     return {

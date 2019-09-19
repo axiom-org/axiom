@@ -12,7 +12,7 @@
   "main": "build/browser/browser/AxiomAPI.js",
   "scripts": {
     "app": "parcel app/index.html",
-    "benchmark": "TS_NODE_PROJECT=tsconfig.node.json node -r ts-node/register src/node/benchmark-main.ts",
+    "integration": "TS_NODE_PROJECT=tsconfig.node.json node -r ts-node/register src/node/integration-main.ts",
     "build-api": "tsc -d --project tsconfig.browser.json",
     "build-cli": "tsc --project tsconfig.node.json",
     "cli": "ts-node --project tsconfig.node.json src/node/cli-main.ts",
@@ -23,7 +23,7 @@
     "prepublish": "npm run build-api",
     "repackage": "ts-node src/node/repackage-main.ts",
     "test-browser": "jest --config jest.config.browser.js",
-    "test-node": "jest --config jest.config.node.js",
+    "test-node": "jest --config jest.config.node.js --maxWorkers=4",
     "zip": "NODE_ENV=production NETWORK=alpha ./build-extension.sh"
   },
   "browserslist": [

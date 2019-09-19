@@ -3,6 +3,7 @@ import MockPeerServer from "../iso/MockPeerServer";
 import Node from "../iso/Node";
 import { useTestEnvironment } from "../iso/TestUtil";
 import TimeTracker from "../iso/TimeTracker";
+import { sleep } from "../iso/Util";
 
 function checkEqual(x, y, message?: String) {
   if (x !== y) {
@@ -10,10 +11,20 @@ function checkEqual(x, y, message?: String) {
   }
 }
 
-async function benchmark() {
-  useTestEnvironment();
+async function waitFor(f) {
+  let waits = 0;
+  while (waits < 1000) {
+    if (f()) {
+      return;
+    }
+    await sleep(1);
+  }
+  throw new Error("waiting never finished");
+}
 
-  let start = new Date();
+async function runIntegrationTest() {
+  useTestEnvironment();
+  let start = new Date().getTime();
 
   let bootstrap = MockPeerServer.makeBootstrap(2);
   let servers = MockPeerServer.makeServers(bootstrap);
@@ -37,12 +48,10 @@ async function benchmark() {
   checkEqual(counter, 0);
   await db1.create({ name: "bob" });
   db2.load();
-
-  console.log(`${new Date().getTime() - start.getTime()} ms elapsed`);
-
-  // TODO: wait for db2 to get the create
+  await waitFor(() => counter === 1);
+  console.log(`time elapsed: ${new Date().getTime() - start} ms`);
 }
 
-benchmark().then(() => {
+runIntegrationTest().then(() => {
   TimeTracker.show();
 });
