@@ -1,9 +1,10 @@
+import KeyPair from "../iso/KeyPair";
 import MockPeerServer from "../iso/MockPeerServer";
 import Node from "../iso/Node";
 import { useTestEnvironment } from "../iso/TestUtil";
 import TimeTracker from "../iso/TimeTracker";
 
-function checkEqual(x, y, message) {
+function checkEqual(x, y, message?: String) {
   if (x !== y) {
     throw new Error(`${x} !== ${y}: ${message}`);
   }
@@ -26,9 +27,12 @@ async function benchmark() {
   let db2 = chan2.database("docs");
 
   // Check that a write to db1 should end up in db2
-  let callback = jest.fn();
+  let counter = 0;
+  let callback = () => {
+    counter++;
+  };
   await db2.onMessage(callback);
-  checkEqual(callback.mock.calls.length, 0);
+  checkEqual(counter, 0);
   await db1.create({ name: "bob" });
   db2.load();
 
