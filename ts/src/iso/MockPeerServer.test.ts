@@ -19,6 +19,8 @@ test("Mock network construction", async () => {
 
 // TODO: why is this slow
 test("Mock db usage", async () => {
+  let start = new Date();
+
   let bootstrap = MockPeerServer.makeBootstrap(2);
   let servers = MockPeerServer.makeServers(bootstrap);
 
@@ -40,6 +42,7 @@ test("Mock db usage", async () => {
 
   // TODO: fix this stuff after autoloading
   db2.load();
+  console.log(`${new Date().getTime() - start.getTime()} ms elapsed`);
   await sleep(500);
 
   expect(callback.mock.calls.length).toBe(1);

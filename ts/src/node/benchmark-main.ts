@@ -13,6 +13,8 @@ function checkEqual(x, y, message?: String) {
 async function benchmark() {
   useTestEnvironment();
 
+  let start = new Date();
+
   let bootstrap = MockPeerServer.makeBootstrap(2);
   let servers = MockPeerServer.makeServers(bootstrap);
 
@@ -35,6 +37,8 @@ async function benchmark() {
   checkEqual(counter, 0);
   await db1.create({ name: "bob" });
   db2.load();
+
+  console.log(`${new Date().getTime() - start.getTime()} ms elapsed`);
 
   // TODO: wait for db2 to get the create
 }
