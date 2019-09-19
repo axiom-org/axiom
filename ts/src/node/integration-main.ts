@@ -26,6 +26,7 @@ async function waitFor(f) {
 // The main problem is that the encryption libraries are about 10x slower in the Jest environment.
 // I haven't been able to track down why this is.
 // Since the p2p nodes encrypt a lot, this makes it quite slow to test them with Jest.
+// Maybe if we replace tweetnacl with node-sodium it'll work better.
 async function runIntegrationTest() {
   useTestEnvironment();
   let start = new Date().getTime();
