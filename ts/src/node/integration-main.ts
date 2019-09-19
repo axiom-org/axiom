@@ -22,6 +22,10 @@ async function waitFor(f) {
   throw new Error("waiting never finished");
 }
 
+// It's a little frustrating that this integration test isn't a Jest test.
+// The main problem is that the encryption libraries are about 10x slower in the Jest environment.
+// I haven't been able to track down why this is.
+// Since the p2p nodes encrypt a lot, this makes it quite slow to test them with Jest.
 async function runIntegrationTest() {
   useTestEnvironment();
   let start = new Date().getTime();
