@@ -221,6 +221,25 @@ export default class Database {
     await this.handleDatabaseWrite(sm);
   }
 
+  async update(id: string, data: any) {
+    if (data.metadata) {
+      throw new Error("You can't have a field in data named metadata.");
+    }
+    let kp = await this.channel.getKeyPair();
+    if (!kp) {
+      throw new Error("You must register a keypair to update an object.");
+    }
+    let message = new Message("Update", {
+      channel: this.channel.name,
+      database: this.name,
+      timestamp: new Date().toISOString(),
+      id: id,
+      data
+    });
+    let sm = SignedMessage.fromSigning(message, kp);
+    await this.handleDatabaseWrite(sm);
+  }
+
   load() {
     let message = new Message("Query", {
       channel: this.channel.name,
