@@ -201,7 +201,7 @@ export default class Database {
   }
 
   // Assigns a random id to the object
-  // Returns once it has been checked with the local database.
+  // Returns the random id, once it has been checked with the local database.
   async create(data: any) {
     if (data.metadata) {
       throw new Error("You can't have a field in data named metadata.");
@@ -210,15 +210,17 @@ export default class Database {
     if (!kp) {
       throw new Error("You must register a keypair to create an object.");
     }
+    let id = randomID();
     let message = new Message("Create", {
       channel: this.channel.name,
       database: this.name,
       timestamp: new Date().toISOString(),
-      id: randomID(),
+      id,
       data
     });
     let sm = SignedMessage.fromSigning(message, kp);
     await this.handleDatabaseWrite(sm);
+    return id;
   }
 
   async update(id: string, data: any) {
