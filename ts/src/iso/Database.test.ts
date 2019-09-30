@@ -13,15 +13,20 @@ test("Database basics", async () => {
       return kp;
     }
   };
-  let database = new Database("testchannel", chan);
-  let callback = jest.fn();
-  await database.onMessage(callback);
-  await database.create({ foo: "bar" });
-  expect(callback.mock.calls.length).toBe(1);
+  let database1 = new Database("testchannel", chan);
+  let callback1 = jest.fn();
+  await database1.onMessage(callback1);
+  let fooID = await database1.create({ foo: "bar" });
+  expect(callback1.mock.calls.length).toBe(1);
 
+  // These Database objects aren't communicating; they are reloading
+  // the same data from the persistent store.
   let database2 = new Database("testchannel", chan);
   let callback2 = jest.fn();
   await database2.onMessage(callback2);
   await database2.create({ baz: "qux" });
   expect(callback2.mock.calls.length).toBe(2);
+
+  await database2.update(fooID, { foo: "bar2" });
+  expect(callback2.mock.calls.length).toBe(3);
 });
