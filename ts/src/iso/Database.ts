@@ -263,6 +263,12 @@ export default class Database {
     await this.db.createIndex(blob);
   }
 
+  // Returns a blob with docs key
+  // TODO: improve the format with an AxiomObject
+  async find(query: any) {
+    return await this.db.find(query);
+  }
+
   load() {
     let message = new Message("Query", {
       channel: this.channel.name,
