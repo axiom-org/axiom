@@ -259,6 +259,10 @@ export default class Database {
     await this.handleDatabaseWrite(sm);
   }
 
+  async createIndex(blob: any) {
+    await this.db.createIndex(blob);
+  }
+
   load() {
     let message = new Message("Query", {
       channel: this.channel.name,
