@@ -1,4 +1,6 @@
 import PouchDB from "pouchdb";
+import PouchDBFind from "pouchdb-find";
+PouchDB.plugin(PouchDBFind);
 
 import Channel from "./Channel";
 import KeyPair from "./KeyPair";
