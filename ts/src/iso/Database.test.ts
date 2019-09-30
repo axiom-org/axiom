@@ -29,4 +29,7 @@ test("Database basics", async () => {
 
   await database2.update(fooID, { foo: "bar2" });
   expect(callback2.mock.calls.length).toBe(3);
+
+  await database2.delete(fooID);
+  expect(callback2.mock.calls.length).toBe(4);
 });
