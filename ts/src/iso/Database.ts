@@ -242,6 +242,21 @@ export default class Database {
     await this.handleDatabaseWrite(sm);
   }
 
+  async delete(id: string) {
+    let kp = await this.channel.getKeyPair();
+    if (!kp) {
+      throw new Error("You must register a keypair to delete an object.");
+    }
+    let message = new Message("Delete", {
+      channel: this.channel.name,
+      database: this.name,
+      timestamp: new Date().toISOString(),
+      id: id
+    });
+    let sm = SignedMessage.fromSigning(message, kp);
+    await this.handleDatabaseWrite(sm);
+  }
+
   load() {
     let message = new Message("Query", {
       channel: this.channel.name,
