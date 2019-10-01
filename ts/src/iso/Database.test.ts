@@ -30,16 +30,8 @@ test("Database object format conversion", async () => {
   expect(sm2).toEqual(sm);
 });
 
-// TODO: use mocks
 test("Database basics", async () => {
-  let chan: any = {
-    name: "testdatabase",
-    getKeyPair: () => {
-      let kp = KeyPair.fromRandom();
-      return kp;
-    }
-  };
-  let database1 = new Database("testchannel", chan);
+  let database1 = new Database("testchannel", CHAN);
   let callback1 = jest.fn();
   await database1.onMessage(callback1);
   let fooID = await database1.create({ foo: "bar" });
@@ -47,7 +39,7 @@ test("Database basics", async () => {
 
   // These Database objects aren't communicating; they are reloading
   // the same data from the persistent store.
-  let database2 = new Database("testchannel", chan);
+  let database2 = new Database("testchannel", CHAN);
   let callback2 = jest.fn();
   await database2.onMessage(callback2);
   await database2.create({ baz: "qux" });
