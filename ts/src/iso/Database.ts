@@ -2,6 +2,7 @@ import PouchDB from "pouchdb";
 import PouchDBFind from "pouchdb-find";
 PouchDB.plugin(PouchDBFind);
 
+import AxiomObject from "./AxiomObject";
 import Channel from "./Channel";
 import KeyPair from "./KeyPair";
 import Message from "./Message";
@@ -277,10 +278,14 @@ export default class Database {
     await this.db.createIndex(blob);
   }
 
-  // Returns a blob with docs key
-  // TODO: improve the format with an AxiomObject
-  async find(query: any) {
-    return await this.db.find(query);
+  // Returns a list of AxiomObject
+  async find(query: any): Promise<AxiomObject[]> {
+    let response = await this.db.find(query);
+    let answer = [];
+    for (let doc in response.docs) {
+      answer.push(AxiomObject.fromDocument(doc));
+    }
+    return answer;
   }
 
   load() {
