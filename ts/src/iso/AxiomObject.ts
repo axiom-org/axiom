@@ -30,5 +30,18 @@ export default class AxiomObject {
     this.data = data;
   }
 
-  static fromSignedMessage(sm: SignedMessage): AxiomObject {}
+  static fromSignedMessage(sm: SignedMessage): AxiomObject {
+    if (!sm.message.data) {
+      throw new Error("cannot create AxiomObject with missing data field");
+    }
+    let metadata: Metadata = {
+      channel: sm.message.channel,
+      database: sm.message.database,
+      timestamp: new Date(sm.message.timestamp),
+      id: sm.message.id,
+      owner: sm.signer
+    };
+
+    return new AxiomObject(metadata, sm.message.data);
+  }
 }
