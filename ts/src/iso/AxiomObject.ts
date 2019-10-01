@@ -44,4 +44,30 @@ export default class AxiomObject {
 
     return new AxiomObject(metadata, sm.message.data);
   }
+
+  static fromDocument(obj: any): AxiomObject {
+    let parts = obj._id.split(":");
+    if (parts.length != 2) {
+      throw new Error(`bad pouch _id: ${obj._id}`);
+    }
+    let [owner, id] = parts;
+
+    let metadata: Metadata = {
+      channel: obj.metadata.channel,
+      database: obj.metadata.database,
+      timestamp: obj.metadata.timestamp,
+      id,
+      owner
+    };
+    if (obj.metadata.type == "Delete") {
+      throw new Error("cannot convert a Delete to an AxiomObject");
+    }
+    let data = {};
+    for (let key in obj) {
+      if (!key.startsWith("_") && key !== "metadata") {
+        data[key] = obj[key];
+      }
+    }
+    return new AxiomObject(metadata, data);
+  }
 }

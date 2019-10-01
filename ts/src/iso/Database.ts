@@ -10,6 +10,7 @@ import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
 
 let CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
+let ID_REGEX = RegExp("^[a-z0-9]+$");
 function randomID(): string {
   let id = "";
   for (let i = 0; i < 10; i++) {
@@ -134,6 +135,9 @@ export default class Database {
         `cannot store ${sm.message.type} with missing data field`
       );
     }
+    if (!ID_REGEX.test(sm.message.id)) {
+      throw new Error(`bad id: ${sm.message.id}`);
+    }
     let obj = {
       ...sm.message.data,
       _id: `${sm.signer}:${sm.message.id}`,
@@ -172,6 +176,7 @@ export default class Database {
       id
     };
     if (obj.metadata.type !== "Delete") {
+      // XXX can we use superior fromDocument logic?
       messageContent.data = {};
       for (let key in obj) {
         if (!key.startsWith("_")) {
