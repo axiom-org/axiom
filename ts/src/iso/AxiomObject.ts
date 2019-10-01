@@ -1,3 +1,5 @@
+import SignedMessage from "./SignedMessage";
+
 interface Metadata {
   channel: string;
   database: string;
@@ -27,4 +29,6 @@ export default class AxiomObject {
     this.owner = metadata.owner;
     this.data = data;
   }
+
+  static fromSignedMessage(sm: SignedMessage): AxiomObject {}
 }

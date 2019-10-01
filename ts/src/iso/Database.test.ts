@@ -1,10 +1,36 @@
 import Database from "./Database";
 import KeyPair from "./KeyPair";
+import Message from "./Message";
+import SignedMessage from "./SignedMessage";
 import { useTestEnvironment, useNormalEnvironment } from "./TestUtil";
 
 beforeEach(useTestEnvironment);
 afterEach(useNormalEnvironment);
 
+// Mocks
+let KP = KeyPair.fromRandom();
+let CHAN: any = {
+  name: "testdatabase",
+  getKeyPair: () => KP
+};
+
+test("Database object format conversion", async () => {
+  let db = new Database("testchannel", CHAN);
+  let message = new Message("Update", {
+    channel: CHAN.name,
+    database: db.name,
+    timestamp: new Date().toISOString(),
+    id: "myid",
+    data: { foo: "bar" }
+  });
+  let sm = SignedMessage.fromSigning(message, KP);
+
+  let doc = db.signedMessageToDocument(sm);
+  let sm2 = db.documentToSignedMessage(doc);
+  expect(sm2).toEqual(sm);
+});
+
+// TODO: use mocks
 test("Database basics", async () => {
   let chan: any = {
     name: "testdatabase",

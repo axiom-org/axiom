@@ -129,6 +129,11 @@ export default class Database {
   // Convert a SignedMessage to a form storable in PouchDB
   // TODO: Throw an error if the message is invalid
   signedMessageToDocument(sm: SignedMessage): any {
+    if (sm.message.type !== "Delete" && !sm.message.data) {
+      throw new Error(
+        `cannot store ${sm.message.type} with missing data field`
+      );
+    }
     let obj = {
       ...sm.message.data,
       _id: `${sm.signer}:${sm.message.id}`,
@@ -142,7 +147,11 @@ export default class Database {
     };
 
     // Check the signature verifies, so we don't get bad data stuck in our database
-    this.documentToSignedMessage(obj);
+    try {
+      this.documentToSignedMessage(obj);
+    } catch (e) {
+      throw new Error(`failure formatting SignedMessage for storage: ${e}`);
+    }
 
     return obj;
   }
