@@ -25,5 +25,6 @@ export default class AxiomObject {
     this.timestamp = metadata.timestamp;
     this.id = metadata.id;
     this.owner = metadata.owner;
+    this.data = data;
   }
 }
