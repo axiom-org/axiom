@@ -50,4 +50,7 @@ test("Database basics", async () => {
 
   await database2.delete(fooID);
   expect(callback2.mock.calls.length).toBe(4);
+
+  let objects = await database2.find({ selector: {} });
+  expect(objects.length).toBe(1);
 });

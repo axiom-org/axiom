@@ -177,15 +177,12 @@ export default class Database {
       id
     };
     if (obj.metadata.type !== "Delete") {
-      // XXX can we use superior fromDocument logic?
       messageContent.data = {};
       for (let key in obj) {
-        if (!key.startsWith("_")) {
+        if (!key.startsWith("_") && key !== "metadata") {
           messageContent.data[key] = obj[key];
         }
       }
-      delete messageContent.data._id;
-      delete messageContent.data.metadata;
     }
     let message = new Message(obj.metadata.type, messageContent);
 
