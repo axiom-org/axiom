@@ -282,12 +282,16 @@ export default class Database {
   async find(query: any): Promise<AxiomObject[]> {
     let response = await this.db.find(query);
     let answer = [];
-    for (let doc in response.docs) {
+    for (let doc of response.docs) {
+      if (doc.metadata.type === "Delete") {
+        continue;
+      }
       answer.push(AxiomObject.fromDocument(doc));
     }
     return answer;
   }
 
+  // TODO: let this use queries somehow
   load() {
     let message = new Message("Query", {
       channel: this.channel.name,
