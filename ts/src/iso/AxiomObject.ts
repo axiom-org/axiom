@@ -72,4 +72,8 @@ export default class AxiomObject {
     }
     return new AxiomObject(metadata, data);
   }
+
+  async forget() {
+    await this.database.forget(this.owner, this.id);
+  }
 }
