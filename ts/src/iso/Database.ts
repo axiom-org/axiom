@@ -20,6 +20,10 @@ function randomID(): string {
   return id;
 }
 
+interface Query {
+  selector: object;
+}
+
 type DatabaseCallback = (sm: SignedMessage) => void;
 
 // A Database represents a set of data that is being synced by a node in the Axiom
@@ -57,8 +61,24 @@ export default class Database {
     this.load();
   }
 
-  filter(filterer: (AxiomObject) => boolean) {
+  // Sets a filter to be applied to new objects.
+  // A filter returns true for objects that are to be kept.
+  setFilter(filterer: (AxiomObject) => boolean): void {
     this.filterer = filterer;
+  }
+
+  // Applies a filter to objects already in the database.
+  // Returns when we are done filtering.
+  async applyFilter(filterer: (AxiomObject) => boolean): Promise<void> {
+    let objects = await this.find({ selector: {} });
+    let forgettable = objects.filter(x => !filterer(x));
+    await Promise.all(forgettable.map(obj => obj.forget()));
+  }
+
+  // Applies a filter to both objects already in the database, and new objects.
+  async useFilter(filterer: (AxiomObject) => boolean): Promise<void> {
+    this.setFilter(filterer);
+    await this.applyFilter(filterer);
   }
 
   async allSignedMessages(): Promise<SignedMessage[]> {
@@ -149,7 +169,7 @@ export default class Database {
     if (!ID_REGEX.test(sm.message.id)) {
       throw new Error(`bad id: ${sm.message.id}`);
     }
-    let obj = {
+    let doc = {
       ...sm.message.data,
       _id: `${sm.signer}:${sm.message.id}`,
       metadata: {
@@ -163,44 +183,44 @@ export default class Database {
 
     // Check the signature verifies, so we don't get bad data stuck in our database
     try {
-      this.documentToSignedMessage(obj);
+      this.documentToSignedMessage(doc);
     } catch (e) {
       throw new Error(`failure formatting SignedMessage for storage: ${e}`);
     }
 
-    return obj;
+    return doc;
   }
 
   // Convert a PouchDB object to a SignedMessage
   // Throws an error if the signature does not match
-  documentToSignedMessage(obj: any): SignedMessage {
-    let parts = obj._id.split(":");
+  documentToSignedMessage(doc: any): SignedMessage {
+    let parts = doc._id.split(":");
     if (parts.length != 2) {
-      throw new Error(`bad pouch _id: ${obj._id}`);
+      throw new Error(`bad pouch _id: ${doc._id}`);
     }
     let [signer, id] = parts;
 
     let messageContent: any = {
-      channel: obj.metadata.channel,
-      database: obj.metadata.database,
-      timestamp: obj.metadata.timestamp,
+      channel: doc.metadata.channel,
+      database: doc.metadata.database,
+      timestamp: doc.metadata.timestamp,
       id
     };
-    if (obj.metadata.type !== "Delete") {
+    if (doc.metadata.type !== "Delete") {
       messageContent.data = {};
-      for (let key in obj) {
+      for (let key in doc) {
         if (!key.startsWith("_") && key !== "metadata") {
-          messageContent.data[key] = obj[key];
+          messageContent.data[key] = doc[key];
         }
       }
     }
-    let message = new Message(obj.metadata.type, messageContent);
+    let message = new Message(doc.metadata.type, messageContent);
 
     let sm = new SignedMessage({
       message,
       messageString: message.serialize(),
       signer,
-      signature: obj.metadata.signature,
+      signature: doc.metadata.signature,
       verified: false
     });
     sm.verify();
@@ -314,7 +334,7 @@ export default class Database {
   }
 
   // Returns a list of AxiomObject
-  async find(query: any): Promise<AxiomObject[]> {
+  async find(query: Query): Promise<AxiomObject[]> {
     let response = await this.db.find(query);
     let answer = [];
     for (let doc of response.docs) {
