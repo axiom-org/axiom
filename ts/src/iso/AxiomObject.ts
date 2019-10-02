@@ -1,8 +1,8 @@
+import Database from "./Database";
 import SignedMessage from "./SignedMessage";
 
 interface Metadata {
-  channel: string;
-  database: string;
+  database: Database;
   timestamp: Date;
   id: string;
   owner: string;
@@ -12,8 +12,7 @@ interface Metadata {
 // lets the object be transported across the p2p network and stored at nodes.
 export default class AxiomObject {
   // Metadata used by the Axiom library
-  channel: string;
-  database: string;
+  database: Database;
   timestamp: Date;
   id: string;
   owner: string;
@@ -22,7 +21,6 @@ export default class AxiomObject {
   data: any;
 
   constructor(metadata: Metadata, data: any) {
-    this.channel = metadata.channel;
     this.database = metadata.database;
     this.timestamp = metadata.timestamp;
     this.id = metadata.id;
@@ -30,13 +28,18 @@ export default class AxiomObject {
     this.data = data;
   }
 
-  static fromSignedMessage(sm: SignedMessage): AxiomObject {
+  static fromSignedMessage(database: Database, sm: SignedMessage): AxiomObject {
     if (!sm.message.data) {
       throw new Error("cannot create AxiomObject with missing data field");
     }
+    if (database.name !== sm.message.database) {
+      throw new Error("database mismatch");
+    }
+    if (database.channel.name !== sm.message.channel) {
+      throw new Error("channel mismatch");
+    }
     let metadata: Metadata = {
-      channel: sm.message.channel,
-      database: sm.message.database,
+      database: database,
       timestamp: new Date(sm.message.timestamp),
       id: sm.message.id,
       owner: sm.signer
@@ -45,7 +48,7 @@ export default class AxiomObject {
     return new AxiomObject(metadata, sm.message.data);
   }
 
-  static fromDocument(obj: any): AxiomObject {
+  static fromDocument(database: Database, obj: any): AxiomObject {
     let parts = obj._id.split(":");
     if (parts.length != 2) {
       throw new Error(`bad pouch _id: ${obj._id}`);
@@ -53,8 +56,7 @@ export default class AxiomObject {
     let [owner, id] = parts;
 
     let metadata: Metadata = {
-      channel: obj.metadata.channel,
-      database: obj.metadata.database,
+      database: database,
       timestamp: obj.metadata.timestamp,
       id,
       owner

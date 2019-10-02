@@ -312,7 +312,7 @@ export default class Database {
       if (doc.metadata.type === "Delete") {
         continue;
       }
-      answer.push(AxiomObject.fromDocument(doc));
+      answer.push(AxiomObject.fromDocument(this, doc));
     }
     return answer;
   }
