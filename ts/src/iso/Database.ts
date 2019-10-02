@@ -33,6 +33,7 @@ export default class Database {
   node: Node;
   keyPair: KeyPair;
   db: any;
+  filterer: (AxiomObject) => boolean;
 
   callbacks: DatabaseCallback[];
 
@@ -51,8 +52,13 @@ export default class Database {
       this.keyPair = KeyPair.fromRandom();
     }
     this.callbacks = [];
+    this.filterer = null;
 
     this.load();
+  }
+
+  filter(filterer: (AxiomObject) => boolean) {
+    this.filterer = filterer;
   }
 
   async allSignedMessages(): Promise<SignedMessage[]> {
@@ -80,6 +86,18 @@ export default class Database {
   async handleDatabaseWrite(sm: SignedMessage): Promise<void> {
     if (!sm.message.timestamp) {
       return;
+    }
+
+    if (this.filterer) {
+      try {
+        let obj = AxiomObject.fromSignedMessage(this, sm);
+        if (!this.filterer(obj)) {
+          return;
+        }
+      } catch (e) {
+        // A malformed db write message
+        return;
+      }
     }
 
     let newDocument = this.signedMessageToDocument(sm);
