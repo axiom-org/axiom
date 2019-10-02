@@ -77,6 +77,7 @@ export default class Database {
 
   // Create/Update/Delete ops
   // If this message updates our database, it is forwarded on.
+  // XXX TODO: use getDocument
   async handleDatabaseWrite(sm: SignedMessage): Promise<void> {
     if (!sm.message.timestamp) {
       return;
@@ -254,6 +255,34 @@ export default class Database {
     });
     let sm = SignedMessage.fromSigning(message, kp);
     await this.handleDatabaseWrite(sm);
+  }
+
+  // Returns a pouch document, or null if there is none.
+  // Throws on unrecoverable errors.
+  async getDocument(owner: string, id: string): Promise<any> {
+    let objectKey = `${owner}:${id}`;
+    let oldDocument;
+    try {
+      oldDocument = await this.db.get(objectKey);
+    } catch (e) {
+      if (e.name !== "not_found") {
+        throw e;
+      }
+    }
+    return oldDocument || null;
+  }
+
+  // Removes an object from the local database, but doesn't try to delete it across the
+  // network.
+  // Future updates to this object will arrive in our database again, so this method alone
+  // won't prevent an object from arriving in our database.
+  async forget(owner: string, id: string) {
+    let doc = await this.getDocument(owner, id);
+    if (!doc) {
+      return;
+    }
+    let objectKey = `${owner}:${id}`;
+    await this.db.remove(objectKey, doc._rev);
   }
 
   async delete(id: string) {
