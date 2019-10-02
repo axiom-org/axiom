@@ -77,23 +77,14 @@ export default class Database {
 
   // Create/Update/Delete ops
   // If this message updates our database, it is forwarded on.
-  // XXX TODO: use getDocument
   async handleDatabaseWrite(sm: SignedMessage): Promise<void> {
     if (!sm.message.timestamp) {
       return;
     }
 
     let newDocument = this.signedMessageToDocument(sm);
-    let objectKey = `${sm.signer}:${sm.message.id}`;
-    let oldDocument;
+    let oldDocument = await this.getDocument(sm.signer, sm.message.id);
 
-    try {
-      oldDocument = await this.db.get(objectKey);
-    } catch (e) {
-      if (e.name !== "not_found") {
-        throw e;
-      }
-    }
     if (oldDocument) {
       let oldMessage = this.documentToSignedMessage(oldDocument);
       if (oldMessage && sm.message.timestamp <= oldMessage.message.timestamp) {
