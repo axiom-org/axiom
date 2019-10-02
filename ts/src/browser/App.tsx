@@ -24,6 +24,14 @@ export default function App() {
   );
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function Loading() {
+  return <div>loading...</div>;
+}
+
 class PostList extends React.Component<
   {
     postdb: Database;
