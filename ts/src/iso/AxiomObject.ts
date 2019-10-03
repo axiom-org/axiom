@@ -14,7 +14,10 @@ export default class AxiomObject {
   // Metadata used by the Axiom library
   database: Database;
   timestamp: Date;
+
+  // id is unique per-user, but different users can have objects with the same id.
   id: string;
+
   owner: string;
 
   // Application-specific data
@@ -75,5 +78,10 @@ export default class AxiomObject {
 
   async forget() {
     await this.database.forget(this.owner, this.id);
+  }
+
+  // Returns a unique identifier for this object.
+  key(): string {
+    return `${this.owner}:${this.id}`;
   }
 }
