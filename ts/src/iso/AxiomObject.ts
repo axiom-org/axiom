@@ -37,51 +37,6 @@ export default class AxiomObject {
     this.data = data;
   }
 
-  static fromSignedMessage(database: Database, sm: SignedMessage): AxiomObject {
-    if (!sm.message.data) {
-      throw new Error("cannot create AxiomObject with missing data field");
-    }
-    if (database.name !== sm.message.database) {
-      throw new Error("database mismatch");
-    }
-    if (database.channel.name !== sm.message.channel) {
-      throw new Error("channel mismatch");
-    }
-    let metadata: Metadata = {
-      database: database,
-      timestamp: new Date(sm.message.timestamp),
-      name: sm.message.name,
-      owner: sm.signer
-    };
-
-    return new AxiomObject(metadata, sm.message.data);
-  }
-
-  static fromDocument(database: Database, doc: any): AxiomObject {
-    let parts = doc._id.split(":");
-    if (parts.length != 2) {
-      throw new Error(`bad pouch _id: ${doc._id}`);
-    }
-    let [owner, name] = parts;
-
-    let metadata: Metadata = {
-      database: database,
-      timestamp: doc.metadata.timestamp,
-      name,
-      owner
-    };
-    if (doc.metadata.type == "Delete") {
-      throw new Error("cannot convert a Delete to an AxiomObject");
-    }
-    let data = {};
-    for (let key in doc) {
-      if (!key.startsWith("_") && key !== "metadata") {
-        data[key] = doc[key];
-      }
-    }
-    return new AxiomObject(metadata, data);
-  }
-
   async forget() {
     await this.database.forget(this.owner, this.name);
   }

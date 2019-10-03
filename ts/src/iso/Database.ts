@@ -115,7 +115,7 @@ export default class Database {
 
     if (this.filterer) {
       try {
-        let obj = AxiomObject.fromSignedMessage(this, sm);
+        let obj = this.signedMessageToObject(sm);
         if (!this.filterer(obj)) {
           return;
         }
@@ -196,7 +196,28 @@ export default class Database {
     return doc;
   }
 
-  // Convert a PouchDB object to a SignedMessage
+  // Convert a SignedMessage to an AxiomObject
+  signedMessageToObject(sm: SignedMessage): AxiomObject {
+    if (!sm.message.data) {
+      throw new Error("cannot create AxiomObject with missing data field");
+    }
+    if (this.name !== sm.message.database) {
+      throw new Error("database mismatch");
+    }
+    if (this.channel.name !== sm.message.channel) {
+      throw new Error("channel mismatch");
+    }
+    let metadata = {
+      database: this,
+      timestamp: new Date(sm.message.timestamp),
+      name: sm.message.name,
+      owner: sm.signer
+    };
+
+    return new AxiomObject(metadata, sm.message.data);
+  }
+
+  // Convert a PouchDB document to a SignedMessage
   // Throws an error if the signature does not match
   documentToSignedMessage(doc: any): SignedMessage {
     let parts = doc._id.split(":");
@@ -230,6 +251,32 @@ export default class Database {
     });
     sm.verify();
     return sm;
+  }
+
+  // Convert a PouchDB document to an AxiomObject
+  documentToObject(doc: any): AxiomObject {
+    let parts = doc._id.split(":");
+    if (parts.length != 2) {
+      throw new Error(`bad pouch _id: ${doc._id}`);
+    }
+    let [owner, name] = parts;
+
+    let metadata = {
+      database: this,
+      timestamp: doc.metadata.timestamp,
+      name,
+      owner
+    };
+    if (doc.metadata.type == "Delete") {
+      throw new Error("cannot convert a Delete to an AxiomObject");
+    }
+    let data = {};
+    for (let key in doc) {
+      if (!key.startsWith("_") && key !== "metadata") {
+        data[key] = doc[key];
+      }
+    }
+    return new AxiomObject(metadata, data);
   }
 
   // If we have data, send back a Forward containing a lot of other messages
@@ -269,7 +316,7 @@ export default class Database {
     });
     let sm = SignedMessage.fromSigning(message, kp);
     await this.handleDatabaseWrite(sm);
-    return AxiomObject.fromSignedMessage(this, sm);
+    return this.signedMessageToObject(sm);
   }
 
   async update(name: string, data: any) {
@@ -346,7 +393,7 @@ export default class Database {
       if (doc.metadata.type === "Delete") {
         continue;
       }
-      answer.push(AxiomObject.fromDocument(this, doc));
+      answer.push(this.documentToObject(doc));
     }
     return answer;
   }
