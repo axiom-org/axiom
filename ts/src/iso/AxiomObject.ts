@@ -57,26 +57,26 @@ export default class AxiomObject {
     return new AxiomObject(metadata, sm.message.data);
   }
 
-  static fromDocument(database: Database, obj: any): AxiomObject {
-    let parts = obj._id.split(":");
+  static fromDocument(database: Database, doc: any): AxiomObject {
+    let parts = doc._id.split(":");
     if (parts.length != 2) {
-      throw new Error(`bad pouch _id: ${obj._id}`);
+      throw new Error(`bad pouch _id: ${doc._id}`);
     }
     let [owner, name] = parts;
 
     let metadata: Metadata = {
       database: database,
-      timestamp: obj.metadata.timestamp,
+      timestamp: doc.metadata.timestamp,
       name,
       owner
     };
-    if (obj.metadata.type == "Delete") {
+    if (doc.metadata.type == "Delete") {
       throw new Error("cannot convert a Delete to an AxiomObject");
     }
     let data = {};
-    for (let key in obj) {
+    for (let key in doc) {
       if (!key.startsWith("_") && key !== "metadata") {
-        data[key] = obj[key];
+        data[key] = doc[key];
       }
     }
     return new AxiomObject(metadata, data);

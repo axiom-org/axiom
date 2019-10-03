@@ -250,8 +250,8 @@ export default class Database {
   }
 
   // Assigns a random name to the object
-  // Returns the random name, once it has been checked with the local database.
-  async create(data: any) {
+  // Returns the newly-created AxiomObject.
+  async create(data: any): Promise<AxiomObject> {
     if (data.metadata) {
       throw new Error("You can't have a field in data named metadata.");
     }
@@ -269,7 +269,7 @@ export default class Database {
     });
     let sm = SignedMessage.fromSigning(message, kp);
     await this.handleDatabaseWrite(sm);
-    return name;
+    return AxiomObject.fromSignedMessage(this, sm);
   }
 
   async update(name: string, data: any) {
