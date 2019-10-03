@@ -85,8 +85,13 @@ export default class Database {
     let answer = [];
     let result = await this.db.allDocs({ include_docs: true });
     for (let row of result.rows) {
-      let sm = this.documentToSignedMessage(row.doc);
-      answer.push(sm);
+      try {
+        let sm = this.documentToSignedMessage(row.doc);
+        answer.push(sm);
+      } catch (e) {
+        // There's something invalid in the database.
+        console.error("skipping invalid database record");
+      }
     }
     return answer;
   }
