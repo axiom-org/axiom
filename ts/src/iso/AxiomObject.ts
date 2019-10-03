@@ -4,7 +4,7 @@ import SignedMessage from "./SignedMessage";
 interface Metadata {
   database: Database;
   timestamp: Date;
-  id: string;
+  name: string;
   owner: string;
 }
 
@@ -15,7 +15,12 @@ export default class AxiomObject {
   database: Database;
   timestamp: Date;
 
-  // id is unique per-user, but different users can have objects with the same id.
+  // name is unique per-user, but different users can have objects with the same name.
+  name: string;
+
+  // id is unique per-type. Different types of object and different applications can have
+  // objects with the same id, but not the same Database.
+  // This is used as the primary key in the database.
   id: string;
 
   owner: string;
@@ -26,8 +31,9 @@ export default class AxiomObject {
   constructor(metadata: Metadata, data: any) {
     this.database = metadata.database;
     this.timestamp = metadata.timestamp;
-    this.id = metadata.id;
+    this.name = metadata.name;
     this.owner = metadata.owner;
+    this.id = `${this.owner}:${this.name}`;
     this.data = data;
   }
 
@@ -44,7 +50,7 @@ export default class AxiomObject {
     let metadata: Metadata = {
       database: database,
       timestamp: new Date(sm.message.timestamp),
-      id: sm.message.id,
+      name: sm.message.name,
       owner: sm.signer
     };
 
@@ -56,12 +62,12 @@ export default class AxiomObject {
     if (parts.length != 2) {
       throw new Error(`bad pouch _id: ${obj._id}`);
     }
-    let [owner, id] = parts;
+    let [owner, name] = parts;
 
     let metadata: Metadata = {
       database: database,
       timestamp: obj.metadata.timestamp,
-      id,
+      name,
       owner
     };
     if (obj.metadata.type == "Delete") {
@@ -77,11 +83,6 @@ export default class AxiomObject {
   }
 
   async forget() {
-    await this.database.forget(this.owner, this.id);
-  }
-
-  // Returns a unique identifier for this object.
-  key(): string {
-    return `${this.owner}:${this.id}`;
+    await this.database.forget(this.owner, this.name);
   }
 }

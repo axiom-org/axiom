@@ -90,8 +90,8 @@ of their format:
 `timestamp` is a toISOString() formatted timestamp of the operation. Timestamps only
 have meaning per-user; the latest operation for a particular id is the one that counts.
 
-`id` is a string identifier for the object. The id only has to be unique per-user;
-different users can use the same id.
+`name` is a string identifier for the object. The name is not globally unique.
+Different users can use the same name for different objects.
 
 `data` is the new data for the object. (Not present for Delete.)
 You can't have fields in "data" named "metadata" or "timestamp".

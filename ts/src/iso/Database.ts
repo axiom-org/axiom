@@ -11,13 +11,13 @@ import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
 
 let CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
-let ID_REGEX = RegExp("^[a-z0-9]+$");
-function randomID(): string {
-  let id = "";
+let NAME_REGEX = RegExp("^[a-z0-9]+$");
+function randomName(): string {
+  let name = "";
   for (let i = 0; i < 10; i++) {
-    id += CHARS[Math.floor(Math.random() * CHARS.length)];
+    name += CHARS[Math.floor(Math.random() * CHARS.length)];
   }
-  return id;
+  return name;
 }
 
 interface Query {
@@ -121,7 +121,7 @@ export default class Database {
     }
 
     let newDocument = this.signedMessageToDocument(sm);
-    let oldDocument = await this.getDocument(sm.signer, sm.message.id);
+    let oldDocument = await this.getDocument(sm.signer, sm.message.name);
 
     if (oldDocument) {
       let oldMessage = this.documentToSignedMessage(oldDocument);
@@ -166,12 +166,12 @@ export default class Database {
         `cannot store ${sm.message.type} with missing data field`
       );
     }
-    if (!ID_REGEX.test(sm.message.id)) {
-      throw new Error(`bad id: ${sm.message.id}`);
+    if (!NAME_REGEX.test(sm.message.name)) {
+      throw new Error(`bad name: ${sm.message.name}`);
     }
     let doc = {
       ...sm.message.data,
-      _id: `${sm.signer}:${sm.message.id}`,
+      _id: `${sm.signer}:${sm.message.name}`,
       metadata: {
         timestamp: sm.message.timestamp,
         type: sm.message.type,
@@ -198,13 +198,13 @@ export default class Database {
     if (parts.length != 2) {
       throw new Error(`bad pouch _id: ${doc._id}`);
     }
-    let [signer, id] = parts;
+    let [signer, name] = parts;
 
     let messageContent: any = {
       channel: doc.metadata.channel,
       database: doc.metadata.database,
       timestamp: doc.metadata.timestamp,
-      id
+      name
     };
     if (doc.metadata.type !== "Delete") {
       messageContent.data = {};
@@ -244,8 +244,8 @@ export default class Database {
     );
   }
 
-  // Assigns a random id to the object
-  // Returns the random id, once it has been checked with the local database.
+  // Assigns a random name to the object
+  // Returns the random name, once it has been checked with the local database.
   async create(data: any) {
     if (data.metadata) {
       throw new Error("You can't have a field in data named metadata.");
@@ -254,20 +254,20 @@ export default class Database {
     if (!kp) {
       throw new Error("You must register a keypair to create an object.");
     }
-    let id = randomID();
+    let name = randomName();
     let message = new Message("Create", {
       channel: this.channel.name,
       database: this.name,
       timestamp: new Date().toISOString(),
-      id,
+      name,
       data
     });
     let sm = SignedMessage.fromSigning(message, kp);
     await this.handleDatabaseWrite(sm);
-    return id;
+    return name;
   }
 
-  async update(id: string, data: any) {
+  async update(name: string, data: any) {
     if (data.metadata) {
       throw new Error("You can't have a field in data named metadata.");
     }
@@ -279,7 +279,7 @@ export default class Database {
       channel: this.channel.name,
       database: this.name,
       timestamp: new Date().toISOString(),
-      id: id,
+      name: name,
       data
     });
     let sm = SignedMessage.fromSigning(message, kp);
@@ -288,8 +288,8 @@ export default class Database {
 
   // Returns a pouch document, or null if there is none.
   // Throws on unrecoverable errors.
-  async getDocument(owner: string, id: string): Promise<any> {
-    let objectKey = `${owner}:${id}`;
+  async getDocument(owner: string, name: string): Promise<any> {
+    let objectKey = `${owner}:${name}`;
     let oldDocument;
     try {
       oldDocument = await this.db.get(objectKey);
@@ -305,16 +305,16 @@ export default class Database {
   // network.
   // Future updates to this object will arrive in our database again, so this method alone
   // won't prevent an object from arriving in our database.
-  async forget(owner: string, id: string) {
-    let doc = await this.getDocument(owner, id);
+  async forget(owner: string, name: string) {
+    let doc = await this.getDocument(owner, name);
     if (!doc) {
       return;
     }
-    let objectKey = `${owner}:${id}`;
+    let objectKey = `${owner}:${name}`;
     await this.db.remove(objectKey, doc._rev);
   }
 
-  async delete(id: string) {
+  async delete(name: string) {
     let kp = await this.channel.getKeyPair();
     if (!kp) {
       throw new Error("You must register a keypair to delete an object.");
@@ -323,7 +323,7 @@ export default class Database {
       channel: this.channel.name,
       database: this.name,
       timestamp: new Date().toISOString(),
-      id: id
+      name: name
     });
     let sm = SignedMessage.fromSigning(message, kp);
     await this.handleDatabaseWrite(sm);

@@ -20,7 +20,7 @@ test("Database object format conversion", async () => {
     channel: CHAN.name,
     database: db.name,
     timestamp: new Date().toISOString(),
-    id: "myid",
+    name: "myname",
     data: { foo: "bar" }
   });
   let sm = SignedMessage.fromSigning(message, KP);
