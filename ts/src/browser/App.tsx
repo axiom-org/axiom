@@ -1,4 +1,4 @@
-// The root to display in the sample app.
+// DEPRECATED
 
 import * as React from "react";
 let useState = React.useState;
