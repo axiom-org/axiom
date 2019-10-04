@@ -1,6 +1,7 @@
 // AxiomAPI is the public-facing API that developers will use.
 // This is the entry point for the axiom-api npm module.
 
+import AxiomObject from "../iso/AxiomObject";
 import Bucket from "./Bucket";
 import ChainClient from "../iso/ChainClient";
 import Channel from "../iso/Channel";
@@ -14,7 +15,7 @@ import UntrustedClient from "./UntrustedClient";
 
 import { makeBucketName } from "../iso/Util";
 
-export { Channel, Database, KeyPair, SignedMessage };
+export { AxiomObject, Channel, Database, KeyPair, SignedMessage };
 
 export default class AxiomAPI {
   network: string;
