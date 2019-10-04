@@ -53,4 +53,5 @@ test("Database basics", async () => {
 
   let objects = await database2.find({ selector: {} });
   expect(objects.length).toBe(1);
+  expect(objects[0].timestamp.getTime()).toBeLessThan(new Date().getTime());
 });

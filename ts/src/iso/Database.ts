@@ -263,7 +263,7 @@ export default class Database {
 
     let metadata = {
       database: this,
-      timestamp: doc.metadata.timestamp,
+      timestamp: new Date(doc.metadata.timestamp),
       name,
       owner
     };
