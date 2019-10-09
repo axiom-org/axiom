@@ -366,6 +366,14 @@ export default class Database {
     await this.db.remove(objectKey, doc._rev);
   }
 
+  // Forgets the entire contents of this database.
+  async clear(): Promise<void> {
+    let objects = await this.find({ selector: {} });
+    for (let obj of objects) {
+      await obj.forget();
+    }
+  }
+
   async delete(name: string) {
     let kp = await this.channel.getKeyPair();
     if (!kp) {
