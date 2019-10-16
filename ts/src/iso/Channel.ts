@@ -11,9 +11,9 @@ export default class Channel {
   node: Node;
 
   // This is the "data keypair".
-  // If we are not logged in, this keypair is not set.
+  // If we are not logged in, this keypair is null.
   // TODO: document the "networking keypair" more clearly
-  keyPair: KeyPair;
+  keyPair: KeyPair | null;
 
   databases: { [name: string]: Database };
 
@@ -51,12 +51,12 @@ export default class Channel {
     }
   }
 
-  // Returns null if we are not logged in
-  async getKeyPair(): Promise<KeyPair> {
+  // Returns undefined if we are not logged in
+  async getKeyPair(): Promise<KeyPair | null> {
     return this.keyPair;
   }
 
-  setKeyPair(kp: KeyPair) {
+  setKeyPair(kp: KeyPair | null) {
     this.keyPair = kp;
   }
 
