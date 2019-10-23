@@ -296,9 +296,9 @@ export default class Database {
     );
   }
 
-  // Assigns a random name to the object
+  // Assigns a random name to the object if none is provided.
   // Returns the newly-created AxiomObject.
-  async create(data: any): Promise<AxiomObject> {
+  async create(data: any, name?: string): Promise<AxiomObject> {
     if (data.metadata) {
       throw new Error("You can't have a field in data named metadata.");
     }
@@ -306,7 +306,7 @@ export default class Database {
     if (!kp) {
       throw new Error("You must register a keypair to create an object.");
     }
-    let name = randomName();
+    name = name || randomName();
     let message = new Message("Create", {
       channel: this.channel.name,
       database: this.name,
