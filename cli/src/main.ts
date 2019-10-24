@@ -4,7 +4,7 @@ import * as readline from "readline";
 
 const yargs = require("yargs");
 
-import { KeyPair, Node } from "axiom-api";
+import AxiomAPI, { KeyPair, Node } from "axiom-api";
 import CLIConfig from "./CLIConfig";
 
 const ARGV = yargs.option("verbose", {

@@ -7,9 +7,20 @@ import Database from "../iso/Database";
 import KeyPair from "../iso/KeyPair";
 import NetworkConfig from "../iso/NetworkConfig";
 import Node from "../iso/Node";
+import Peer from "../iso/Peer";
+import Sequence from "../iso/Sequence";
 import SignedMessage from "../iso/SignedMessage";
 
-export { AxiomObject, Channel, Database, KeyPair, Node, SignedMessage };
+export {
+  AxiomObject,
+  Channel,
+  Database,
+  KeyPair,
+  Node,
+  Peer,
+  Sequence,
+  SignedMessage
+};
 
 export default class AxiomAPI {
   network: string;
