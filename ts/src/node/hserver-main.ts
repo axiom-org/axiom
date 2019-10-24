@@ -4,7 +4,7 @@ import * as http from "http";
 import * as os from "os";
 import * as path from "path";
 
-import * as args from "args";
+import args from "args";
 import * as diskusage from "diskusage";
 
 import NetworkConfig from "../iso/NetworkConfig";
