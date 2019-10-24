@@ -18,7 +18,7 @@
     "cli": "ts-node --project tsconfig.node.json src/node/cli-main.ts",
     "ext-alpha": "NETWORK=alpha ./build-extension.sh",
     "ext-local": "NETWORK=local ./build-extension.sh",
-    "hserver": "TS_NODE_PROJECT=tsconfig.node.json node -r ts-node/register src/node/hserver-main.ts --keypair=./mint.json --capacity=1000",
+    "hserver": "TS_NODE_PROJECT=tsconfig.node.json node -r ts-node/register src/node/hserver-main.ts --keypair=./mint.json",
     "peerserver": "TS_NODE_PROJECT=tsconfig.node.json node -r ts-node/register src/node/peerserver-main.ts",
     "prepublish": "npm run build-api",
     "repackage": "ts-node src/node/repackage-main.ts",
