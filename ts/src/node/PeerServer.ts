@@ -32,7 +32,6 @@ export default class PeerServer {
     let server = http.createServer((req, res) => {
       let parsed = url.parse(req.url, true);
       if (parsed.pathname === "/healthz") {
-        console.log("handling /healthz");
         res.write("OK\n");
         res.end();
         return;
