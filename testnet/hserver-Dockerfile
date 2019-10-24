@@ -10,11 +10,5 @@ RUN node_modules/.bin/tsc --build tsconfig.node.json
 
 ENTRYPOINT ../testnet/hserver-entrypoint.sh
 
-# Proxy
-EXPOSE 3000
-
-# Tracker
-EXPOSE 4000
-
 # Peer server
 EXPOSE 3500

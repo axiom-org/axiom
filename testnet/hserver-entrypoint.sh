@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script is the entry point for a Docker container that runs the node hosting server.
+# This script is the entry point for a Docker container that runs the hosting server.
 # It is designed to be run on the Google cloud platform from the axiom/ts directory.
 
 echo ------------------------------ hserver-entrypoint.sh ------------------------------
@@ -11,5 +11,4 @@ echo loading keypair: $KEYPAIR
 node ./build/node/node/hserver-main.js \
      --keypair=$KEYPAIR \
      --network=alpha \
-     --directory=/hostfiles \
-     --capacity=10000
+     --directory=/hostfiles
