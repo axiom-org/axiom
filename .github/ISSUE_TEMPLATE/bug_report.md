@@ -16,16 +16,15 @@ Steps to reproduce the behavior:
 2. We expect to see '...'
 3. But we see '...' instead
 
-**For CLI bugs, please provide:**
- - OS: [e.g. macOS 10.14.4]
- - Node version run `node --version`
- - CLI version. run `axiom version`
-
 **For API bugs, please provide:**
  - OS: [e.g. macOS 10.14.4]
  - Browser [e.g. Chrome 75.0.3770]
  - `axiom-api` version
- - Chrome extension version
-
+ 
+**For CLI bugs, please provide:**
+ - OS: [e.g. macOS 10.14.4]
+ - Node version run `node --version`
+ - CLI version. run `axiom version`
+ 
 **Additional context**
 Add any other context about the problem here.
