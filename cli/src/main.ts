@@ -6,6 +6,7 @@ const yargs = require("yargs");
 
 import AxiomAPI, { KeyPair, Node } from "axiom-api";
 import CLIConfig from "./CLIConfig";
+import PeerServer from "./PeerServer";
 
 const ARGV = yargs.option("verbose", {
   alias: "v",
@@ -192,6 +193,26 @@ async function main() {
         console.log(channel, "members:", names.join(","));
       }
     }
+    throw new Error("programmer error: control should not get here");
+    return;
+  }
+
+  if (op === "host") {
+    if (rest.length != 0) {
+      fatal("Usage: axiom host");
+    }
+
+    let axiom = new AxiomAPI({ network: "alpha", verbose: true });
+    let node = axiom.createNode();
+
+    let server = new PeerServer(node.keyPair, 3500, true);
+    console.log("hosting on port 3500");
+    server.connectNode(node);
+    while (true) {
+      await sleep(60000);
+      // TODO: output data of some sort every minute?
+    }
+
     throw new Error("programmer error: control should not get here");
     return;
   }
