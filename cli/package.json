@@ -10,6 +10,9 @@
     "axiom": "./build/main.js"
   },
   "scripts": {
+    "build": "tsc",
+    "prepublish": "npm run build",
+    "start": "node -r ts-node/register src/main.ts",
     "test": "jest"
   },
   "author": "Kevin Lacker",

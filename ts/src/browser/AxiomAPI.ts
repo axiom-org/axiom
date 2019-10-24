@@ -9,7 +9,7 @@ import NetworkConfig from "../iso/NetworkConfig";
 import Node from "../iso/Node";
 import SignedMessage from "../iso/SignedMessage";
 
-export { AxiomObject, Channel, Database, KeyPair, SignedMessage };
+export { AxiomObject, Channel, Database, KeyPair, Node, SignedMessage };
 
 export default class AxiomAPI {
   network: string;
