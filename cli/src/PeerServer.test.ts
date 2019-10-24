@@ -14,6 +14,10 @@ test("PeerServer single connection", async () => {
   });
   await serverPeer.waitUntilConnected();
   await clientPeer.waitUntilConnected();
+
+  clientPeer.destroy();
+  serverPeer.destroy();
+  await s.close();
 });
 
 test.skip("PeerServer bootstrapping", async () => {

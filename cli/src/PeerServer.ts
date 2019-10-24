@@ -12,6 +12,7 @@ export default class PeerServer {
   keyPair: KeyPair;
   port: number;
   node: Node;
+  cleanup: () => Promise<void>;
 
   constructor(keyPair: KeyPair, port: number, verbose: boolean) {
     this.keyPair = keyPair;
@@ -68,6 +69,15 @@ export default class PeerServer {
       }
     });
 
+    this.cleanup = async () => {
+      await new Promise((resolve, reject) => {
+        server.close(resolve);
+      });
+      await new Promise((resolve, reject) => {
+        wss.close(resolve);
+      });
+    };
+
     server.listen(port);
   }
 
@@ -105,5 +115,9 @@ export default class PeerServer {
       await peer.waitUntilConnected();
       this.node.addPeer(peer);
     });
+  }
+
+  async close(): Promise<void> {
+    await this.cleanup();
   }
 }
