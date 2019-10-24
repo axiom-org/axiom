@@ -21,6 +21,7 @@
     "axiom-api": "0.0.47"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.19",
     "jest": "^24.9.0",
     "ts-jest": "^24.1.0",
     "ts-node": "^8.4.1",
