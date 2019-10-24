@@ -9,10 +9,7 @@ const yargs = require("yargs");
 import CLIConfig from "./CLIConfig";
 import KeyPair from "../iso/KeyPair";
 import Message from "../iso/Message";
-import NetworkConfig from "../iso/NetworkConfig";
 import Node from "../iso/Node";
-import Peer from "../iso/Peer";
-import { sleep } from "../iso/Util";
 
 const ARGV = yargs
       .option("verbose", {
@@ -21,6 +18,10 @@ const ARGV = yargs
 	type: "boolean",
       })
       .argv;
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function fatal(message) {
   console.log(message);
@@ -175,26 +176,6 @@ async function main() {
     } else {
       console.log("you are not logged in");
     }
-    return;
-  }
-
-  if (op === "ping") {
-    if (rest.length != 1) {
-      fatal("Usage: axiom ping <url>");
-    }
-    let [url] = rest;
-    let peer = Peer.connectToServer(null, url, ARGV.verbose);
-    await peer.waitUntilConnected();
-    peer.ping();
-    await new Promise((resolve, reject) => {
-      peer.onMessage(m => {
-	console.log(m.type);
-	if (m.type === "Pong") {
-	  resolve();
-	}
-      });
-    });
-    peer.destroy();
     return;
   }
 
