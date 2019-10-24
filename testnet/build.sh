@@ -1,17 +1,12 @@
 #!/bin/bash
 
-if [ "$1" == "" ] || [ "$2" != "" ]; then
-    echo "usage: ./build.sh <name>"
-    exit 1
-fi
-
 if [ "${PROJECT_ID}" == "" ]; then
     echo "the PROJECT_ID environment variable is not set. check the readme"
     exit 1
 fi
 
 if [ ! -f ./deployment.yaml ]; then
-    echo "please run build.sh from the testnet directory"
+    echo "please run build.sh from the ops directory"
     exit 1
 fi
 
@@ -25,12 +20,7 @@ if [[ $(git status | grep "branch is ahead") ]]; then
     exit 1
 fi
 
-DOCKERFILE="./$1-Dockerfile"
-if [ ! -f "$DOCKERFILE" ]; then
-    echo $1 is not a valid name. try one of:
-    ls | grep Dockerfile | sed s/-Dockerfile//
-    exit 1
-fi
+DOCKERFILE="./hserver-Dockerfile"
 
 DOMAIN=gcr.io
 NAME=$DOMAIN/${PROJECT_ID}/$1

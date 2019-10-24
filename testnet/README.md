@@ -1,30 +1,14 @@
-# Running a testnet
+# Deployment
 
-This directory contains operational tools for running the alpha testnet.
-
-This instructions specifically explain how to deploy a miner to the Google Cloud Platform.
-
-Estimated cost for keeping one miner running using these instructions:
-* n1-standard-1 for the app servers is $25 a month
-* db-f1-micro for the database is $8 a month
-* 100 GB of database storage is another $9 a month
-* Load balancing is $18 a month
+This directory contains code to deploy some persistent Axiom nodes to Google Cloud.
 
 # Running a cluster on GCP
 
-A single cluster can support multiple miners.
+A single cluster can support multiple nodes.
 
 ### 1. Set up a GCP account and install the Cloud Tools
 
 https://cloud.google.com/sdk/docs/
-
-```
-$ gcloud version
-Google Cloud SDK 192.0.0
-bq 2.0.29
-core 2018.03.02
-gsutil 4.28
-```
 
 Also use `gcloud` to install Kubernetes:
 
@@ -112,17 +96,14 @@ gcloud auth configure-docker
 
 ### 3. Make a container image
 
-The build process takes a snapshot of the latest code on `github.com/axiom-org/axiom`,
-creates a Docker image from that, and uses that to deploy. So get your changes into
-master before trying to deploy them.
+The build process takes a snapshot of the latest code on github,
+creates a Docker image from that, and uploads it to Google's container
+registry. This forces you to get your changes into master before deploying them.
 
-From the `testnet` directory, you'll need to build two containers, one for the blockchain
-server and one for the hosting server, and upload them to Google's container
-registry with:
+From the `ops` directory:
 
 ```
-./build.sh cserver
-./build.sh hserver
+./build.sh
 ```
 
 The container and its presence on the registry is specific to your project, so this
@@ -134,8 +115,6 @@ You will need to specifically enable some APIs.
 
 Enable logging at: https://console.cloud.google.com/flows/enableapi?apiid=logging.googleapis.com
 
-Enable SQL at: https://console.cloud.google.com/flows/enableapi?apiid=sqladmin
-
 Then let's make the cluster, named "testnet". Once you run this, it'll
 start charging you money.
 
@@ -143,12 +122,12 @@ start charging you money.
 gcloud container clusters create testnet --num-nodes=1 --scopes https://www.googleapis.com/auth/logging.write,storage-ro
 ```
 
-If you're going to run more than one miner you can just start off
+If you're going to run more than one server you can just start off
 raising the `--num-nodes` flag.
 
-# Running a miner on your cluster
+# Running an axiom server on your cluster
 
-### 1. Generate a keypair for your miner
+### 1. Generate a keypair
 
 To generate a keypair, run:
 
@@ -164,50 +143,7 @@ To make this secret available to kubernetes, run:
 kubectl create secret generic keypair0 --from-file=./keypair0.json
 ```
 
-### 2. Start a database
-
-These scripts are designed to deploy multiple miners to one cluster. The miners are differentiated by a number in `{0,1,2,3}`. From here on out, the instructions explain how to deploy miner 0, but if you want multiples just replace the 0 with a different number. Each miner will have its own database and its own cserver process.
-
-Create a new database instance at https://console.cloud.google.com/projectselector/sql/instances . Pick postgres. Name it `db0` - that is your "instance name" or "instance id".
-
-Generate a random password, but take note of it.
-
-I chose PostgreSQL 11, and edited the resources to be the minimum, 1 shared cpu, 0.6 GB memory, 10 GB SSD storage. It isn't obvious that the "cores" slider goes even lower than the "1 core" default.
-
-Go to the management UI for your database, from https://console.cloud.google.com/sql/instances . Go to Databases, Create a database, and name it "prod". You can drop and recreate the "prod" database from this UI later, if for some reason the content has become corrupted. It can catch back up from other servers.
-
-You need a "service account" for your databases. If you have multiple miners, this can be shared across them. Create one at https://console.cloud.google.com/projectselector/iam-admin/serviceaccounts
-
-Create a service account with the "Cloud SQL Client" role. Name it
-`sql-client` and select "Furnish a new private key" using `JSON`
-type. Hang on to the json file that your browser downloads. I named it `sql-client.json`.
-
-Now you need to create a proxy user. For the database `db0` name the user `proxyuser0`.
-Use that password you noted when you created the database instance.
-
-```
-gcloud sql users create proxyuser0 --instance=db0 --password=[PASSWORD]
-```
-
-Now we need to create some Kubernetes secrets. Both the service account and the proxy user require secrets to use them. The service account can be shared among multiple databases, but the proxy user is tied to a specific database.
-
-To create a secret for the service account, named `cloudsql-instance-credentials`:
-
-```
-kubectl create secret generic cloudsql-instance-credentials --from-file=credentials.json=that-json-file-you-downloaded-which-I-named-sql-client.json
-```
-
-If you have multiple miners, the same `cloudsql-instance-credentials` will be used for all of them.
-
-For the proxy user, create a secret named `cloudsql-db0-credentials` with:
-
-```
-kubectl create secret generic cloudsql-db0-credentials --from-literal=username=proxyuser0 --from-literal=password=[PASSWORD]
-```
-
-### 3. Deploy a miner to your cluster
-
-There are two servers that make up a miner. The `cserver` is the chain server, which keeps track of the blockchain. The `hserver` is the hosting server, which stores application data. They are designed to work nicely as a pair, because it is convenient for a hosting server to have low-latency access to a chain server. You can deploy one of each with:
+### 3. Deploy a node to your cluster
 
 ```
 ./deploy.sh 0
@@ -223,7 +159,7 @@ command line with:
 kubectl describe pod cserver0-deployment
 ```
 
-To get the application logs, go to `https://console.cloud.google.com/logs/viewer` and select "GKE container" from the first dropdown, and either "cserver0" or "hserver0" from the second.
+To get the application logs, go to `https://console.cloud.google.com/logs/viewer` and select "GKE container" from the first dropdown, and "hserver0" from the second.
 
 To expose these servers to public internet ports, first reserve a static IP for the hserver.
 
@@ -234,60 +170,28 @@ gcloud compute addresses create hingress0-ip --global
 you need to create a load balancer, which you can do with these scripts:
 
 ```
-./cservice.sh 0
 ./hservice.sh 0
 ```
 
 TODO: see if the certs cause a problem
 
-There are separate load balancers because the cserver needs TCP sockets on custom ports, but the hserver wants HTTPS and is okay with ports 80/443, and GKE handles those differently.
-
 You only need to create the load balancers once; you don't need to run that on every deploy. However, if
 you change the firewall rules later, you may also need to change the firewall rules in
 the Google Cloud config (as opposed to Kubernetes). See: https://console.cloud.google.com/networking/firewalls/list . This process is likely to break confusingly so be sure to emotionally steel yourself.
 
-Making the cserver ip static is a bit more annoying. To find the external ip for the cserver, run:
-
-```
-kubectl get services
-```
-
-Once it displays an external ip, go to `your.external.ip:8000/healthz` in the browser.
-You should see an `OK`.
-Port `8000` is where the http interface is, port `9000` runs the peer-to-peer protocol.
-
-You should also be able to access the black hole proxy at `your.external.ip:3000`, and your
-WebTorrent tracker at `your.external.ip:4000/stats`.
-
-You're going to make this IP static from the UI. Go to https://console.cloud.google.com/networking/addresses/list and use the dropdown to make this static. Name it something like `cservice0-ip`, because the IP is attached to the service. As long as you don't delete the load balancing service, it'll keep the same IP.
-
-You can see all your static IPs from this page. Now is a good time to set an A record for some domain to point to it. That will give you a host name (like `0.alphatest.network`) that you can share with other nodes.
+This process should also allocate you a static ip. Now is a good time
+to set an A record for some domain to point to your
+static ip. That will give you a host name (like `0.alphatest.network`)
+that you can share with other nodes.
 
 ### 4. Updating the server
 
 When you've updated the code, just rebuild a container image and redeploy.
 
 ```
-./build.sh cserver
-./build.sh hserver
+./build.sh
 ./deploy.sh 0
 ```
 
 If you've only changed one of the servers, you only need to run one of the build commands.
 
-### 5. Running more miners
-
-To run another miner, you'll have to add more nodes to your cluster. One node per miner. Then just use a different number in `{0, 1, 2, 3}` when running these steps.
-
-# Cleaning up
-
-If you don't want to keep things running, you can shut down the deployment, the services,
-and the cluster itself:
-
-```
-kubectl delete service cservice0
-kubectl delete deployment cserver0-deployment
-gcloud container clusters delete testnet
-```
-
-You can delete databases from the UI, but be aware that you can't recreate one with the same name for a week or so.

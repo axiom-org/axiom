@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ ! -f ./deployment.yaml ]; then
-    echo "please run deploy.sh from the testnet directory"
+    echo "please run deploy.sh from the ops directory"
     exit 1
 fi
 

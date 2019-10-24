@@ -8,7 +8,7 @@ RUN npm install
 
 RUN node_modules/.bin/tsc --build tsconfig.node.json
 
-ENTRYPOINT ../testnet/hserver-entrypoint.sh
+ENTRYPOINT ../ops/hserver-entrypoint.sh
 
 # Peer server
 EXPOSE 3500
