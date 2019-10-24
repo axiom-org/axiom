@@ -1,7 +1,0 @@
-{
-  "Database": "local0",
-  "User": "$USER",
-  "Host": "127.0.0.1",
-  "Port": 5432,
-  "Password": "test"
-}
