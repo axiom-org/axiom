@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "start": "node -r ts-node/register src/main.ts",
     "test": "jest"
   },
