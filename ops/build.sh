@@ -23,7 +23,7 @@ fi
 DOCKERFILE="./hserver-Dockerfile"
 
 DOMAIN=gcr.io
-NAME=$DOMAIN/${PROJECT_ID}/$hserver
+NAME=$DOMAIN/${PROJECT_ID}/hserver
 
 # The `--no-cache` is needed because the build process grabs fresh code from GitHub, and
 # if you enable the cache it'll keep using your old code.
