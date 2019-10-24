@@ -1,0 +1,29 @@
+{
+  "name": "axiom-cli",
+  "version": "0.0.46",
+  "description": "CLI for interacting with the Axiom p2p network",
+  "main": "main.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axiom-org/axiom.git"
+  },
+  "author": "Kevin Lacker",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/axiom-org/axiom/issues"
+  },
+  "homepage": "https://github.com/axiom-org/axiom#readme",
+  "devDependencies": {
+    "jest": "^24.9.0",
+    "ts-jest": "^24.1.0",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.4"
+  },
+  "dependencies": {
+    "axiom-api": "0.0.45",
+    "readline": "^1.3.0"
+  }
+}
