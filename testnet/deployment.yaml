@@ -25,44 +25,6 @@ spec:
     spec:
       containers:
         
-      - name: cserverX
-        image: gcr.io/PROJECT_ID/cserver
-        resources:
-          limits:
-            cpu: "1"
-          requests:
-            cpu: "0.1"
-        ports:
-        - containerPort: 8000
-        - containerPort: 9000
-        volumeMounts:
-          - name: keypairX
-            mountPath: /secrets/keypair
-            readOnly: true
-        env:
-        - name: FORCE_REDEPLOY
-          value: 'DEPLOY_TIME'
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: cloudsql-dbX-credentials
-              key: username
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: cloudsql-dbX-credentials
-              key: password
-              
-      - name: cloudsql-proxy
-        image: gcr.io/cloudsql-docker/gce-proxy:1.11
-        command: ["/cloud_sql_proxy",
-                  "-instances=CONNECTION_NAME=tcp:5432",
-                  "-credential_file=/secrets/cloudsql/credentials.json"]
-        volumeMounts:
-          - name: cloudsql-instance-credentials
-            mountPath: /secrets/cloudsql
-            readOnly: true
-            
       - name: hserverX
         image: gcr.io/PROJECT_ID/hserver
         resources:
@@ -71,9 +33,7 @@ spec:
           requests:
             cpu: "0.2"
         ports:
-        - containerPort: 3000
         - containerPort: 3500
-        - containerPort: 4000
         volumeMounts:
           - name: keypairX
             mountPath: /secrets/keypair
@@ -87,15 +47,3 @@ spec:
           httpGet:
             path: /healthz
             port: 3500
-            
-      volumes:
-        - name: cloudsql-instance-credentials
-          secret:
-            secretName: cloudsql-instance-credentials
-        - name: keypairX
-          secret:
-            secretName: keypairX
-        - name: volumeX
-          persistentVolumeClaim:
-            claimName: claimX
-
