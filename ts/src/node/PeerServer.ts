@@ -21,6 +21,9 @@ export default class PeerServer {
     if (!this.keyPair) {
       this.keyPair = KeyPair.fromRandom();
     }
+    if (!port || port < 1) {
+      throw new Error(`bad port: ${port}`);
+    }
     this.port = port;
     this.verbose = verbose;
     this.peerHandler = null;
@@ -29,6 +32,7 @@ export default class PeerServer {
     let server = http.createServer((req, res) => {
       let parsed = url.parse(req.url, true);
       if (parsed.pathname === "/healthz") {
+        console.log("handling /healthz");
         res.write("OK\n");
         res.end();
         return;

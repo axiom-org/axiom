@@ -43,8 +43,8 @@ try {
 let keyPair = loadKeyPair(flags.keypair);
 
 // Run a PeerServer
-let peerServer = new PeerServer(keyPair, flags.peer, true);
-console.log("PeerServer listening on port", flags.peer);
+let peerServer = new PeerServer(keyPair, flags.port, true);
+console.log("PeerServer listening on port", flags.port);
 
 let config = new NetworkConfig(flags.network);
 let node = new Node(keyPair, config.bootstrap, true);
