@@ -47,3 +47,12 @@ spec:
           httpGet:
             path: /healthz
             port: 3500
+            
+      volumes:
+        - name: keypairX
+          secret:
+            secretName: keypairX
+        - name: volumeX
+          persistentVolumeClaim:
+            claimName: claimX
+
