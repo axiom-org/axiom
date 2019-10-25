@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc -d --project tsconfig.browser.json",
     "prepare": "npm run build",
-    "test": "jest --config jest.config.browser.js",
+    "test": "jest --config jest.config.browser.js"
   },
   "browserslist": [
     "last 10 chrome versions"
