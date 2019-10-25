@@ -1,5 +1,5 @@
 module.exports = {
-  roots: ["<rootDir>/src/browser", "<rootDir>/src/iso"],
+  roots: ["<rootDir>/src"],
   transform: {
     "^.+\\.tsx?$": "ts-jest"
   },
@@ -7,7 +7,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   globals: {
     "ts-jest": {
-      tsConfig: "tsconfig.browser.json"
+      tsConfig: "tsconfig.json"
     }
   }
 };

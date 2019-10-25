@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "outDir": "./build/browser/",
+      "outDir": "./build/",
       "sourceMap": true,
       "esModuleInterop": true,      
       "jsx": "react",
@@ -12,7 +12,6 @@
       ]
     },
     "include": [
-      "./src/browser/",
-      "./src/iso/"
+      "./src/"
     ]
 }
