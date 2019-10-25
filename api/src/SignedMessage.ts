@@ -12,16 +12,26 @@ export default class SignedMessage {
   // Creates a signed message.
   // Users should generally not use this directly; use fromSigning or fromSerialized.
   // signer and signature are base64-encoded.
-  constructor({ message, messageString, signer, signature, verified }) {
-    this.message = message;
-    this.messageString = messageString;
-    this.signer = signer;
-    this.signature = signature;
-    this.verified = verified;
+  constructor(args: {
+    message: Message;
+    messageString: string;
+    signer: string;
+    signature: string;
+    verified: boolean;
+  }) {
+    this.message = args.message;
+    this.messageString = args.messageString;
+    this.signer = args.signer;
+    this.signature = args.signature;
+    this.verified = args.verified;
   }
 
   // Construct a SignedMessage by signing a Message.
-  static fromSigning(message, keyPair, signature?: string) {
+  static fromSigning(
+    message: Message,
+    keyPair: KeyPair,
+    signature?: string
+  ): SignedMessage {
     if (!message) {
       throw new Error("cannot sign a falsy message");
     }
@@ -44,11 +54,11 @@ export default class SignedMessage {
     return sm;
   }
 
-  serialize() {
+  serialize(): string {
     return "e:" + this.signer + ":" + this.signature + ":" + this.messageString;
   }
 
-  verify() {
+  verify(): void {
     if (this.verified) {
       return;
     }
@@ -72,7 +82,7 @@ export default class SignedMessage {
   // Construct a SignedMessage from a serialized form
   // Throws an error if it receives an invalid message
   // Returns null if the serialization is just an "ok"
-  static fromSerialized(serialized, skipVerify: boolean) {
+  static fromSerialized(serialized: any, skipVerify: boolean): SignedMessage {
     let s = typeof serialized === "string" ? serialized : serialized.toString();
 
     if (s == "ok") {

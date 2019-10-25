@@ -58,11 +58,8 @@ export default class Node {
   // An interval timer that gets called repeatedly while this node is alive
   timer: IntervalTimer;
 
-  constructor(keyPair: KeyPair, urls: string[], verbose: boolean) {
-    this.keyPair = keyPair;
-    if (!this.keyPair) {
-      this.keyPair = KeyPair.fromRandom();
-    }
+  constructor(keyPair: KeyPair | null, urls: string[], verbose: boolean) {
+    this.keyPair = keyPair || KeyPair.fromRandom();
 
     this.pendingByURL = {};
     for (let url of urls) {

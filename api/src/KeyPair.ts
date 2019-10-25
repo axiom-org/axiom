@@ -171,7 +171,7 @@ export default class KeyPair {
   }
 
   // serialize() returns a serialized JSON string
-  serialize(): String {
+  serialize(): string {
     let j = this.plain();
 
     // Pretty-encoding so that it matches our code style when saved to a file
@@ -180,7 +180,7 @@ export default class KeyPair {
 
   // We sign a string by utf-8 encoding it and signing the bytes.
   // Signatures are returned in base64 encoding.
-  sign(string): String {
+  sign(string): string {
     let bytes = new TextEncoder("utf-8").encode(string);
     let sig = nacl.sign.detached(bytes, this.privateKey);
     return base64Encode(sig);

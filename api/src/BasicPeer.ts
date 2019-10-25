@@ -6,7 +6,7 @@ import SimplePeer = require("simple-peer");
 // Optional dependencies.
 // TODO: solve this at compile-time rather than at runtime
 let OPTIONAL = {
-  wrtc: null
+  wrtc: undefined
 };
 declare var global: any;
 declare var require: any;
@@ -20,9 +20,9 @@ if (typeof global === "object") {
 export default interface BasicPeer {
   onClose(callback: () => void): void;
   onConnect(callback: () => void): void;
-  onData(callback: (any) => void): void;
-  onError(callback: (Error) => void): void;
-  onSignal(callback: (any) => void): void;
+  onData(callback: (data: any) => void): void;
+  onError(callback: (error: Error) => void): void;
+  onSignal(callback: (sig: any) => void): void;
   signal(sig: any): void;
   send(data: any): void;
   destroy(): void;
@@ -30,7 +30,7 @@ export default interface BasicPeer {
 }
 
 class WebRTCBasicPeer implements BasicPeer {
-  _peer: SimplePeer;
+  _peer: any;
 
   constructor(initiator: boolean) {
     this._peer = new SimplePeer({
@@ -47,15 +47,15 @@ class WebRTCBasicPeer implements BasicPeer {
     this._peer.on("connect", callback);
   }
 
-  onData(callback: (any) => void) {
+  onData(callback: (data: any) => void) {
     this._peer.on("data", callback);
   }
 
-  onError(callback: (Error) => void) {
+  onError(callback: (error: Error) => void) {
     this._peer.on("error", callback);
   }
 
-  onSignal(callback: (any) => void) {
+  onSignal(callback: (sig: any) => void) {
     this._peer.on("signal", callback);
   }
 
@@ -89,15 +89,15 @@ class WebRTCBasicPeer implements BasicPeer {
 }
 
 class MockBasicPeer implements BasicPeer {
-  partner: MockBasicPeer;
+  partner?: MockBasicPeer;
   id: number;
   static allPeers: MockBasicPeer[] = [];
   connected: boolean;
   destroyed: boolean;
   initiator: boolean;
-  closeCallback: () => void;
-  connectCallback: () => void;
-  dataCallback: (any) => void;
+  closeCallback?: () => void;
+  connectCallback?: () => void;
+  dataCallback?: (data: any) => void;
 
   static clear() {
     MockBasicPeer.allPeers = [];
@@ -128,16 +128,16 @@ class MockBasicPeer implements BasicPeer {
     }
   }
 
-  onData(callback: (any) => void) {
+  onData(callback: (data: any) => void) {
     if (this.dataCallback) {
       throw new Error("multiple dataCallback");
     }
     this.dataCallback = callback;
   }
 
-  onError(callback: (Error) => void) {}
+  onError(callback: (error: Error) => void) {}
 
-  onSignal(callback: (any) => void) {
+  onSignal(callback: (sig: any) => void) {
     callback(this.id);
   }
 
