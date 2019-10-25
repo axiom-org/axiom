@@ -20,7 +20,7 @@ if [[ $(git status | grep "branch is ahead") ]]; then
     exit 1
 fi
 
-DOCKERFILE="./hserver-Dockerfile"
+DOCKERFILE="./Dockerfile"
 
 DOMAIN=gcr.io
 NAME=$DOMAIN/${PROJECT_ID}/hserver
