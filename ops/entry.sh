@@ -9,4 +9,4 @@ echo accessing and then ignoring keypair: $KEYPAIR
 echo ls /hostfiles :
 ls /hostfiles
 
-axiom host
+./node_modules/.bin/axiom host
