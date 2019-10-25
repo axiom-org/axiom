@@ -3,11 +3,9 @@
       "outDir": "./build/",
       "sourceMap": true,
       "esModuleInterop": true,      
-      "jsx": "react",
       "target": "es5",
       "lib": [ "es2017", "dom" ],
       "types": [
-	"chrome",
 	"jest",
       ]
     },
