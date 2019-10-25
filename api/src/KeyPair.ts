@@ -186,48 +186,6 @@ export default class KeyPair {
     return base64Encode(sig);
   }
 
-  // Signs an operation, represented as a plain old object.
-  // A "signer" field is automatically added.
-  // TODO: this isn't used, should we remove it?
-  signOperation(type, operation) {
-    let op = {
-      ...operation,
-      signer: this.getPublicKey()
-    };
-    let json = stringify(op);
-    let signed = {
-      operation: op,
-      type: type,
-      signature: this.sign(type + json)
-    };
-    return signed;
-  }
-
-  // Signs the individual operations in an operation message
-  // The "signer" field is added to each op
-  // Any other fields besides operations are dropped
-  signOperationMessage(opm) {
-    if (opm.type != "Operation") {
-      throw new Error("expected operation message in signOperationMessage");
-    }
-
-    let operations = [];
-    for (let sop of opm.operations) {
-      let op = {
-        signer: this.getPublicKey(),
-        ...sop.operation
-      };
-      let signature = this.sign(sop.type + stringify(op));
-      operations.push({
-        operation: op,
-        type: sop.type,
-        signature
-      });
-    }
-
-    return new Message("Operation", { operations });
-  }
-
   // publicKey and signature are both base64-encoded strings
   // Returns whether the signature is legitimate.
   static verifySignature(publicKey, message, signature) {
