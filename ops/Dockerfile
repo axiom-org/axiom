@@ -1,14 +1,10 @@
 FROM node:10
 
-RUN git clone https://github.com/axiom-org/axiom.git
+RUN npm install -g axiom-cli@latest
 
-WORKDIR /axiom/ts
+ADD entry.sh /
 
-RUN npm install
-
-RUN node_modules/.bin/tsc --build tsconfig.node.json
-
-ENTRYPOINT ../ops/hserver-entrypoint.sh
-
-# Peer server
 EXPOSE 3500
+
+ENTRYPOINT /entry.sh
+

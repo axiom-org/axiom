@@ -10,18 +10,6 @@ if [ ! -f ./deployment.yaml ]; then
     exit 1
 fi
 
-if [[ $(git diff) ]]; then
-    echo "build.sh creates a container from master. check in your changes before building."
-    exit 1
-fi
-
-if [[ $(git status | grep "branch is ahead") ]]; then
-    echo "build.sh creates a container from master. push your changes before building."
-    exit 1
-fi
-
-DOCKERFILE="./Dockerfile"
-
 DOMAIN=gcr.io
 NAME=$DOMAIN/${PROJECT_ID}/hserver
 
@@ -31,7 +19,6 @@ echo building $NAME image...
 docker build \
        --no-cache \
        --tag $NAME \
-       --file $DOCKERFILE \
        .
 
 if [ $? -ne 0 ]; then
