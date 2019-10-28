@@ -12,8 +12,14 @@ fi
 
 DEPLOYMENT=hserver$1-deployment
 
-PODS=`kubectl get pods`
-POD=`echo $PODS | grep $DEPLOYMENT | cut -d" " -f1`
+POD=`kubectl get pods | grep $DEPLOYMENT | cut -d" " -f1`
 
-echo pods: $PODS
-echo pod: $POD
+if [ "$POD" = "" ]; then
+    echo pod $1 not found. current pods:
+    kubectl get pods
+    exit 1
+fi
+
+echo found pod: $POD
+
+kubectl exec -it $POD -- /bin/bash
