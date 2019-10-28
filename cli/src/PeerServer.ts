@@ -8,7 +8,7 @@ import { KeyPair, Node, Peer, Sequence } from "axiom-api";
 // to construct a Peer connection.
 export default class PeerServer {
   verbose: boolean;
-  peerHandler: (Peer) => void;
+  peerHandler: (p: Peer) => void;
   keyPair: KeyPair;
   port: number;
   node: Node;
@@ -56,7 +56,7 @@ export default class PeerServer {
       let incomingSignals = new Sequence<object>();
       ws.on("message", encoded => {
         try {
-          let signal = JSON.parse(encoded);
+          let signal = JSON.parse(encoded.toString());
           incomingSignals.push(signal);
         } catch (e) {
           console.log("websocket decoding error:", e);
@@ -81,7 +81,7 @@ export default class PeerServer {
     server.listen(port);
   }
 
-  log(...args) {
+  log(...args: any[]) {
     if (this.verbose) {
       console.log(...args);
     }
@@ -95,7 +95,7 @@ export default class PeerServer {
     return ["this.node == null"];
   }
 
-  onPeer(callback: (Peer) => void) {
+  onPeer(callback: (p: Peer) => void) {
     if (this.peerHandler) {
       throw new Error("onPeer can only be called once");
     }

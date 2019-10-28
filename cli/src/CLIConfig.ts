@@ -11,7 +11,7 @@ import { isDirectory, isFile } from "./FileUtil";
 // network: which network to point to. either "local" or "alpha".
 export default class CLIConfig {
   data: {
-    keyPair?: KeyPair;
+    keyPair?: { private: string; public: string };
     network?: string;
   };
   filename: string;
@@ -45,7 +45,7 @@ export default class CLIConfig {
     return this.data.network;
   }
 
-  setNetwork(network) {
+  setNetwork(network: string) {
     if (network == this.getNetwork()) {
       return;
     }
@@ -60,14 +60,14 @@ export default class CLIConfig {
     this.write();
   }
 
-  getKeyPair() {
+  getKeyPair(): KeyPair {
     if (!this.data.keyPair) {
       return null;
     }
     return KeyPair.fromPlain(this.data.keyPair);
   }
 
-  setKeyPair(kp) {
+  setKeyPair(kp: KeyPair) {
     this.data.keyPair = kp.plain();
     this.write();
   }

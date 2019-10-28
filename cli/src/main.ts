@@ -16,11 +16,11 @@ const ARGV = yargs.option("verbose", {
   type: "boolean"
 }).argv;
 
-function sleep(ms) {
+function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function fatal(message) {
+function fatal(message: string) {
   console.log(message);
   process.exit(1);
 }
@@ -31,14 +31,14 @@ function getNetwork(): string {
 }
 
 // Asks the CLI user a question, asynchronously returns the response.
-async function ask(question, hideResponse): Promise<string> {
+async function ask(question: string, hideResponse: boolean): Promise<string> {
   let r = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   }) as any;
 
   let p = new Promise((resolve, reject) => {
-    r.question(question, answer => {
+    r.question(question, (answer: string) => {
       r.close();
       resolve(answer);
     });

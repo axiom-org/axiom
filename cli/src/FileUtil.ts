@@ -4,15 +4,15 @@ import * as fs from "fs";
 
 import { KeyPair } from "axiom-api";
 
-export function isDirectory(dir) {
+export function isDirectory(dir: string) {
   return fs.existsSync(dir) && fs.lstatSync(dir).isDirectory();
 }
 
-export function isFile(filename) {
+export function isFile(filename: string) {
   return fs.existsSync(filename) && fs.lstatSync(filename).isFile();
 }
 
-export function loadKeyPair(filename) {
+export function loadKeyPair(filename: string) {
   if (!fs.existsSync(filename)) {
     throw new Error(filename + " does not exist");
   }
