@@ -11,6 +11,15 @@ import stringify = require("json-stable-stringify");
 
 import Message from "./Message";
 
+// node-forge is missing a typescript definition for sha512/256
+declare module "node-forge" {
+  namespace md {
+    namespace sha512 {
+      namespace sha256 { function create(): md.MessageDigest; }
+    }
+  }
+}
+
 // Decodes a Uint8Array from a base64 string.
 // Adds = padding at the end, which our library requires but some do not.
 function base64Decode(s) {

@@ -11,7 +11,7 @@ test("KeyPair crypto basics", () => {
   }
 
   hash = md.sha512.sha256.create();
-  hash.update("qq", "utf-8");
+  hash.update("qq", "utf8");
   sum = hash.digest().getBytes();
   expect(sum.charCodeAt(0)).toBe(59);
 
