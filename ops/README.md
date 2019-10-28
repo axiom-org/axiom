@@ -125,25 +125,7 @@ gcloud container clusters create testnet --num-nodes=1 --scopes https://www.goog
 If you're going to run more than one server you can just start off
 raising the `--num-nodes` flag.
 
-# Running an axiom server on your cluster
-
-### 1. Generate a keypair
-
-To generate a keypair, run:
-
-```
-cclient generate > keypair0.json
-```
-
-Then type in a bunch of random letters. Save `keypair0.json` somewhere secret.
-
-To make this secret available to kubernetes, run:
-
-```
-kubectl create secret generic keypair0 --from-file=./keypair0.json
-```
-
-### 3. Deploy a node to your cluster
+### 5. Run an axiom node on your cluster
 
 ```
 ./deploy.sh 0
@@ -156,7 +138,7 @@ To see if it worked, you can get some Kubernetes event logs from the
 command line with:
 
 ```
-kubectl describe pod cserver0-deployment
+kubectl describe pod hserver0-deployment
 ```
 
 To get the application logs, go to `https://console.cloud.google.com/logs/viewer` and select "GKE container" from the first dropdown, and "hserver0" from the second.
@@ -184,7 +166,7 @@ to set an A record for some domain to point to your
 static ip. That will give you a host name (like `0.alphatest.network`)
 that you can share with other nodes.
 
-### 4. Updating the server
+### 6. Updating the server
 
 When you've updated the code, just rebuild a container image and redeploy.
 

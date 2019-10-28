@@ -4,9 +4,4 @@
 
 echo ------------------------------ entry.sh ------------------------------
 
-KEYPAIR=`find /secrets/keypair | grep json | head -1`
-echo accessing and then ignoring keypair: $KEYPAIR
-echo ls /hostfiles :
-ls /hostfiles
-
 ./node_modules/.bin/axiom host

@@ -16,7 +16,7 @@ spec:
       protocol: TCP
       targetPort: 3500
   selector:
-    app: cserverX
+    app: hserverX
   type: NodePort
 ---
 apiVersion: extensions/v1beta1
