@@ -83,6 +83,8 @@ export default class Peer {
     let incomingSignals = new Sequence<object>();
     ws.onmessage = event => {
       try {
+        // According to TypeScript, at least, there are a bunch of stringlike data
+        // types we could receive here. In practice I have only seen strings.
         let signal = JSON.parse(event.data.toString());
         incomingSignals.push(signal);
       } catch (e) {
