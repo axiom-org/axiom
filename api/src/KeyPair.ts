@@ -22,7 +22,7 @@ declare module "node-forge" {
 
 // Decodes a Uint8Array from a base64 string.
 // Adds = padding at the end, which our library requires but some do not.
-function base64Decode(s) {
+function base64Decode(s: string) {
   while (s.length % 4 != 0) {
     s += "=";
   }
@@ -31,13 +31,13 @@ function base64Decode(s) {
 
 // Encodes a Uint8array into a base64 string.
 // Removes any = padding at the end.
-function base64Encode(bytes) {
+function base64Encode(bytes: Uint8Array): string {
   let padded = fromByteArray(bytes);
   return padded.replace(/=*$/, "");
 }
 
 // Decodes a Uint8Array from a hex string.
-function hexDecode(s) {
+function hexDecode(s: string): Uint8Array {
   if (s.length % 2 != 0) {
     throw new Error("hex-encoded byte arrays should be even length");
   }
@@ -57,19 +57,19 @@ function hexDecode(s) {
 }
 
 // Shorten a string where the inside doesn't matter, typically some key for display
-function shorten(s) {
+function shorten(s: string): string {
   return s.slice(0, 6) + "..." + s.slice(-4);
 }
 
 // Encodes a Uint8Array into a hex string.
-function hexEncode(bytes: Uint8Array) {
+function hexEncode(bytes: Uint8Array): string {
   return Array.from(bytes)
     .map(byte => byte.toString(16).padStart(2, "0"))
     .join("");
 }
 
-// Creates a forge sha512/256 hash object from bytes
-function forgeHash(bytes) {
+// Creates a forge sha512/256 message digest from bytes
+function forgeHash(bytes: Uint8Array) {
   // Convert bytes to the format for bytes that forge wants
   let s = "";
   for (let i = 0; i < bytes.length; i++) {
@@ -81,14 +81,14 @@ function forgeHash(bytes) {
 }
 
 // Returns a hex checksum from a Uint8array public key.
-function hexChecksum(bytes) {
+function hexChecksum(bytes: Uint8Array) {
   let hash = forgeHash(bytes);
   let digest = hash.digest();
   return digest.toHex().substring(0, 4);
 }
 
 // Returns a Uint8Array sha512_256 hash from a Uint8Array input.
-function sha512_256(inputBytes) {
+function sha512_256(inputBytes: Uint8Array) {
   let hash = forgeHash(inputBytes);
   let byteString = hash.digest().bytes();
   let outputBytes = new Uint8Array(32);
@@ -102,7 +102,7 @@ export default class KeyPair {
   publicKey: Uint8Array;
   privateKey: Uint8Array;
 
-  constructor(publicKey, privateKey) {
+  constructor(publicKey: Uint8Array, privateKey: Uint8Array) {
     this.publicKey = publicKey;
     this.privateKey = privateKey;
 
@@ -129,14 +129,14 @@ export default class KeyPair {
   }
 
   // Throws an error if priv is not a valid private key.
-  static fromPrivateKey(priv) {
+  static fromPrivateKey(priv: string) {
     let bytes = base64Decode(priv);
     let keys = nacl.sign.keyPair.fromSecretKey(bytes);
     return new KeyPair(keys.publicKey, keys.secretKey);
   }
 
-  // The "plain" format is a plain object with 'public' and 'private' keys
-  static fromPlain(j) {
+  // The "plain" format should be a plain object with 'public' and 'private' keys
+  static fromPlain(j: any) {
     let publicString = j.public || j.Public;
     let privateString = j.private || j.Private;
     if (!publicString) {
@@ -151,19 +151,19 @@ export default class KeyPair {
   }
 
   // The input format is a serialized JSON string with 'public' and 'private' keys
-  static fromSerialized(s) {
+  static fromSerialized(s: string) {
     let j = JSON.parse(s);
     return KeyPair.fromPlain(j);
   }
 
   // Generates a keypair randomly
-  static fromRandom() {
+  static fromRandom(): KeyPair {
     let keys = nacl.sign.keyPair();
     return new KeyPair(keys.publicKey, keys.secretKey);
   }
 
   // Generates a keypair from a secret phrase
-  static fromSecretPhrase(phrase) {
+  static fromSecretPhrase(phrase: string): KeyPair {
     // Hash the phrase for the ed25519 entropy seed bytes
     let bytes = new TextEncoder("utf-8").encode(phrase);
     let seed = sha512_256(bytes);
@@ -189,15 +189,19 @@ export default class KeyPair {
 
   // We sign a string by utf-8 encoding it and signing the bytes.
   // Signatures are returned in base64 encoding.
-  sign(string): string {
-    let bytes = new TextEncoder("utf-8").encode(string);
+  sign(s: string): string {
+    let bytes = new TextEncoder("utf-8").encode(s);
     let sig = nacl.sign.detached(bytes, this.privateKey);
     return base64Encode(sig);
   }
 
   // publicKey and signature are both base64-encoded strings
   // Returns whether the signature is legitimate.
-  static verifySignature(publicKey, message, signature) {
+  static verifySignature(
+    publicKey: string,
+    message: string,
+    signature: string
+  ): boolean {
     let key = KeyPair.decodePublicKey(publicKey);
     let msg = new TextEncoder("utf-8").encode(message);
     let sig = base64Decode(signature);
@@ -227,7 +231,7 @@ export default class KeyPair {
   // This is parallel to Go's ReadPublicKey.
   // The string format starts with "0x" and is hex-encoded.
   // Throws an error if the input format is not valid.
-  static decodePublicKey(input) {
+  static decodePublicKey(input: string) {
     if (input.length != 70) {
       throw new Error("public key " + input + " should be 70 characters long");
     }
@@ -251,7 +255,7 @@ export default class KeyPair {
 
   // encodePublicKey creates a string-format public key from Uint8Array.
   // The checksum is added at the end
-  static encodePublicKey(key) {
+  static encodePublicKey(key: Uint8Array): string {
     if (key.length != 32) {
       throw new Error("public keys should be 32 bytes long");
     }
@@ -259,12 +263,12 @@ export default class KeyPair {
   }
 
   // Returns the public key in hex format
-  getPublicKey() {
+  getPublicKey(): string {
     return KeyPair.encodePublicKey(this.publicKey);
   }
 
   // Returns the private key in base64 format
-  getPrivateKey() {
+  getPrivateKey(): string {
     return base64Encode(this.privateKey);
   }
 }

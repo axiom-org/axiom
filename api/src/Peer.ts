@@ -51,7 +51,7 @@ export default class Peer {
   closeHandler: () => void;
 
   // Server URLs to intercept with a handler function
-  static intercept: { [url: string]: (Peer) => void } = {};
+  static intercept: { [url: string]: (p: Peer) => void } = {};
 
   // Creates a Peer by connecting to a PeerServer.
   // Returns immediately rather than waiting for the connection.
@@ -179,7 +179,7 @@ export default class Peer {
     this._peer.signal(s);
   }
 
-  log(...args) {
+  log(...args: any[]) {
     if (this.verbose) {
       console.log(...args);
     }
@@ -193,7 +193,7 @@ export default class Peer {
     this._peer.onData(callback);
   }
 
-  onError(callback: (Error) => void) {
+  onError(callback: (e: Error) => void) {
     this._peer.onError(callback);
   }
 

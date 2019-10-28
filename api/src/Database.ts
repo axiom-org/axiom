@@ -37,7 +37,7 @@ export default class Database {
   node: Node;
   keyPair: KeyPair;
   db: any;
-  filterer: (AxiomObject) => boolean;
+  filterer: (obj: AxiomObject) => boolean;
 
   callbacks: DatabaseCallback[];
 
@@ -63,20 +63,20 @@ export default class Database {
 
   // Sets a filter to be applied to new objects.
   // A filter returns true for objects that are to be kept.
-  setFilter(filterer: (AxiomObject) => boolean): void {
+  setFilter(filterer: (obj: AxiomObject) => boolean): void {
     this.filterer = filterer;
   }
 
   // Applies a filter to objects already in the database.
   // Returns when we are done filtering.
-  async applyFilter(filterer: (AxiomObject) => boolean): Promise<void> {
+  async applyFilter(filterer: (obj: AxiomObject) => boolean): Promise<void> {
     let objects = await this.find({ selector: {} });
     let forgettable = objects.filter(x => !filterer(x));
     await Promise.all(forgettable.map(obj => obj.forget()));
   }
 
   // Applies a filter to both objects already in the database, and new objects.
-  async useFilter(filterer: (AxiomObject) => boolean): Promise<void> {
+  async useFilter(filterer: (obj: AxiomObject) => boolean): Promise<void> {
     this.setFilter(filterer);
     await this.applyFilter(filterer);
   }
@@ -270,7 +270,7 @@ export default class Database {
     if (doc.metadata.type == "Delete") {
       throw new Error("cannot convert a Delete to an AxiomObject");
     }
-    let data = {};
+    let data: any = {};
     for (let key in doc) {
       if (!key.startsWith("_") && key !== "metadata") {
         data[key] = doc[key];

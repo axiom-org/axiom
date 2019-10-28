@@ -4,8 +4,9 @@ import stringify = require("json-stable-stringify");
 export default class Message {
   type: string;
   _serialized: string;
+  [key: string]: any;
 
-  constructor(type: string, properties = {}) {
+  constructor(type: string, properties: any = {}) {
     this.type = type;
     this._serialized = stringify({
       type,
@@ -20,7 +21,7 @@ export default class Message {
     return this._serialized;
   }
 
-  static fromSerialized(serialized): any {
+  static fromSerialized(serialized: string): Message {
     let { type, message } = JSON.parse(serialized);
     return new Message(type, message);
   }

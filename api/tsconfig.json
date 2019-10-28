@@ -5,6 +5,7 @@
       "esModuleInterop": true,      
       "target": "es5",
       "lib": [ "es2017", "dom" ],
+      "noImplicitAny": true,
       "types": [
 	"jest",
       ]

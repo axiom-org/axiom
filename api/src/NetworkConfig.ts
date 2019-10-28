@@ -13,7 +13,7 @@ export default class NetworkConfig {
   // A negative number means no limit
   retries: number;
 
-  constructor(name) {
+  constructor(name: string) {
     this.name = name;
     if (name == "local") {
       this.chain = [
@@ -66,7 +66,7 @@ export default class NetworkConfig {
   }
 }
 
-function randomChoice(list) {
+function randomChoice<T>(list: T[]): T {
   let i = Math.floor(list.length * Math.random());
   return list[i];
 }

@@ -31,10 +31,10 @@ export default class Node {
   pendingByPublicKey: { [publicKey: string]: Peer };
 
   // Callbacks that will run on the next message received
-  nextMessageCallbacks: ((SignedMessage) => void)[];
+  nextMessageCallbacks: ((sm: SignedMessage) => void)[];
 
   // Callbacks that will run on every message received
-  everyMessageCallbacks: ((SignedMessage) => void)[];
+  everyMessageCallbacks: ((sm: SignedMessage) => void)[];
 
   // Whether this Node has been destroyed
   destroyed: boolean;
@@ -89,7 +89,7 @@ export default class Node {
     this.log(`creating node`);
   }
 
-  log(...args) {
+  log(...args: any[]) {
     if (this.verbose) {
       console.log(`${this.keyPair.getPublicKey().slice(0, 6)}:`, ...args);
     }
@@ -181,11 +181,11 @@ export default class Node {
     }
   }
 
-  onNextMessage(callback: (SignedMessage) => void) {
+  onNextMessage(callback: (sm: SignedMessage) => void) {
     this.nextMessageCallbacks.push(callback);
   }
 
-  onEveryMessage(callback: (SignedMessage) => void) {
+  onEveryMessage(callback: (sm: SignedMessage) => void) {
     this.everyMessageCallbacks.push(callback);
   }
 

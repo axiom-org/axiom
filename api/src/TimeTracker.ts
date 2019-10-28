@@ -3,6 +3,16 @@ declare var BigInt: any;
 
 let tracking = process.hrtime && process.hrtime.bigint ? true : false;
 
+function sign(a: bigint): number {
+  if (a > 0) {
+    return 1;
+  }
+  if (a < 0) {
+    return -1;
+  }
+  return 0;
+}
+
 export default class TimeTracker {
   static nanoseconds: { [name: string]: bigint } = {};
   static calls: { [name: string]: number } = {};
@@ -36,7 +46,7 @@ export default class TimeTracker {
   }
 
   static show() {
-    let items = [];
+    let items: [string, bigint, number][] = [];
     for (let name in TimeTracker.nanoseconds) {
       items.push([
         name,
@@ -44,7 +54,7 @@ export default class TimeTracker {
         TimeTracker.calls[name]
       ]);
     }
-    items.sort(([n1, t1, c1], [n2, t2, c2]) => t2 - t1);
+    items.sort(([n1, t1, c1], [n2, t2, c2]) => sign(t2 - t1));
     for (let [name, total, calls] of items) {
       console.log(
         `${total / BigInt(1000000000)}s over ${calls} calls: ${name}`

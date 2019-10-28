@@ -3,7 +3,7 @@
 // been populated yet, or not.
 export default class Sequence<T> {
   items: T[];
-  callbacks: ((T) => void)[];
+  callbacks: ((t: T) => void)[];
 
   constructor() {
     this.items = [];
@@ -20,7 +20,7 @@ export default class Sequence<T> {
     }
   }
 
-  forEach(callback: (T) => void) {
+  forEach(callback: (t: T) => void) {
     for (let item of this.items) {
       callback(item);
     }
