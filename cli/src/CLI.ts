@@ -55,12 +55,6 @@ async function ask(question: string, hideResponse: boolean): Promise<string> {
   return answer;
 }
 
-async function generate() {
-  let kp = await login();
-  console.log(kp.serialize());
-  console.log("key pair generation complete");
-}
-
 // Ask the user for a passphrase to log in.
 // Returns the keypair
 async function login() {
@@ -93,15 +87,6 @@ async function asyncMain() {
   let op = args[0];
   let rest = args.slice(1);
 
-  if (op === "generate") {
-    if (rest.length != 0) {
-      fatal("Usage: axiom generate");
-    }
-
-    await generate();
-    return;
-  }
-
   if (op === "login") {
     if (rest.length != 0) {
       fatal("Usage: axiom login");
@@ -127,7 +112,11 @@ async function asyncMain() {
     let network = rest[0];
     let config = new CLIConfig();
     config.setNetwork(network);
-    console.log("your CLI is now configured to use the", network, "network");
+    console.log(
+      "your CLI is now configured to use the",
+      network,
+      "network by default"
+    );
     return;
   }
 
@@ -175,12 +164,12 @@ async function asyncMain() {
   }
 
   if (op === "scan") {
-    if (rest.length != 1 && rest.length != 2) {
-      fatal("Usage: axiom scan <url> <channel>");
+    if (rest.length > 1) {
+      fatal("Usage: axiom scan [channel]");
     }
-    let url = rest[0];
-    let channel = rest[1];
-    let node = new Node(null, [url], ARGV.verbose);
+    let channel = rest[0];
+    let axiom = new AxiomAPI({ verbose: ARGV.verbose });
+    let node = axiom.createNode();
     if (channel) {
       console.log("joining", channel);
       node.join(channel);
