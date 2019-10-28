@@ -50,6 +50,7 @@ export default class Cipher {
     decipher.finish();
 
     try {
+      // Decipher output string conversion always assumes utf-8
       let answer = decipher.output.toString();
       if (answer == "") {
         return null;
