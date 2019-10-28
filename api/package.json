@@ -31,6 +31,7 @@
     "wrtc": "^0.4.2"
   },
   "devDependencies": {
+    "@types/base64-js": "^1.2.5",
     "@types/jest": "^24.0.18",
     "@types/json-stable-stringify": "^1.0.32",
     "@types/pouchdb-adapter-memory": "^6.1.3",
