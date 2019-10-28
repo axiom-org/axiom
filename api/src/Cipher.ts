@@ -3,24 +3,29 @@
 import forge from "node-forge";
 
 export default class Cipher {
-  static keyFromPassword(password, salt) {
+  static keyFromPassword(password: string, salt: string) {
     let keySize = 32;
     return forge.pkcs5.pbkdf2(password, salt, 1000, keySize);
   }
 
   // Returns a new hex-encoded initialization vector
-  static makeIV() {
+  static makeIV(): string {
     return forge.util.bytesToHex(forge.random.getBytes(16));
   }
 
   // Returns a new hex-encoded salt
-  static makeSalt() {
+  static makeSalt(): string {
     return forge.util.bytesToHex(forge.random.getBytes(8));
   }
 
   // Encrypts some utf8 plaintext with AES.
   // Returns a hex-encoded string so that we don't need to muck around with bytes.
-  static encrypt(password, iv, salt, plaintext) {
+  static encrypt(
+    password: string,
+    iv: string,
+    salt: string,
+    plaintext: string
+  ): string {
     iv = forge.util.hexToBytes(iv);
     salt = forge.util.hexToBytes(salt);
 
@@ -37,7 +42,12 @@ export default class Cipher {
   // Returns a utf8 plaintext.
   // Tries to return null if the password, iv, or salt is wrong.
   // It might just return garbage if the password is wrong, though.
-  static decrypt(password, iv, salt, ciphertext) {
+  static decrypt(
+    password: string,
+    iv: string,
+    salt: string,
+    ciphertext: string
+  ) {
     iv = forge.util.hexToBytes(iv);
     salt = forge.util.hexToBytes(salt);
 

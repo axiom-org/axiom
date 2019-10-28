@@ -5,7 +5,7 @@ import SimplePeer = require("simple-peer");
 
 // Optional dependencies.
 // TODO: solve this at compile-time rather than at runtime
-let OPTIONAL = {
+let OPTIONAL: { wrtc: any } = {
   wrtc: undefined
 };
 declare var global: any;
