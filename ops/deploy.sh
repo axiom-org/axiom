@@ -20,19 +20,15 @@ if (( "$1" < 0 )) || (( "$1" > 3 )); then
     exit 1
 fi
 
-CSERVER=cserver$1
-DEPLOYMENT=cserver$1-deployment
+DEPLOYMENT=hserver$1-deployment
 HSERVER=hserver$1
-KEYPAIR=keypair$1
 VOLUME=volume$1
 CLAIM=claim$1
 
 kubectl delete deployment $DEPLOYMENT > /dev/null 2>&1
 
 sed s/PROJECT_ID/$PROJECT_ID/g ./deployment.yaml \
-    | sed "s/cserverX/$CSERVER/g" \
     | sed "s/hserverX/$HSERVER/g" \
-    | sed "s/keypairX/$KEYPAIR/g" \
     | sed "s/claimX/$CLAIM/g" \
     | sed "s/volumeX/$VOLUME/g" \
     | sed "s/DEPLOY_TIME/`date`/" \
