@@ -12,16 +12,16 @@ spec:
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: cserverX-deployment
+  name: hserverX-deployment
 spec:
   selector:
     matchLabels:
-      app: cserverX
+      app: hserverX
   replicas: 1
   template:
     metadata:
       labels:
-        app: cserverX
+        app: hserverX
     spec:
       containers:
         
@@ -35,11 +35,8 @@ spec:
         ports:
         - containerPort: 3500
         volumeMounts:
-          - name: keypairX
-            mountPath: /secrets/keypair
-            readOnly: true
           - name: volumeX
-            mountPath: /hostfiles
+            mountPath: /storage
         env:
         - name: FORCE_REDEPLOY
           value: 'DEPLOY_TIME'
@@ -49,9 +46,7 @@ spec:
             port: 3500
             
       volumes:
-        - name: keypairX
-          secret:
-            secretName: keypairX
+
         - name: volumeX
           persistentVolumeClaim:
             claimName: claimX
