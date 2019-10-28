@@ -5,7 +5,7 @@
 import { fromByteArray, toByteArray } from "base64-js";
 
 import nacl from "tweetnacl";
-import forge from "node-forge";
+import { md } from "node-forge";
 import { TextEncoder } from "text-encoding-shim";
 import stringify = require("json-stable-stringify");
 
@@ -66,7 +66,7 @@ function forgeHash(bytes) {
   for (let i = 0; i < bytes.length; i++) {
     s += String.fromCharCode(bytes[i]);
   }
-  let hash = forge.md.sha512.sha256.create();
+  let hash = md.sha512.sha256.create();
   hash.update(s);
   return hash;
 }

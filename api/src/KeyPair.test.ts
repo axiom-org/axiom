@@ -1,16 +1,16 @@
-import forge from "node-forge";
+import { md } from "node-forge";
 
 import KeyPair from "./KeyPair";
 
 // Testing that our JavaScript libraries work like our Go libraries
 test("KeyPair crypto basics", () => {
-  let hash = forge.md.sha512.sha256.create();
+  let hash = md.sha512.sha256.create();
   let sum = hash.digest().getBytes();
   if (sum.charCodeAt(0) != 198) {
     throw new Error("first byte of hashed nothing should be 198");
   }
 
-  hash = forge.md.sha512.sha256.create();
+  hash = md.sha512.sha256.create();
   hash.update("qq", "utf-8");
   sum = hash.digest().getBytes();
   expect(sum.charCodeAt(0)).toBe(59);
@@ -20,7 +20,7 @@ test("KeyPair crypto basics", () => {
     String.fromCharCode(2) +
     String.fromCharCode(3) +
     String.fromCharCode(4);
-  hash = forge.md.sha512.sha256.create();
+  hash = md.sha512.sha256.create();
   hash.update(bytes);
   sum = hash.digest().getBytes();
   expect(sum.charCodeAt(0)).toBe(254);
