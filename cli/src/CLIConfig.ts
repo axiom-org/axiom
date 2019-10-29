@@ -8,7 +8,7 @@ import { isDirectory, isFile } from "./FileUtil";
 // An object that keeps itself synced to disk.
 // The serialized form may contain these fields:
 // keyPair: a plain-object keypair
-// network: which network to point to. either "local" or "alpha".
+// network: which network to point to. either "local" or "prod".
 export default class CLIConfig {
   data: {
     keyPair?: { private: string; public: string };
@@ -38,8 +38,8 @@ export default class CLIConfig {
 
   getNetwork() {
     if (!this.data.network) {
-      // Defaults to alpha.
-      return "alpha";
+      // Defaults to prod.
+      return "prod";
     }
 
     return this.data.network;

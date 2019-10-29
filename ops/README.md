@@ -163,7 +163,7 @@ the Google Cloud config (as opposed to Kubernetes). See: https://console.cloud.g
 
 This process should also allocate you a static ip. Now is a good time
 to set an A record for some domain to point to your
-static ip. That will give you a host name (like `0.alphatest.network`)
+static ip. That will give you a host name (like `0.axiombootstrap.com`)
 that you can share with other nodes.
 
 ### 6. Updating the server

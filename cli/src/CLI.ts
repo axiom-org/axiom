@@ -191,7 +191,7 @@ async function asyncMain() {
       fatal("Usage: axiom host");
     }
 
-    let axiom = new AxiomAPI({ network: "alpha", verbose: true });
+    let axiom = new AxiomAPI({ network: "prod", verbose: true });
     let node = axiom.createNode();
 
     let server = new PeerServer(node.keyPair, 3500, true);
