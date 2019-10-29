@@ -16,27 +16,9 @@ export {
   Channel,
   Database,
   KeyPair,
-  Node,
   Peer,
   Sequence,
   SignedMessage
 };
 
-export default class AxiomAPI {
-  network: string;
-  verbose: boolean;
-
-  constructor(options?: { network?: string; verbose?: boolean }) {
-    options = options || {};
-    this.network = options.network || "prod";
-
-    this.verbose = !!options.verbose;
-  }
-
-  createNode(): Node {
-    return new Node({
-      network: this.network,
-      verbose: this.verbose
-    });
-  }
-}
+export default Node;
