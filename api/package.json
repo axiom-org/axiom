@@ -1,6 +1,6 @@
 {
   "name": "axiom-api",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "API for interacting with the Axiom.org platform",
   "repository": {
     "type": "git",
