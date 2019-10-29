@@ -2,7 +2,7 @@ import * as http from "http";
 import * as WebSocket from "ws";
 const url = require("url");
 
-import { KeyPair, Node, Peer, Sequence } from "axiom-api";
+import Axiom, { KeyPair, Peer, Sequence } from "axiom-api";
 
 // A PeerServer listens for websockets and exchanges enough information over them
 // to construct a Peer connection.
@@ -11,7 +11,7 @@ export default class PeerServer {
   peerHandler: (p: Peer) => void;
   keyPair: KeyPair;
   port: number;
-  node: Node;
+  node: Axiom;
   cleanup: () => Promise<void>;
 
   constructor(keyPair: KeyPair, port: number, verbose: boolean) {
@@ -103,7 +103,7 @@ export default class PeerServer {
   }
 
   // Let peers connect to the provided node through this PeerServer.
-  connectNode(node: Node) {
+  connectNode(node: Axiom) {
     if (this.node) {
       throw new Error("can only connectNode once");
     }

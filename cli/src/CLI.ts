@@ -4,7 +4,7 @@ import * as readline from "readline";
 
 const yargs = require("yargs");
 
-import AxiomAPI, { KeyPair, Node } from "axiom-api";
+import Axiom, { KeyPair } from "axiom-api";
 import CLIConfig from "./CLIConfig";
 import PeerServer from "./PeerServer";
 
@@ -168,16 +168,15 @@ async function asyncMain() {
       fatal("Usage: axiom scan [channel]");
     }
     let channel = rest[0];
-    let axiom = new AxiomAPI({ verbose: ARGV.verbose });
-    let node = axiom.createNode();
+    let axiom = new Axiom({ verbose: ARGV.verbose });
     if (channel) {
       console.log("joining", channel);
-      node.join(channel);
+      axiom.join(channel);
     }
     while (true) {
       await sleep(1000);
-      console.log(node.statusLine());
-      let names = node.getChannelMembers(channel).map(x => x.slice(0, 6));
+      console.log(axiom.statusLine());
+      let names = axiom.getChannelMembers(channel).map(x => x.slice(0, 6));
       if (channel) {
         console.log(channel, "members:", names.join(","));
       }
@@ -191,12 +190,11 @@ async function asyncMain() {
       fatal("Usage: axiom host");
     }
 
-    let axiom = new AxiomAPI({ network: "prod", verbose: true });
-    let node = axiom.createNode();
+    let axiom = new Axiom({ network: "prod", verbose: true });
 
-    let server = new PeerServer(node.keyPair, 3500, true);
+    let server = new PeerServer(axiom.keyPair, 3500, true);
     console.log("hosting on port 3500");
-    server.connectNode(node);
+    server.connectNode(axiom);
     while (true) {
       await sleep(60000);
       // TODO: output data of some sort every minute?
