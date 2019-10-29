@@ -180,8 +180,6 @@ export default class Database {
       metadata: {
         timestamp: sm.message.timestamp,
         type: sm.message.type,
-        channel: sm.message.channel,
-        database: sm.message.database,
         signature: sm.signature
       }
     };
@@ -227,8 +225,8 @@ export default class Database {
     let [signer, name] = parts;
 
     let messageContent: any = {
-      channel: doc.metadata.channel,
-      database: doc.metadata.database,
+      channel: this.channel.name,
+      database: this.name,
       timestamp: doc.metadata.timestamp,
       name
     };
