@@ -14,9 +14,7 @@ import Message from "./Message";
 // node-forge is missing a typescript definition for sha512/256
 declare module "node-forge" {
   namespace md {
-    namespace sha512 {
-      namespace sha256 { function create(): md.MessageDigest; }
-    }
+    namespace sha512 { namespace sha256 { function create(): any; } }
   }
 }
 
