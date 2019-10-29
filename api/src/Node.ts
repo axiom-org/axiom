@@ -3,12 +3,15 @@ import IntervalTimer, { createIntervalTimer } from "./IntervalTimer";
 import KeyPair from "./KeyPair";
 import MemberSet from "./MemberSet";
 import Message from "./Message";
+import NetworkConfig from "./NetworkConfig";
 import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
 import Subscription from "./Subscription";
 import { isEmpty } from "./Util";
 
 // A Node represents a member of the Axiom peer-to-peer network.
+// Externally, this object is the entry point to the public-facing API, and
+// is typically just named "Axiom".
 // See the README in this directory for a description of message formats.
 export default class Node {
   verbose: boolean;
@@ -58,11 +61,26 @@ export default class Node {
   // An interval timer that gets called repeatedly while this node is alive
   timer: IntervalTimer;
 
-  constructor(keyPair: KeyPair | null, urls: string[], verbose: boolean) {
-    this.keyPair = keyPair || KeyPair.fromRandom();
+  // If bootstrap is provided, it overrides network.
+  constructor(options?: {
+    network?: string;
+    keyPair?: KeyPair;
+    bootstrap?: string[];
+    verbose?: boolean;
+  }) {
+    options = options || {};
+    this.keyPair = options.keyPair || KeyPair.fromRandom();
+
+    let bootstrap = options.bootstrap;
+
+    if (!bootstrap) {
+      let network = options.network || "prod";
+      let config = new NetworkConfig(network);
+      bootstrap = config.bootstrap;
+    }
 
     this.pendingByURL = {};
-    for (let url of urls) {
+    for (let url of bootstrap) {
       this.pendingByURL[url] = null;
     }
 
@@ -71,7 +89,7 @@ export default class Node {
     this.pendingByPublicKey = {};
 
     this.destroyed = false;
-    this.verbose = verbose;
+    this.verbose = !!options.verbose;
     this.peers = {};
     this.nextMessageCallbacks = [];
     this.everyMessageCallbacks = [];

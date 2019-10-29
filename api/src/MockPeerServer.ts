@@ -22,7 +22,7 @@ export default class MockPeerServer {
   static makeServers(bootstrap: string[]): MockPeerServer[] {
     let answer = [];
     for (let i = 0; i < bootstrap.length; i++) {
-      let node = new Node(KeyPair.fromRandom(), bootstrap, false);
+      let node = new Node({ bootstrap });
       answer.push(new MockPeerServer(node));
     }
     return answer;
