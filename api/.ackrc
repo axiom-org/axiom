@@ -1,5 +1,2 @@
 --ignore-dir=is:build
 --ignore-file=is:package-lock.json
---ignore-dir=is:dist
---ignore-dir=is:ext-local
---ignore-dir=is:ext-alpha

@@ -28,7 +28,7 @@ export default class AxiomAPI {
 
   constructor(options?: { network?: string; verbose?: boolean }) {
     options = options || {};
-    this.network = options.network || "alpha";
+    this.network = options.network || "prod";
 
     this.verbose = !!options.verbose;
   }
