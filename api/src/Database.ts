@@ -163,7 +163,11 @@ export default class Database {
     }
   }
 
-  // Convert a SignedMessage to a form storable in PouchDB
+  // Convert a SignedMessage to a form storable in PouchDB.
+  // Of the top-level fields, most of them are the user-generated data.
+  // There is also _id, which is the object id, aka
+  // "owner:objectName".
+  // There is also metadata, which we reserve the right to add junk to in the future.
   // TODO: Throw an error if the message is invalid
   signedMessageToDocument(sm: SignedMessage): any {
     if (sm.message.type !== "Delete" && !sm.message.data) {
