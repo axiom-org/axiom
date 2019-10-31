@@ -15,13 +15,20 @@ export class Rule {
 
   constructor(line: string) {
     let parts = line.trim().split(".");
-    if (parts.length < 0) {
+    if (parts.length <= 1) {
       throw new Error(`not enough parts in line: ${line.trim()}`);
     }
     let [channel, database, ...rest] = parts;
+    let regex = RegExp("^[0-9A-Za-z]+$");
+    if (!regex.test(database)) {
+      throw new Error(`bad database: ${database}`);
+    }
     this.accept = !channel.startsWith("!");
     if (!this.accept) {
-      channel = channel.slice(0);
+      channel = channel.slice(1);
+    }
+    if (!regex.test(channel)) {
+      throw new Error(`bad channel: ${channel}`);
     }
     this.channel = channel;
     this.database = database;
