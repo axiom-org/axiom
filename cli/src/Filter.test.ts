@@ -1,3 +1,5 @@
+import * as path from "path";
+
 import Filter, { Rule } from "./Filter";
 
 declare global {
@@ -38,4 +40,10 @@ test("Rule creation", () => {
   expect("!foo.bar.id=qux.zip").toRule();
   expect("foo.bar.owner=qux").toRule();
   expect("foo.bar.sup=qux").not.toRule();
+});
+
+test("Filter loading", () => {
+  let filename = path.join(__dirname, "../axboard.txt");
+  let filter = new Filter();
+  filter.loadFile(filename);
 });

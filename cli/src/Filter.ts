@@ -87,8 +87,10 @@ export default class Filter {
 
   numDatabases: number;
   numRules: number;
+  verbose: boolean;
 
-  constructor() {
+  constructor(verbose?: boolean) {
+    this.verbose = !!verbose;
     this.ruleMap = {};
     this.numDatabases = 0;
     this.numRules = 0;
@@ -124,16 +126,35 @@ export default class Filter {
       let rule = new Rule(line);
       this.addRule(rule);
     }
-    let frs = pluralize(this.numRules, "filter rule");
-    let dbs = pluralize(this.numDatabases, "database");
-    console.log(`loaded ${frs} across ${dbs}`);
+    if (this.verbose) {
+      let frs = pluralize(this.numRules, "filter rule");
+      let dbs = pluralize(this.numDatabases, "database");
+      console.log(`loaded ${frs} across ${dbs}`);
+    }
   }
 
-  run(database: Database, obj: AxiomObject): boolean {
-    // TODO
+  // Evalutes the most recently added rule matching this object.
+  // If there is no matching rule, return false.
+  accept(database: Database, obj: AxiomObject): boolean {
+    if (this.channel != database.channel.name) {
+      return false;
+    }
+    let rules = this.ruleMap[database.name];
+    if (!rules) {
+      return false;
+    }
+    for (let i = rules.length - 1; i >= 0; i--) {
+      let rule = rules[i];
+      if (rule.match(obj)) {
+        return rule.accept;
+      }
+    }
+    return false;
   }
 
-  async useOnDatabase(database: Database): Promise<void> {
-    // TODO
+  async activate(database: Database): Promise<void> {
+    database.useFilter((obj: AxiomObject) => {
+      return this.accept(database, obj);
+    });
   }
 }
