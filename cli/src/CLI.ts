@@ -57,6 +57,7 @@ async function host(
 ): Promise<never> {
   let axiom = new Axiom({ network: "prod", verbose });
   let server = new PeerServer(axiom.keyPair, 3500, verbose);
+  let dir = hostingDir || ".";
 
   console.log("hosting on port 3500");
   server.connectNode(axiom);
@@ -68,7 +69,8 @@ async function host(
     if (!filter.channel) {
       throw new Error(`found no channel in ${filterFile}`);
     }
-    let channel = axiom.channel(filter.channel);
+    let prefix = path.resolve(dir, filter.channel + "_");
+    let channel = axiom.channel(filter.channel, prefix);
     for (let dbname in filter.ruleMap) {
       console.log(`hosting ${channel.name}.${dbname}`);
       let database = channel.database(dbname);
