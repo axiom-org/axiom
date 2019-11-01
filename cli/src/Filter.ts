@@ -1,5 +1,7 @@
 import * as fs from "fs";
 
+import { AxiomObject } from "axiom-api";
+
 // A Filter is a list of rules.
 // It specifies a way to decide on keeping some AxiomObjects and discarding some.
 // A line of the filter looks like:
@@ -49,6 +51,26 @@ export class Rule {
       throw new Error(`unexpected key: ${key}`);
     }
     this.value = valueParts.join("=");
+  }
+
+  // Whether this rule matches this object.
+  // You still have to check `accept` to see if it's a positive or negative match.
+  match(obj: AxiomObject): boolean {
+    if (
+      obj.database.name != this.database ||
+      obj.database.channel.name != this.channel
+    ) {
+      return false;
+    }
+
+    switch (this.key) {
+      case undefined:
+        return true;
+      case "id":
+        return obj.id == this.value;
+      case "owner":
+        return obj.owner == this.value;
+    }
   }
 }
 
