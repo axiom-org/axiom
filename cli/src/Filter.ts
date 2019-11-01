@@ -1,3 +1,5 @@
+import * as fs from "fs";
+
 // A Filter is a list of rules.
 // It specifies a way to decide on keeping some AxiomObjects and discarding some.
 // A line of the filter looks like:
@@ -50,15 +52,51 @@ export class Rule {
   }
 }
 
+function pluralize(num: number, phrase: string) {
+  return `${num} ${phrase}${num == 1 ? "" : "s"}`;
+}
+
 export default class Filter {
   // ruleMap is keyed by channel.database
   ruleMap: { [ruleID: string]: Rule[] };
 
+  numDatabases: number;
+  numRules: number;
+
   constructor() {
     this.ruleMap = {};
+    this.numDatabases = 0;
+    this.numRules = 0;
+  }
+
+  addRule(rule: Rule) {
+    let key = `${rule.channel}.${rule.database}`;
+    if (!this.ruleMap[key]) {
+      this.numDatabases++;
+      this.ruleMap[key] = [];
+    }
+    this.ruleMap[key].push(rule);
+    this.numRules++;
   }
 
   loadFile(filename: string) {
-    // TODO
+    let data = fs.readFileSync(filename, "utf8");
+    let lines = data.split("\n");
+    for (let rawLine of lines) {
+      let line = rawLine.trim();
+      if (line.startsWith("#")) {
+        // Skip comments
+        continue;
+      }
+      if (line.length == 0) {
+        // Skip blank lines
+        continue;
+      }
+      let rule = new Rule(line);
+      this.addRule(rule);
+    }
+    let frs = pluralize(this.numRules, "filter rule");
+    let dbs = pluralize(this.numDatabases, "database");
+    console.log(`loaded ${frs} across ${dbs}`);
   }
 }
