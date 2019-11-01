@@ -43,7 +43,7 @@ test("Rule creation", () => {
 });
 
 test("Filter loading", () => {
-  let filename = path.join(__dirname, "../axboard.txt");
+  let filename = path.join(__dirname, "../../ops/axboard.txt");
   let filter = new Filter();
   filter.loadFile(filename);
 });
