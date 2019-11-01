@@ -4,6 +4,7 @@ import * as readline from "readline";
 import commander from "commander";
 
 import Axiom, { KeyPair } from "axiom-api";
+import Filter from "./Filter";
 import PeerServer from "./PeerServer";
 
 function sleep(ms: number) {
@@ -49,12 +50,27 @@ async function scan(channel?: string, verbose?: boolean): Promise<never> {
   }
 }
 
-async function host(verbose?: boolean): Promise<never> {
+async function host(filterFile?: string, verbose?: boolean): Promise<never> {
   let axiom = new Axiom({ network: "prod", verbose });
   let server = new PeerServer(axiom.keyPair, 3500, verbose);
 
   console.log("hosting on port 3500");
   server.connectNode(axiom);
+
+  if (filterFile) {
+    let filter = new Filter();
+    filter.loadFile(filterFile);
+    if (!filter.channel) {
+      throw new Error(`found no channel in ${filterFile}`);
+    }
+    let channel = axiom.channel(filter.channel);
+    for (let dbname in filter.ruleMap) {
+      console.log(`hosting ${channel}.${dbname}`);
+      let database = channel.database(dbname);
+      filter.activate(database);
+    }
+  }
+
   while (true) {
     await sleep(60000);
     // TODO: output data of some sort every minute?
@@ -84,8 +100,9 @@ export function main() {
   program
     .command("host")
     .description("host data on the p2p network")
-    .action(async () => {
-      await host(program.verbose);
+    .option("-f, --filter <file>", "the filter file to use for hosting")
+    .action(async (options: any) => {
+      await host(options.filter, program.verbose);
     });
 
   program.command("*").action(() => {
