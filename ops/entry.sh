@@ -4,4 +4,6 @@
 
 echo ------------------------------ entry.sh ------------------------------
 
-./node_modules/.bin/axiom host
+./node_modules/.bin/axiom host \
+			  --filter /axboard.txt \
+			  --storage /storage
