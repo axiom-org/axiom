@@ -1,0 +1,5 @@
+# A simple default filter configuration for axboard hosting.
+Axboard.Posts
+Axboard.Comments
+Axboard.Votes
+Axboard.Boards
