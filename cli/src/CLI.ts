@@ -50,7 +50,11 @@ async function scan(channel?: string, verbose?: boolean): Promise<never> {
   }
 }
 
-async function host(filterFile?: string, verbose?: boolean): Promise<never> {
+async function host(
+  filterFile?: string,
+  hostingDir?: string,
+  verbose?: boolean
+): Promise<never> {
   let axiom = new Axiom({ network: "prod", verbose });
   let server = new PeerServer(axiom.keyPair, 3500, verbose);
 
@@ -102,8 +106,12 @@ export function main() {
     .command("host")
     .description("host data on the p2p network")
     .option("-f, --filter <file>", "the filter file to use for hosting")
+    .option(
+      "-d, --directory <dir>",
+      "the directory to put hosting files in. defaults to the current directory"
+    )
     .action(async (options: any) => {
-      await host(options.filter, program.verbose);
+      await host(options.filter, options.directory, program.verbose);
     });
 
   program.command("*").action(() => {
