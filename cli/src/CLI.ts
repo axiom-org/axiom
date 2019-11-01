@@ -58,14 +58,15 @@ async function host(filterFile?: string, verbose?: boolean): Promise<never> {
   server.connectNode(axiom);
 
   if (filterFile) {
-    let filter = new Filter();
+    console.log("loading", filterFile);
+    let filter = new Filter(true);
     filter.loadFile(filterFile);
     if (!filter.channel) {
       throw new Error(`found no channel in ${filterFile}`);
     }
     let channel = axiom.channel(filter.channel);
     for (let dbname in filter.ruleMap) {
-      console.log(`hosting ${channel}.${dbname}`);
+      console.log(`hosting ${channel.name}.${dbname}`);
       let database = channel.database(dbname);
       filter.activate(database);
     }
