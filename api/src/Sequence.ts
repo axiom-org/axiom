@@ -24,6 +24,10 @@ export default class Sequence<T> {
     for (let item of this.items) {
       callback(item);
     }
+    if (!this.callbacks) {
+      // The sequence has been quasi-destroyed
+      return;
+    }
     this.callbacks.push(callback);
   }
 
