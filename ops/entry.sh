@@ -6,4 +6,5 @@ echo ------------------------------ entry.sh ------------------------------
 
 ./node_modules/.bin/axiom host \
 			  --filter /axboard.txt \
-			  --storage /storage
+			  --storage /storage \
+			  --verbose
