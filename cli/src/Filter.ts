@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-import { AxiomObject } from "axiom-api";
+import { AxiomObject, Database } from "axiom-api";
 
 // A Filter is a list of rules.
 // It specifies a way to decide on keeping some AxiomObjects and discarding some.
@@ -79,8 +79,11 @@ function pluralize(num: number, phrase: string) {
 }
 
 export default class Filter {
-  // ruleMap is keyed by channel.database
-  ruleMap: { [ruleID: string]: Rule[] };
+  // Currently filters can only handle one channel, but this could be extended
+  channel?: string;
+
+  // ruleMap is keyed by database
+  ruleMap: { [database: string]: Rule[] };
 
   numDatabases: number;
   numRules: number;
@@ -92,12 +95,16 @@ export default class Filter {
   }
 
   addRule(rule: Rule) {
-    let key = `${rule.channel}.${rule.database}`;
-    if (!this.ruleMap[key]) {
-      this.numDatabases++;
-      this.ruleMap[key] = [];
+    if (!this.channel) {
+      this.channel = rule.channel;
+    } else if (this.channel !== rule.channel) {
+      throw new Error("Filters currently do not support multiple channels");
     }
-    this.ruleMap[key].push(rule);
+    if (!this.ruleMap[rule.database]) {
+      this.numDatabases++;
+      this.ruleMap[rule.database] = [];
+    }
+    this.ruleMap[rule.database].push(rule);
     this.numRules++;
   }
 
@@ -120,5 +127,13 @@ export default class Filter {
     let frs = pluralize(this.numRules, "filter rule");
     let dbs = pluralize(this.numDatabases, "database");
     console.log(`loaded ${frs} across ${dbs}`);
+  }
+
+  run(database: Database, obj: AxiomObject): boolean {
+    // TODO
+  }
+
+  async useOnDatabase(database: Database): Promise<void> {
+    // TODO
   }
 }
