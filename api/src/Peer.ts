@@ -100,12 +100,12 @@ export default class Peer {
     });
 
     ws.onerror = event => {
-      peer.log(`websocket error: ${event.message}`);
+      // peer.log(`websocket error: ${event.message}`);
     };
 
     ws.onclose = event => {
       if (!peerConnected) {
-        peer.log(`${url} closed the socket before connecting`);
+        // peer.log(`${url} closed the socket before connecting`);
         peer.destroy();
       }
     };
@@ -229,7 +229,7 @@ export default class Peer {
   handleTick() {
     let ms = this.inactive();
     if (ms > 10000) {
-      this.log(`destroying inactive connection to ${this.humanID()}`);
+      // this.log(`destroying inactive connection to ${this.humanID()}`);
       this.destroy();
       return;
     }

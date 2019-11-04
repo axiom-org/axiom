@@ -610,12 +610,12 @@ export default class Node {
 
     if (this.pendingByPublicKey[peer.peerPublicKey] === peer) {
       delete this.pendingByPublicKey[peer.peerPublicKey];
-      this.log(`failed to connect to ${peer.peerPublicKey.slice(0, 6)}`);
+      // this.log(`failed to connect to ${peer.peerPublicKey.slice(0, 6)}`);
     }
 
     if (this.pendingByURL[peer.url] === peer) {
       this.pendingByURL[peer.url] = null;
-      this.log(`failed to connect to ${peer.url}`);
+      // this.log(`failed to connect to ${peer.url}`);
     }
   }
 

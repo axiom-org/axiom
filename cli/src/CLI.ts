@@ -79,8 +79,8 @@ async function host(
   }
 
   while (true) {
-    await sleep(60000);
-    // TODO: output data of some sort every minute?
+    await sleep(1000 * 60 * 10);
+    console.log(axiom.statusLine());
   }
 }
 
