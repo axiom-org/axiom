@@ -38,6 +38,7 @@ export default class Database {
   keyPair: KeyPair;
   db: any;
   filterer: (obj: AxiomObject) => boolean;
+  onLoad: (() => void)[] | null;
 
   callbacks: DatabaseCallback[];
 
@@ -57,6 +58,7 @@ export default class Database {
     }
     this.callbacks = [];
     this.filterer = null;
+    this.onLoad = [];
 
     this.load();
   }
@@ -144,6 +146,14 @@ export default class Database {
 
     if (this.node) {
       this.node.forwardToChannel(sm.message.channel, sm);
+    }
+
+    if (this.onLoad) {
+      let copy = this.onLoad;
+      this.onLoad = null;
+      for (let callback of copy) {
+        callback();
+      }
     }
   }
 
@@ -420,6 +430,11 @@ export default class Database {
   }
 
   async waitForLoad(): Promise<void> {
-    // TODO
+    if (!this.onLoad) {
+      return;
+    }
+    return new Promise((resolve, reject) => {
+      this.onLoad.push(resolve);
+    });
   }
 }
