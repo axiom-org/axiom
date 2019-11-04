@@ -41,6 +41,14 @@ export default class Database {
 
   callbacks: DatabaseCallback[];
 
+  // How many Dataset messages this database has received.
+  // Useful as a heuristic to guess whether we are done loading, for the UI.
+  datasets: number;
+
+  // A list of callbacks for when we are done with the initial load.
+  // Null if we already loaded.
+  onLoad: (() => void)[] | null;
+
   constructor(name: string, channel: Channel, node?: Node, prefix?: string) {
     this.name = name;
     this.channel = channel;
@@ -57,6 +65,8 @@ export default class Database {
     }
     this.callbacks = [];
     this.filterer = null;
+    this.datasets = 0;
+    this.onLoad = [];
 
     this.load();
   }
@@ -181,6 +191,14 @@ export default class Database {
         default:
           console.log("weird dataset message type:", nested.message.type);
           return;
+      }
+    }
+    this.datasets++;
+    if (this.onLoad && this.datasets >= 2) {
+      let copy = this.onLoad;
+      this.onLoad = null;
+      for (let callback of copy) {
+        callback();
       }
     }
   }
@@ -462,6 +480,12 @@ export default class Database {
   }
 
   async waitForLoad(): Promise<void> {
-    // TODO
+    if (!this.onLoad) {
+      return;
+    }
+
+    return new Promise((resolve, reject) => {
+      this.onLoad.push(resolve);
+    });
   }
 }
