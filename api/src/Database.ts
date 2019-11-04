@@ -312,7 +312,7 @@ export default class Database {
     return new AxiomObject(metadata, data);
   }
 
-  // If we have data, send back a Forward containing a lot of other messages
+  // If we have data, send back a Dataset containing a lot of other messages
   async handleQuery(peer: Peer, m: Message) {
     let messages = [];
     let sms = await this.allSignedMessages();
@@ -323,7 +323,9 @@ export default class Database {
       return;
     }
     peer.sendMessage(
-      new Message("Forward", {
+      new Message("Dataset", {
+        channel: this.channel.name,
+        database: this.name,
         messages
       })
     );
