@@ -136,7 +136,16 @@ export default class Database {
       newDocument._rev = oldDocument._rev;
     }
 
-    await this.db.put(newDocument);
+    try {
+      await this.db.put(newDocument);
+    } catch (e) {
+      if (e.status === 409) {
+        // Another write to this same object beat us to it.
+        // Just try again.
+        return await this.handleDatabaseWrite(sm);
+      }
+      throw e;
+    }
 
     for (let callback of this.callbacks) {
       callback(sm);
