@@ -38,7 +38,6 @@ export default class Database {
   keyPair: KeyPair;
   db: any;
   filterer: (obj: AxiomObject) => boolean;
-  onLoad: (() => void)[] | null;
 
   callbacks: DatabaseCallback[];
 
@@ -58,7 +57,6 @@ export default class Database {
     }
     this.callbacks = [];
     this.filterer = null;
-    this.onLoad = [];
 
     this.load();
   }
@@ -147,12 +145,33 @@ export default class Database {
     if (this.node) {
       this.node.forwardToChannel(sm.message.channel, sm);
     }
+  }
 
-    if (this.onLoad) {
-      let copy = this.onLoad;
-      this.onLoad = null;
-      for (let callback of copy) {
-        callback();
+  async handleDataset(sm: SignedMessage): Promise<void> {
+    for (let serialized of sm.message.messages) {
+      let nested;
+      try {
+        nested = SignedMessage.fromSerialized(serialized, true);
+      } catch (e) {
+        console.log("bad dataset:", e);
+        return;
+      }
+      if (
+        nested.message.channel != this.channel.name ||
+        nested.message.database != this.name
+      ) {
+        console.log("inconsistent dataset");
+        return;
+      }
+      switch (nested.message.type) {
+        case "Create":
+        case "Update":
+        case "Delete":
+          await this.handleDatabaseWrite(nested);
+          break;
+        default:
+          console.log("weird dataset message type:", nested.message.type);
+          return;
       }
     }
   }
@@ -166,6 +185,8 @@ export default class Database {
         return await this.handleDatabaseWrite(sm);
       case "Query":
         return await this.handleQuery(peer, sm.message);
+      case "Dataset":
+        return await this.handleDataset(sm);
       default:
         throw new Error(
           `Database cannot handleSignedMessage of type ${sm.message.type}`
@@ -430,11 +451,6 @@ export default class Database {
   }
 
   async waitForLoad(): Promise<void> {
-    if (!this.onLoad) {
-      return;
-    }
-    return new Promise((resolve, reject) => {
-      this.onLoad.push(resolve);
-    });
+    // TODO
   }
 }

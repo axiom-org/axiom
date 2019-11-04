@@ -105,3 +105,13 @@ Used to query for objects in a database channel.
 `database` is which database it applies to.
 
 We'll have to extend this later.
+
+## Dataset
+
+Used to return a set of messages in response to a query.
+
+`channel` is the channel it is published to.
+
+`database` is which database it applies to.
+
+`messages` is a list of strings that are serialized SignedMessages

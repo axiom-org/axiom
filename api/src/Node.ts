@@ -575,6 +575,7 @@ export default class Node {
       case "Update":
       case "Delete":
       case "Query":
+      case "Dataset":
         let channel = this.channels[sm.message.channel];
         if (channel) {
           await channel.handleSignedMessage(peer, sm);
