@@ -4,7 +4,8 @@
 
 echo ------------------------------ entry.sh ------------------------------
 
-./node_modules/.bin/axiom host \
-			  --filter /axboard.txt \
-			  --storage / \
-			  --verbose
+node --trace-warnings \
+     ./node_modules/.bin/axiom host \
+     --filter /axboard.txt \
+     --storage / \
+     --verbose
