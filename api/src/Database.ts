@@ -418,4 +418,8 @@ export default class Database {
       this.node.sendToChannel(this.channel.name, message);
     }
   }
+
+  async waitForLoad(): Promise<void> {
+    // TODO
+  }
 }
