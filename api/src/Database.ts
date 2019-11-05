@@ -100,7 +100,8 @@ export default class Database {
         answer.push(sm);
       } catch (e) {
         // There's something invalid in the database.
-        console.error("skipping invalid database record");
+        console.error("invalid database document:", row.doc);
+        console.error(e);
       }
     }
     return answer;
