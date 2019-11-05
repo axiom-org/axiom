@@ -91,6 +91,14 @@ export default class Database {
     await this.applyFilter(filterer);
   }
 
+  async statusLine(): Promise<string> {
+    let info = await this.db.info();
+    return (
+      `${this.name} db has ${info.doc_count} docs. ` +
+      `seq = ${info.update_seq}`
+    );
+  }
+
   async allSignedMessages(): Promise<SignedMessage[]> {
     let answer = [];
     let result = await this.db.allDocs({ include_docs: true });

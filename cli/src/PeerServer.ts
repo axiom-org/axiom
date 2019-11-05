@@ -27,7 +27,7 @@ export default class PeerServer {
     this.peerHandler = null;
     this.node = null;
 
-    let server = http.createServer((req, res) => {
+    let server = http.createServer(async (req, res) => {
       let parsed = url.parse(req.url, true);
       if (parsed.pathname === "/healthz") {
         res.write("OK\n");
@@ -36,7 +36,7 @@ export default class PeerServer {
       }
 
       if (parsed.pathname === "/statusz") {
-        let status = this.status();
+        let status = await this.status();
         for (let line of status) {
           res.write(line + "\n");
         }
@@ -89,9 +89,9 @@ export default class PeerServer {
     }
   }
 
-  status(): string[] {
+  async status(): Promise<string[]> {
     if (this.node) {
-      return this.node.statusLines();
+      return await this.node.statusLines();
     }
 
     return ["this.node == null"];

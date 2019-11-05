@@ -114,7 +114,7 @@ export default class Node {
   }
 
   // Returns one line of printable status
-  statusLine() {
+  statusLine(): string {
     let keys = this.peerKeys();
     let line = `connected to ${keys.length} peer${
       keys.length === 1 ? "" : "s"
@@ -126,11 +126,17 @@ export default class Node {
   }
 
   // Returns many lines of printable status
-  statusLines(): string[] {
+  async statusLines(): Promise<string[]> {
     let lines = [
       `public key: ${this.keyPair.getPublicKey()}`,
       this.statusLine()
     ];
+    for (let cname in this.channels) {
+      lines.push(`Channel ${cname}:`);
+      let channel = this.channels[cname];
+      let clines = await channel.statusLines();
+      lines = lines.concat(clines);
+    }
     for (let peer of this.getPeers()) {
       lines.push(`Peer ${peer.humanID()}:`);
       lines = lines.concat(peer.statusLines());
@@ -140,12 +146,6 @@ export default class Node {
       lines = lines.concat(peer.statusLines());
     }
     return lines;
-  }
-
-  show() {
-    for (let line of this.statusLines()) {
-      console.log(line);
-    }
   }
 
   handleTick() {

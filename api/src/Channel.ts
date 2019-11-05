@@ -51,6 +51,16 @@ export default class Channel {
     }
   }
 
+  async statusLines(): Promise<string[]> {
+    let lines = [];
+    for (let dbname in this.databases) {
+      let database = this.databases[dbname];
+      lines.push(await database.statusLine());
+    }
+    lines.sort();
+    return lines;
+  }
+
   // Returns undefined if we are not logged in
   async getKeyPair(): Promise<KeyPair | null> {
     return this.keyPair;
