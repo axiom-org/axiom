@@ -18,7 +18,7 @@
   "author": "Kevin Lacker",
   "license": "MIT",
   "dependencies": {
-    "axiom-api": "^0.1.9",
+    "axiom-api": "^0.1.11",
     "commander": "^3.0.2",
     "ws": "^7.2.0"
   },
