@@ -44,6 +44,10 @@ spec:
           httpGet:
             path: /healthz
             port: 3500
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 3500
             
       volumes:
 
