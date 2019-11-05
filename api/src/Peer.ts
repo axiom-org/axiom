@@ -82,14 +82,16 @@ export default class Peer {
 
     let incomingSignals = new Sequence<object>();
     ws.onmessage = event => {
+      let signal;
       try {
         // According to TypeScript, at least, there are a bunch of stringlike data
         // types we could receive here. In practice I have only seen strings.
-        let signal = JSON.parse(event.data.toString());
-        incomingSignals.push(signal);
+        signal = JSON.parse(event.data.toString());
       } catch (e) {
         console.log("websocket decoding error:", e);
+        return;
       }
+      incomingSignals.push(signal);
     };
     peer.connect(incomingSignals);
 
@@ -176,7 +178,9 @@ export default class Peer {
   }
 
   signal(s: object) {
-    this._peer.signal(s);
+    if (!this._peer.isDestroyed()) {
+      this._peer.signal(s);
+    }
   }
 
   log(...args: any[]) {

@@ -27,6 +27,7 @@ export default interface BasicPeer {
   send(data: any): void;
   destroy(): void;
   isConnected(): boolean;
+  isDestroyed(): boolean;
 }
 
 class WebRTCBasicPeer implements BasicPeer {
@@ -81,6 +82,10 @@ class WebRTCBasicPeer implements BasicPeer {
 
   destroy() {
     this._peer.destroy();
+  }
+
+  isDestroyed() {
+    return this._peer.destroyed;
   }
 
   isConnected(): boolean {
@@ -196,6 +201,10 @@ class MockBasicPeer implements BasicPeer {
     if (this.partner) {
       this.partner.destroy();
     }
+  }
+
+  isDestroyed() {
+    return this.destroyed;
   }
 
   isConnected(): boolean {

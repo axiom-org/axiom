@@ -55,12 +55,14 @@ export default class PeerServer {
 
       let incomingSignals = new Sequence<object>();
       ws.on("message", encoded => {
+        let signal;
         try {
-          let signal = JSON.parse(encoded.toString());
-          incomingSignals.push(signal);
+          signal = JSON.parse(encoded.toString());
         } catch (e) {
           console.log("websocket decoding error:", e);
+          return;
         }
+        incomingSignals.push(signal);
       });
       peer.connect(incomingSignals);
 
