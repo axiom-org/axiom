@@ -71,6 +71,10 @@ export default class Database {
     this.load();
   }
 
+  log(...args: any[]) {
+    this.node.log(...args);
+  }
+
   // Sets a filter to be applied to new objects.
   // A filter returns true for objects that are to be kept.
   setFilter(filterer: (obj: AxiomObject) => boolean): void {
@@ -204,6 +208,7 @@ export default class Database {
     }
     this.datasets++;
     if (this.onLoad && this.datasets >= 2) {
+      this.log(`${this.name} db loaded`);
       let copy = this.onLoad;
       this.onLoad = null;
       for (let callback of copy) {

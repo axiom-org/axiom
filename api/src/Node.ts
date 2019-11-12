@@ -61,6 +61,8 @@ export default class Node {
   // An interval timer that gets called repeatedly while this node is alive
   timer: IntervalTimer;
 
+  createdAt: Date;
+
   // If bootstrap is provided, it overrides network.
   constructor(options?: {
     network?: string;
@@ -97,19 +99,20 @@ export default class Node {
     this.joined = {};
     this.subscriptions = {};
     this.channels = {};
+    this.createdAt = new Date();
 
     this.timer = createIntervalTimer(() => {
       this.handleTick();
     }, 2000);
 
     this.bootstrap();
-
-    this.log(`creating node`);
   }
 
   log(...args: any[]) {
     if (this.verbose) {
-      console.log(`${this.keyPair.getPublicKey().slice(0, 6)}:`, ...args);
+      let ms = new Date().getTime() - this.createdAt.getTime();
+      let s = (ms / 1000).toFixed(3);
+      console.log(`${s}s:`, ...args);
     }
   }
 
@@ -256,8 +259,8 @@ export default class Node {
     return true;
   }
 
-  // Starts connecting to a new peer whose public key we know, via an intermediary that
-  // we're already connected to.
+  // Starts connecting to a new peer whose public key we know, via an
+  // intermediary that we're already connected to.
   // Does nothing if we already connected or started connecting.
   connectToPeer(
     publicKey: string,
@@ -437,7 +440,7 @@ export default class Node {
       }
       return;
     }
-    this.log("forward has no forward");
+    console.error("forward has no forward");
     return;
   }
 
@@ -446,7 +449,7 @@ export default class Node {
     try {
       nested = SignedMessage.fromSerialized(serialized, true);
     } catch (e) {
-      this.log("bad forward:", e);
+      console.error("bad forward:", e);
       return;
     }
 
@@ -466,7 +469,9 @@ export default class Node {
         }
         break;
       default:
-        this.log(`ignoring unusual forward of type ${nested.message.type}`);
+        console.error(
+          `ignoring unusual forward of type ${nested.message.type}`
+        );
     }
   }
 
