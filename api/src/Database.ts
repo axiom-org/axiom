@@ -484,6 +484,7 @@ export default class Database {
 
   // TODO: let this use queries somehow
   load() {
+    this.log(`loading ${this.name} db`);
     let message = new Message("Query", {
       channel: this.channel.name,
       database: this.name
