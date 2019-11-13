@@ -112,7 +112,10 @@ export default class Node {
     if (this.verbose) {
       let ms = new Date().getTime() - this.createdAt.getTime();
       let s = (ms / 1000).toFixed(3);
-      console.log(`${s}s:`, ...args);
+      if (s < 60) {
+        args = [`${s}s:`].concat(args);
+      }
+      console.log(...args);
     }
   }
 
