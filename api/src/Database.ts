@@ -118,15 +118,15 @@ export default class Database {
   }
 
   async allSignedMessages(): Promise<SignedMessage[]> {
+    let docs = await this.wrap(this.findDocs({ selector: {} }, true));
     let answer = [];
-    let result = await this.wrap(this.db.allDocs({ include_docs: true }));
-    for (let row of result.rows) {
+    for (let doc of docs) {
       try {
-        let sm = this.documentToSignedMessage(row.doc);
+        let sm = this.documentToSignedMessage(doc);
         answer.push(sm);
       } catch (e) {
         // There's something invalid in the database.
-        console.error("invalid database document:", row.doc);
+        console.error("invalid database document:", doc);
         console.error(e);
       }
     }
@@ -134,7 +134,6 @@ export default class Database {
   }
 
   // You don't have to await this.
-  // TODO: make this use queries or something smarter
   async onMessage(callback: DatabaseCallback) {
     let sms = await this.allSignedMessages();
     for (let sm of sms) {
@@ -369,10 +368,16 @@ export default class Database {
 
   // If we have data, send back a Dataset containing a lot of other messages
   async handleQuery(peer: Peer, m: Message) {
+    let selector = m.selector || {};
     let messages = [];
-    let sms = await this.allSignedMessages();
-    for (let sm of sms) {
-      messages.push(sm.serialize());
+    let docs = await this.findDocs({ selector }, false);
+    for (let doc of docs) {
+      try {
+        let sm = this.documentToSignedMessage(doc);
+        messages.push(sm.serialize());
+      } catch (e) {
+        // There's an invalid database message
+      }
     }
     if (messages.length === 0) {
       return;
@@ -483,24 +488,43 @@ export default class Database {
     await this.wrap(this.db.createIndex(blob));
   }
 
-  // Returns a list of AxiomObject
-  async find(query: Query): Promise<AxiomObject[]> {
+  // Returns a list of pouch documents
+  async findDocs(query: Query, includeDeleted: boolean): Promise<any[]> {
     let start = new Date();
     let response = await this.wrap(this.db.find(query));
     let answer = [];
     for (let doc of response.docs) {
-      if (doc.metadata.type === "Delete") {
+      if (!includeDeleted && doc.metadata.type === "Delete") {
         continue;
       }
-      answer.push(this.documentToObject(doc));
+      answer.push(doc);
     }
     let ms = new Date().getTime() - start.getTime();
     let s = (ms / 1000).toFixed(3);
-    this.log(`${this.name} handled query ${JSON.stringify(query)} in ${s}s`);
+    this.log(
+      `${this.name} handled query ${JSON.stringify(query.selector)} in ${s}s`
+    );
     return answer;
   }
 
-  // TODO: let this use queries somehow
+  // Returns a list of AxiomObject
+  async find(query: Query): Promise<AxiomObject[]> {
+    let docs = await this.findDocs(query, false);
+    let answer = [];
+    for (let doc of docs) {
+      try {
+        let obj = this.documentToObject(doc);
+        answer.push(obj);
+      } catch (e) {
+        // There's an invalid database message
+      }
+    }
+    return answer;
+  }
+
+  // TODO: let this use queries somehow.
+  // Note that this does nothing if we have not yet connected to other nodes
+  // in our channel.
   load() {
     this.log(`loading ${this.name} db`);
     let message = new Message("Query", {

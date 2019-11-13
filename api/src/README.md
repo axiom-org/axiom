@@ -104,6 +104,8 @@ Used to query for objects in a database channel.
 
 `database` is which database it applies to.
 
+`selector` is a CouchDB selector to use.
+
 We'll have to extend this later.
 
 ## Dataset
