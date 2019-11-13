@@ -40,16 +40,11 @@ export default class Channel {
     return await db.handleSignedMessage(peer, sm);
   }
 
-  // This function is called when we see a new peer in our channel
+  // This function is called when we see a new peer in our channel.
+  // It indicates that we should send over our data to sync.
   async handleNewPeer(peer: Peer) {
     for (let dbname in this.databases) {
-      // Pretend the peer asked us for all our data
-      let message = new Message("Query", {
-        channel: this.name,
-        database: dbname,
-        selector: {}
-      });
-      this.databases[dbname].handleQuery(peer, message);
+      this.databases[dbname].handleNewPeer(peer);
     }
   }
 

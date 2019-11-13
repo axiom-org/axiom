@@ -43,6 +43,9 @@ export default class Database {
 
   callbacks: DatabaseCallback[];
 
+  // A cached outgoing Dataset message.
+  dataset: Message | null;
+
   // How many Dataset messages this database has received.
   // Useful as a heuristic to guess whether we are done loading, for the UI.
   datasets: number;
@@ -69,6 +72,7 @@ export default class Database {
     this.filterer = null;
     this.datasets = 0;
     this.onLoad = [];
+    this.dataset = null;
 
     this.load();
   }
@@ -182,6 +186,7 @@ export default class Database {
       }
       throw e;
     }
+    this.dataset = null;
 
     for (let callback of this.callbacks) {
       callback(sm);
@@ -366,8 +371,25 @@ export default class Database {
     return new AxiomObject(metadata, data);
   }
 
-  // If we have data, send back a Dataset containing a lot of other messages
-  async handleQuery(peer: Peer, m: Message) {
+  async handleNewPeer(peer: Peer): Promise<void> {
+    if (this.onLoad) {
+      // We ourselves are just loading. We should focus on loading data now, and only
+      // start sharing data later.
+      return;
+    }
+    if (!this.dataset) {
+      let fakeQuery = new Message("Query", {
+        selector: {}
+      });
+      this.dataset = await this.responseForQuery(fakeQuery);
+    }
+
+    if (this.dataset) {
+      peer.sendMessage(this.dataset);
+    }
+  }
+
+  async responseForQuery(m: Message): Promise<Message | null> {
     let selector = m.selector || {};
     let messages = [];
     let docs = await this.findDocs({ selector }, false);
@@ -380,15 +402,21 @@ export default class Database {
       }
     }
     if (messages.length === 0) {
-      return;
+      return null;
     }
-    peer.sendMessage(
-      new Message("Dataset", {
-        channel: this.channel.name,
-        database: this.name,
-        messages
-      })
-    );
+    return new Message("Dataset", {
+      channel: this.channel.name,
+      database: this.name,
+      messages
+    });
+  }
+
+  // If we have data, send back a Dataset containing a lot of other messages
+  async handleQuery(peer: Peer, m: Message): Promise<void> {
+    let response = await this.responseForQuery(m);
+    if (response) {
+      peer.sendMessage(response);
+    }
   }
 
   // Assigns a random name to the object if none is provided.
