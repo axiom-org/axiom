@@ -220,7 +220,7 @@ export default class Database {
       }
     }
     this.datasets++;
-    if (this.onLoad && this.datasets >= 2) {
+    if (this.onLoad && this.datasets >= 1) {
       this.log(`${this.name} db loaded`);
       let copy = this.onLoad;
       this.onLoad = null;
