@@ -471,6 +471,7 @@ export default class Database {
 
   // Returns a list of AxiomObject
   async find(query: Query): Promise<AxiomObject[]> {
+    let start = new Date();
     let response = await this.db.find(query);
     let answer = [];
     for (let doc of response.docs) {
@@ -479,6 +480,9 @@ export default class Database {
       }
       answer.push(this.documentToObject(doc));
     }
+    let ms = new Date().getTime() - start.getTime();
+    let s = (ms / 1000).toFixed(3);
+    this.log(`${this.name} handled query ${JSON.stringify(query)} in ${s}s`);
     return answer;
   }
 
