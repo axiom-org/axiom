@@ -30,6 +30,8 @@ export default class PeerServer {
     let server = http.createServer(async (req, res) => {
       let parsed = url.parse(req.url, true);
       if (parsed.pathname === "/healthz") {
+        // If status doesn't complete, the server isn't healthy.
+        await this.status();
         res.write("OK\n");
         res.end();
         return;
