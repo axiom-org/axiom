@@ -111,9 +111,9 @@ export default class Node {
   log(...args: any[]) {
     if (this.verbose) {
       let ms = new Date().getTime() - this.createdAt.getTime();
-      let s = (ms / 1000).toFixed(3);
+      let s = ms / 1000;
       if (s < 60) {
-        args = [`${s}s:`].concat(args);
+        args = [`${s.toFixed(3)}s:`].concat(args);
       }
       console.log(...args);
     }
