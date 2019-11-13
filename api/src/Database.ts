@@ -72,7 +72,7 @@ export default class Database {
   }
 
   log(...args: any[]) {
-    this.node.log(...args);
+    this.node && this.node.log(...args);
   }
 
   // Sets a filter to be applied to new objects.
