@@ -26,6 +26,8 @@ interface Query {
 
 type DatabaseCallback = (sm: SignedMessage) => void;
 
+declare var process: any;
+
 // A Database represents a set of data that is being synced by a node in the Axiom
 // peer-to-peer network.
 export default class Database {
@@ -71,6 +73,18 @@ export default class Database {
     this.load();
   }
 
+  // Wraps database access, and exits on any error
+  // TODO: pipe through pouch types
+  async wrap<T>(p: Promise<T>): Promise<any> {
+    try {
+      return await p;
+    } catch (e) {
+      console.error("fatal database error:", e);
+    }
+    process && process.exit && process.exit(1);
+    throw new Error("cannot exit in the browser environment");
+  }
+
   log(...args: any[]) {
     this.node && this.node.log(...args);
   }
@@ -96,7 +110,7 @@ export default class Database {
   }
 
   async statusLine(): Promise<string> {
-    let info = await this.db.info();
+    let info = await this.wrap(this.db.info());
     return (
       `${this.name} db has ${info.doc_count} docs. ` +
       `seq = ${info.update_seq}`
@@ -105,7 +119,7 @@ export default class Database {
 
   async allSignedMessages(): Promise<SignedMessage[]> {
     let answer = [];
-    let result = await this.db.allDocs({ include_docs: true });
+    let result = await this.wrap(this.db.allDocs({ include_docs: true }));
     for (let row of result.rows) {
       try {
         let sm = this.documentToSignedMessage(row.doc);
@@ -439,7 +453,7 @@ export default class Database {
       return;
     }
     let objectKey = `${owner}:${name}`;
-    await this.db.remove(objectKey, doc._rev);
+    await this.wrap(this.db.remove(objectKey, doc._rev));
   }
 
   // Forgets the entire contents of this database.
@@ -466,13 +480,13 @@ export default class Database {
   }
 
   async createIndex(blob: any) {
-    await this.db.createIndex(blob);
+    await this.wrap(this.db.createIndex(blob));
   }
 
   // Returns a list of AxiomObject
   async find(query: Query): Promise<AxiomObject[]> {
     let start = new Date();
-    let response = await this.db.find(query);
+    let response = await this.wrap(this.db.find(query));
     let answer = [];
     for (let doc of response.docs) {
       if (doc.metadata.type === "Delete") {
