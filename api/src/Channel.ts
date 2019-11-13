@@ -43,11 +43,13 @@ export default class Channel {
   // This function is called when we see a new peer in our channel
   async handleNewPeer(peer: Peer) {
     for (let dbname in this.databases) {
+      // Pretend the peer asked us for all our data
       let message = new Message("Query", {
         channel: this.name,
-        database: dbname
+        database: dbname,
+        selector: {}
       });
-      peer.sendMessage(message);
+      this.databases[dbname].handleQuery(peer, message);
     }
   }
 

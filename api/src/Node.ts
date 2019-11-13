@@ -491,7 +491,7 @@ export default class Node {
       this.log(`saw ${sm.signer.slice(0, 6)} joined ${channel}`);
 
       if (peer && this.channels[channel]) {
-        // Send "loading" queries to this peer
+        // Send data to the new peer
         this.channels[channel].handleNewPeer(peer);
       }
     }
