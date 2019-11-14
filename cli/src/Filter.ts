@@ -6,7 +6,10 @@ import { AxiomObject, Database } from "axiom-api";
 // It specifies a way to decide on keeping some AxiomObjects and discarding some.
 // A line of the filter looks like:
 // <channel>.<database>.<key=value>
-// The only keys supported at the moment are id and owner.
+// The keys supported at the moment:
+//   owner
+//   id
+//   maxAge (measured in days)
 // Only channel and database are mandatory.
 // It can be prefixed with a ! to blacklist instead of whitelist.
 // Later rules take precedence over previous rules.
@@ -14,7 +17,7 @@ export class Rule {
   accept: boolean;
   channel: string;
   database: string;
-  key: "id" | "owner" | undefined;
+  key: "id" | "owner" | "maxAge" | undefined;
   value?: string;
 
   constructor(line: string) {
@@ -45,7 +48,7 @@ export class Rule {
       throw new Error(`expected key=value but got ${lastPart}`);
     }
     let [key, ...valueParts] = parts;
-    if (key == "id" || key == "owner") {
+    if (key == "id" || key == "owner" || key == "maxAge") {
       this.key = key;
     } else {
       throw new Error(`unexpected key: ${key}`);
@@ -70,6 +73,14 @@ export class Rule {
         return obj.id == this.value;
       case "owner":
         return obj.owner == this.value;
+      case "maxAge":
+        // Calculate the object's age
+        let ms = new Date().getTime() - obj.timestamp.getTime();
+        let seconds = ms / 1000;
+        let minutes = seconds / 60;
+        let hours = minutes / 60;
+        let days = hours / 24;
+        return days < parseFloat(this.value);
     }
   }
 }

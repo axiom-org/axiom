@@ -1,5 +1,5 @@
 # A simple default filter configuration for axboard hosting.
-Axboard.Posts
-Axboard.Comments
-Axboard.Votes
+Axboard.Posts.maxAge=7
+Axboard.Comments.maxAge=7
+Axboard.Votes.maxAge=7
 Axboard.Boards
