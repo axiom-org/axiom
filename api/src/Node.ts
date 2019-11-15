@@ -733,6 +733,10 @@ export default class Node {
     return this.channels[name];
   }
 
+  getChannel(name: string): Channel | null {
+    return this.channels[name] || null;
+  }
+
   destroy() {
     this.timer.clear();
     this.destroyed = true;

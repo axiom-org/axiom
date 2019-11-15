@@ -40,4 +40,9 @@ export default class AxiomObject {
   async forget() {
     await this.database.forget(this.owner, this.name);
   }
+
+  toString(): string {
+    let meta = `${this.id} at ${this.timestamp}`;
+    return `${meta} ${JSON.stringify(this.data, null, 2)}`;
+  }
 }

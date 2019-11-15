@@ -45,6 +45,32 @@ export default class PeerServer {
         res.end();
         return;
       }
+
+      if (parsed.pathname.startsWith("/dataz/")) {
+        if (!this.node) {
+          return;
+        }
+        let parts = parsed.pathname.split("/");
+        let cname = parts[parts.length - 2];
+        let channel = this.node.getChannel(cname);
+        if (!channel) {
+          return;
+        }
+        let dbname = parts[parts.length - 1];
+        let db = channel.getDatabase(dbname);
+        if (!db) {
+          return;
+        }
+        res.write(`${cname}_${dbname}\n`);
+        let objects = await db.find({ selector: {} });
+        res.write(`${objects.length} objects\n`);
+        for (let obj of objects) {
+          res.write(obj.toString());
+          res.write("\n");
+        }
+        res.end();
+        return;
+      }
     });
 
     let wss = new WebSocket.Server({ server: server });

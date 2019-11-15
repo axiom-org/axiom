@@ -67,6 +67,10 @@ export default class Channel {
     this.keyPair = kp;
   }
 
+  getDatabase(name: string): Database | null {
+    return this.databases[name] || null;
+  }
+
   database(name: string): Database {
     if (!this.databases[name]) {
       this.databases[name] = new Database(name, this, this.node, this.prefix);
