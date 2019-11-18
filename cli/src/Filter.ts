@@ -165,7 +165,8 @@ export default class Filter {
 
   async activate(database: Database): Promise<void> {
     database.useFilter((obj: AxiomObject) => {
-      return this.accept(database, obj);
+      let answer = this.accept(database, obj);
+      return answer;
     });
   }
 }
