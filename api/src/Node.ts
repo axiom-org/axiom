@@ -524,7 +524,9 @@ export default class Node {
     if (this.joined[channel]) {
       return;
     }
-    this.log(`joining channel ${channel}`);
+    this.log(
+      `joining channel ${channel} as ${this.keyPair.getPublicKey().slice(0, 6)}`
+    );
     this.joined[channel] = new Date();
     let message = new Message("Join", { channel: channel });
     let signed = SignedMessage.fromSigning(message, this.keyPair);

@@ -197,7 +197,7 @@ export default class Database {
     }
   }
 
-  async handleDataset(sm: SignedMessage): Promise<void> {
+  async handleDataset(peer: Peer, sm: SignedMessage): Promise<void> {
     for (let serialized of sm.message.messages) {
       let nested;
       try {
@@ -226,7 +226,7 @@ export default class Database {
     }
     this.datasets++;
     if (this.onLoad && this.datasets >= 1) {
-      this.log(`${this.name} db loaded`);
+      this.log(`${this.name} db loaded from ${peer.peerPublicKey.slice(0, 6)}`);
       let copy = this.onLoad;
       this.onLoad = null;
       for (let callback of copy) {
@@ -245,7 +245,7 @@ export default class Database {
       case "Query":
         return await this.handleQuery(peer, sm.message);
       case "Dataset":
-        return await this.handleDataset(sm);
+        return await this.handleDataset(peer, sm);
       default:
         throw new Error(
           `Database cannot handleSignedMessage of type ${sm.message.type}`
@@ -529,9 +529,11 @@ export default class Database {
     }
     let ms = new Date().getTime() - start.getTime();
     let s = (ms / 1000).toFixed(3);
-    this.log(
-      `${this.name} handled query ${JSON.stringify(query.selector)} in ${s}s`
-    );
+    if (s > 1) {
+      this.log(
+        `${this.name} handled query ${JSON.stringify(query.selector)} in ${s}s`
+      );
+    }
     return answer;
   }
 
