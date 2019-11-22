@@ -377,7 +377,10 @@ export default class Database {
       // start sharing data later.
       return;
     }
+    let start = new Date();
+    let cached = true;
     if (!this.dataset) {
+      cached = false;
       let fakeQuery = new Message("Query", {
         selector: {}
       });
@@ -387,6 +390,14 @@ export default class Database {
     if (this.dataset) {
       peer.sendMessage(this.dataset);
     }
+    let elapsed = (new Date().getTime() - start.getTime()) / 1000;
+    this.log(
+      `sent${cached ? " cached" : ""}`,
+      this.name,
+      "dataset to",
+      peer.peerPublicKey.slice(0, 6),
+      `in ${elapsed.toFixed(3)}s`
+    );
   }
 
   async responseForQuery(m: Message): Promise<Message | null> {
