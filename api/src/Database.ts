@@ -528,11 +528,10 @@ export default class Database {
       answer.push(doc);
     }
     let ms = new Date().getTime() - start.getTime();
-    let s = (ms / 1000).toFixed(3);
+    let s = ms / 1000;
     if (s > 1) {
-      this.log(
-        `${this.name} handled query ${JSON.stringify(query.selector)} in ${s}s`
-      );
+      let q = JSON.stringify(query.selector);
+      this.log(`${this.name} handled query ${q} in ${s.toFixed(3)}s`);
     }
     return answer;
   }
