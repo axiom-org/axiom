@@ -46,13 +46,9 @@ export default class Database {
   // A cached outgoing Dataset message.
   dataset: Message | null;
 
-  // How many Dataset messages this database has received.
-  // Useful as a heuristic to guess whether we are done loading, for the UI.
-  datasets: number;
-
   // A list of callbacks for when we are done with the initial load.
   // Null if we already loaded.
-  onLoad: (() => void)[] | null;
+  onLoad: ((sms: SignedMessage[]) => void)[] | null;
 
   constructor(name: string, channel: Channel, node?: Node, prefix?: string) {
     this.name = name;
@@ -70,7 +66,6 @@ export default class Database {
     }
     this.callbacks = [];
     this.filterer = null;
-    this.datasets = 0;
     this.onLoad = [];
     this.dataset = null;
 
@@ -198,6 +193,7 @@ export default class Database {
   }
 
   async handleDataset(peer: Peer, sm: SignedMessage): Promise<void> {
+    let messages = [];
     for (let serialized of sm.message.messages) {
       let nested;
       try {
@@ -217,21 +213,25 @@ export default class Database {
         case "Create":
         case "Update":
         case "Delete":
-          await this.handleDatabaseWrite(nested);
+          messages.push(nested);
           break;
         default:
           console.log("weird dataset message type:", nested.message.type);
           return;
       }
     }
-    this.datasets++;
-    if (this.onLoad && this.datasets >= 1) {
+
+    if (this.onLoad) {
       this.log(`${this.name} db loaded from ${peer.peerPublicKey.slice(0, 6)}`);
       let copy = this.onLoad;
       this.onLoad = null;
       for (let callback of copy) {
-        callback();
+        callback(messages);
       }
+    }
+
+    for (let sm of messages) {
+      await this.handleDatabaseWrite(sm);
     }
   }
 
@@ -245,7 +245,8 @@ export default class Database {
       case "Query":
         return await this.handleQuery(peer, sm.message);
       case "Dataset":
-        return await this.handleDataset(peer, sm);
+        let response = await this.handleDataset(peer, sm);
+        return response;
       default:
         throw new Error(
           `Database cannot handleSignedMessage of type ${sm.message.type}`
@@ -576,13 +577,26 @@ export default class Database {
     }
   }
 
-  async waitForLoad(): Promise<void> {
+  // TODO: ensure this doesn't return objects that don't match the query
+  async waitForLoad(query: Query): Promise<AxiomObject[]> {
     if (!this.onLoad) {
-      return;
+      return await this.find(query);
     }
 
-    return new Promise((resolve, reject) => {
+    let sms: SignedMessage[] = await new Promise((resolve, reject) => {
       this.onLoad.push(resolve);
     });
+    let answer = [];
+    for (let sm of sms) {
+      if (sm.message.type === "Delete") {
+        continue;
+      }
+      let obj = this.signedMessageToObject(sm);
+      if (this.filterer && !this.filterer(obj)) {
+        continue;
+      }
+      answer.push(obj);
+    }
+    return answer;
   }
 }
