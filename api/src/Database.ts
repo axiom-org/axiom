@@ -11,7 +11,7 @@ import Peer from "./Peer";
 import SignedMessage from "./SignedMessage";
 
 let CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
-let NAME_REGEX = RegExp("^[a-z0-9]+$");
+let NAME_REGEX = RegExp("^[a-zA-Z0-9]+$");
 function randomName(): string {
   let name = "";
   for (let i = 0; i < 10; i++) {
