@@ -1,6 +1,6 @@
 {
   "name": "axiom-cli",
-  "version": "0.1.19",
+  "version": "0.1.21",
   "description": "CLI for interacting with the Axiom p2p network",
   "repository": {
     "type": "git",

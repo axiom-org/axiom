@@ -471,6 +471,7 @@ export default class Database {
     });
     let sm = SignedMessage.fromSigning(message, kp);
     await this.handleDatabaseWrite(sm);
+    return this.signedMessageToObject(sm);
   }
 
   // Returns a pouch document, or null if there is none.
