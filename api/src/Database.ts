@@ -584,10 +584,18 @@ export default class Database {
       return await this.find(query);
     }
 
+    // Merge local objects with the first remote dataset
+    let p = this.find(query);
     let sms: SignedMessage[] = await new Promise((resolve, reject) => {
       this.onLoad.push(resolve);
     });
-    let answer = [];
+    let localObjects = await p;
+
+    let objects: { [id: string]: AxiomObject } = {};
+    for (let obj of localObjects) {
+      objects[obj.id] = obj;
+    }
+
     for (let sm of sms) {
       if (sm.message.type === "Delete") {
         continue;
@@ -596,8 +604,14 @@ export default class Database {
       if (this.filterer && !this.filterer(obj)) {
         continue;
       }
-      answer.push(obj);
+
+      let existing = objects[obj.id];
+      if (existing && existing.timestamp.getTime() > obj.timestamp.getTime()) {
+        continue;
+      }
+      objects[obj.id] = obj;
     }
-    return answer;
+
+    return Object.values(objects);
   }
 }
