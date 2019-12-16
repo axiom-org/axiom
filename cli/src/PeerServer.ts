@@ -4,6 +4,8 @@ const url = require("url");
 
 import Axiom, { KeyPair, Peer, Sequence } from "axiom-api";
 
+import { getVersion } from "./Util";
+
 // A PeerServer listens for websockets and exchanges enough information over them
 // to construct a Peer connection.
 export default class PeerServer {
@@ -40,7 +42,8 @@ export default class PeerServer {
       }
 
       if (parsed.pathname === "/statusz") {
-        res.write(`Running since ${this.startTime.toString()}\n`);
+        res.write(`started at ${this.startTime.toString()}\n`);
+        res.write(`axiom-cli version ${getVersion()}\n`);
         let status = await this.status();
         for (let line of status) {
           res.write(line + "\n");
