@@ -7,6 +7,7 @@ import Axiom, { KeyPair, Peer, Sequence } from "axiom-api";
 // A PeerServer listens for websockets and exchanges enough information over them
 // to construct a Peer connection.
 export default class PeerServer {
+  startTime: Date;
   verbose: boolean;
   peerHandler: (p: Peer) => void;
   keyPair: KeyPair;
@@ -22,6 +23,7 @@ export default class PeerServer {
     if (!port || port < 1) {
       throw new Error(`bad port: ${port}`);
     }
+    this.startTime = new Date();
     this.port = port;
     this.verbose = verbose;
     this.peerHandler = null;
@@ -38,6 +40,7 @@ export default class PeerServer {
       }
 
       if (parsed.pathname === "/statusz") {
+        res.write(`Running since ${this.startTime.toString()}\n`);
         let status = await this.status();
         for (let line of status) {
           res.write(line + "\n");
