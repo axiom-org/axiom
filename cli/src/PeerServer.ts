@@ -42,8 +42,6 @@ export default class PeerServer {
       }
 
       if (parsed.pathname === "/statusz") {
-        res.write(`started at ${this.startTime.toString()}\n`);
-        res.write(`axiom-cli version ${getVersion()}\n`);
         let status = await this.status();
         for (let line of status) {
           res.write(line + "\n");
@@ -124,11 +122,17 @@ export default class PeerServer {
   }
 
   async status(): Promise<string[]> {
-    if (this.node) {
-      return await this.node.statusLines();
-    }
+    let lines = [
+      `started at ${this.startTime.toString()}`,
+      `axiom-cli version ${getVersion()}`
+    ];
 
-    return ["this.node == null"];
+    if (this.node) {
+      lines = lines.concat(await this.node.statusLines());
+    } else {
+      lines = lines.push("this.node == null");
+    }
+    return lines;
   }
 
   onPeer(callback: (p: Peer) => void) {

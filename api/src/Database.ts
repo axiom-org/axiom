@@ -40,6 +40,7 @@ export default class Database {
   keyPair: KeyPair;
   db: any;
   filterer: (obj: AxiomObject) => boolean;
+  verbose: boolean;
 
   callbacks: DatabaseCallback[];
 
@@ -61,8 +62,10 @@ export default class Database {
     if (node) {
       this.node = node;
       this.keyPair = node.keyPair;
+      this.verbose = this.node.verbose;
     } else {
       this.keyPair = KeyPair.fromRandom();
+      this.verbose = false;
     }
     this.callbacks = [];
     this.filterer = null;
@@ -143,7 +146,7 @@ export default class Database {
 
   // Create/Update/Delete ops
   // If this message updates our database, it is forwarded on.
-  async handleDatabaseWrite(sm: SignedMessage): Promise<void> {
+  async handleDatabaseWrite(sm: SignedMessage, batch: boolean): Promise<void> {
     if (!sm.message.timestamp) {
       return;
     }
@@ -177,7 +180,7 @@ export default class Database {
       if (e.status === 409) {
         // Another write to this same object beat us to it.
         // Just try again.
-        return await this.handleDatabaseWrite(sm);
+        return await this.handleDatabaseWrite(sm, batch);
       }
       throw e;
     }
@@ -185,6 +188,15 @@ export default class Database {
 
     for (let callback of this.callbacks) {
       callback(sm);
+    }
+
+    if (this.verbose && !batch) {
+      let info = await this.wrap(this.db.info());
+      let count = info.doc_count;
+      this.log(
+        `${this.name} write: ${sm.message.type}`,
+        `id=${newDocument._id} doc_count=${count}`
+      );
     }
 
     if (this.node) {
@@ -231,7 +243,7 @@ export default class Database {
     }
 
     for (let sm of messages) {
-      await this.handleDatabaseWrite(sm);
+      await this.handleDatabaseWrite(sm, true);
     }
   }
 
@@ -241,7 +253,7 @@ export default class Database {
       case "Create":
       case "Update":
       case "Delete":
-        return await this.handleDatabaseWrite(sm);
+        return await this.handleDatabaseWrite(sm, false);
       case "Query":
         return await this.handleQuery(peer, sm.message);
       case "Dataset":
@@ -395,7 +407,9 @@ export default class Database {
     this.log(
       `sent${cached ? " cached" : ""}`,
       this.name,
-      "dataset to",
+      "dataset with",
+      this.dataset.messages.length,
+      "messages to",
       peer.peerPublicKey.slice(0, 6),
       `in ${elapsed.toFixed(3)}s`
     );
@@ -450,7 +464,7 @@ export default class Database {
       data
     });
     let sm = SignedMessage.fromSigning(message, kp);
-    await this.handleDatabaseWrite(sm);
+    await this.handleDatabaseWrite(sm, false);
     return this.signedMessageToObject(sm);
   }
 
@@ -470,7 +484,7 @@ export default class Database {
       data
     });
     let sm = SignedMessage.fromSigning(message, kp);
-    await this.handleDatabaseWrite(sm);
+    await this.handleDatabaseWrite(sm, false);
     return this.signedMessageToObject(sm);
   }
 
@@ -522,7 +536,7 @@ export default class Database {
       name: name
     });
     let sm = SignedMessage.fromSigning(message, kp);
-    await this.handleDatabaseWrite(sm);
+    await this.handleDatabaseWrite(sm, false);
   }
 
   async createIndex(blob: any) {
