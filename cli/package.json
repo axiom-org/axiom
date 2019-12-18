@@ -1,6 +1,6 @@
 {
   "name": "axiom-cli",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "CLI for interacting with the Axiom p2p network",
   "repository": {
     "type": "git",
@@ -18,7 +18,7 @@
   "author": "Kevin Lacker",
   "license": "MIT",
   "dependencies": {
-    "axiom-api": "file:../api",
+    "axiom-api": "^0.1.23",
     "commander": "^3.0.2",
     "ws": "^7.2.0"
   },
