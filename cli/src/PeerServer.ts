@@ -130,7 +130,7 @@ export default class PeerServer {
     if (this.node) {
       lines = lines.concat(await this.node.statusLines());
     } else {
-      lines = lines.push("this.node == null");
+      lines.push("this.node == null");
     }
     return lines;
   }

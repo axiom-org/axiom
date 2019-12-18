@@ -239,13 +239,16 @@ export default class Node {
 
   sendToChannel(channel: string, message: Message) {
     let members = this.getChannelMembers(channel);
+    let count = 0;
     for (let pk of members) {
       let peer = this.peers[pk];
       if (!peer) {
         continue;
       }
       peer.sendMessage(message);
+      count += 1;
     }
+    this.log(`sent ${message.type} to ${count} members of ${channel}`);
   }
 
   // Destroys the peer if it is redundant
