@@ -171,11 +171,11 @@ export default class Node {
       this.bootstrap();
     }
 
-    // Rejoin every 25 seconds
+    // Rejoin every 15 seconds
     let now = new Date();
     let channels = Object.keys(this.joined);
     for (let channel of channels) {
-      if (now.getTime() - this.joined[channel].getTime() > 25000) {
+      if (now.getTime() - this.joined[channel].getTime() > 15000) {
         this.join(channel);
       }
     }
@@ -237,18 +237,24 @@ export default class Node {
     return mset.getMembers();
   }
 
-  sendToChannel(channel: string, message: Message) {
+  getChannelPeers(channel: string): Peer[] {
     let members = this.getChannelMembers(channel);
-    let count = 0;
+    let answer = [];
     for (let pk of members) {
       let peer = this.peers[pk];
-      if (!peer) {
-        continue;
+      if (peer) {
+        answer.push(peer);
       }
-      peer.sendMessage(message);
-      count += 1;
     }
-    this.log(`sent ${message.type} to ${count} members of ${channel}`);
+    return answer;
+  }
+
+  sendToChannel(channel: string, message: Message) {
+    let peers = this.getChannelPeers(channel);
+    for (let peer of peers) {
+      peer.sendMessage(message);
+    }
+    this.log(`sent ${message.type} to ${peers.length} members of ${channel}`);
   }
 
   // Destroys the peer if it is redundant

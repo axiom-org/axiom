@@ -20,11 +20,12 @@ export default class MemberSet {
   handleTick() {
     let keys = Object.keys(this.members);
 
-    // Drop anything we haven't seen in a minute
+    // Drop anything we haven't gotten a Join from in the last hour
     let now = new Date();
+    let minute = 1000 * 60;
     for (let key of keys) {
       let info = this.members[key];
-      if (now.getTime() - info.lastSeen.getTime() > 60000) {
+      if (now.getTime() - info.lastSeen.getTime() > 60 * minute) {
         delete this.members[key];
       }
     }

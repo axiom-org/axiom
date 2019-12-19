@@ -71,8 +71,6 @@ export default class Database {
     this.filterer = null;
     this.onLoad = [];
     this.dataset = null;
-
-    this.load();
   }
 
   // Wraps database access, and exits on any error
@@ -578,9 +576,10 @@ export default class Database {
     return answer;
   }
 
-  // TODO: let this use queries somehow.
-  // Note that this does nothing if we have not yet connected to other nodes
-  // in our channel.
+  // TODO: use this logic.
+  // This is currently unused.
+  // We used to call this in the constructor. However, at that point we haven't connected to
+  // the channel yet, so the query can't be sent.
   load() {
     this.log(`loading ${this.name} db`);
     let message = new Message("Query", {
