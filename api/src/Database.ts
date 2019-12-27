@@ -398,9 +398,11 @@ export default class Database {
       this.dataset = await this.responseForQuery(fakeQuery);
     }
 
-    if (this.dataset) {
-      peer.sendMessage(this.dataset);
+    if (!this.dataset) {
+      return;
     }
+
+    peer.sendMessage(this.dataset);
     let elapsed = (new Date().getTime() - start.getTime()) / 1000;
     this.log(
       `sent${cached ? " cached" : ""}`,
